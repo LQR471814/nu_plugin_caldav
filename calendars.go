@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/ainvaltin/nu-plugin"
 	"github.com/ainvaltin/nu-plugin/syntaxshape"
@@ -43,23 +42,13 @@ func init() {
 }
 
 func calendarsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
-	client, err := getClientFromEnv()
+	client, err := getClientFromEnv(ctx, call)
 	if err != nil {
 		return
 	}
 
-	var homeset string
-	switch in := call.Input.(type) {
-	case nu.Value:
-		switch vt := in.Value.(type) {
-		case string:
-			homeset = vt
-		default:
-			err = fmt.Errorf("unsupported input type %T", call.Input)
-			return
-		}
-	default:
-		err = fmt.Errorf("unsupported input type %T", call.Input)
+	homeset, err := tryCast[string](call.Positional[0])
+	if err != nil {
 		return
 	}
 

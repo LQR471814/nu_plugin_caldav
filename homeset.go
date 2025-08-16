@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/ainvaltin/nu-plugin"
 	"github.com/ainvaltin/nu-plugin/syntaxshape"
@@ -37,25 +36,17 @@ func init() {
 }
 
 func homesetCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
-	client, err := getClientFromEnv()
+	client, err := getClientFromEnv(ctx, call)
 	if err != nil {
 		return
 	}
 
 	var principal string
-	switch in := call.Input.(type) {
-	case nil:
-	case nu.Value:
-		switch vt := in.Value.(type) {
-		case string:
-			principal = vt
-		default:
-			err = fmt.Errorf("unsupported input type %T", call.Input)
+	if len(call.Positional) > 0 {
+		principal, err = tryCast[string](call.Positional[0])
+		if err != nil {
 			return
 		}
-	default:
-		err = fmt.Errorf("unsupported input type %T", call.Input)
-		return
 	}
 
 	homeSet, err := client.FindCalendarHomeSet(ctx, principal)

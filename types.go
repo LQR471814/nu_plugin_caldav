@@ -8,17 +8,9 @@ import (
 	"time"
 
 	"github.com/ainvaltin/nu-plugin"
-	"github.com/ainvaltin/nu-plugin/types"
 	"github.com/emersion/go-webdav"
 	"github.com/emersion/go-webdav/caldav"
 )
-
-var serverType = types.Record(types.RecordDef{
-	"url":            types.String(),
-	"username":       types.String(),
-	"password":       types.String(),
-	"allow_insecure": types.Bool(),
-})
 
 func newClient(server, username, password string, insecure bool) (*caldav.Client, error) {
 	transport := &http.Transport{
@@ -56,16 +48,46 @@ func getClientFromEnv(ctx context.Context, call *nu.ExecCommand) (client *caldav
 		return
 	}
 
-	if urlVar.Value.(string) == "" {
-		err = fmt.Errorf("NU_PLUGIN_CALDAV_URL is not set.")
+	if urlVar == nil {
+		err = fmt.Errorf("NU_PLUGIN_CALDAV_URL is not set")
+		return
+	}
+	url, err := tryCast[string](*urlVar)
+	if err != nil {
+		return
+	}
+	if url == "" {
+		err = fmt.Errorf("NU_PLUGIN_CALDAV_URL is an empty string")
 		return
 	}
 
-	client, err = newClient(url, username, password, insecure)
+	var username string
+	if usernameVar != nil {
+		username, err = tryCast[string](*usernameVar)
+		if err != nil {
+			return
+		}
+	}
+	var password string
+	if passwordVar != nil {
+		password, err = tryCast[string](*passwordVar)
+		if err != nil {
+			return
+		}
+	}
+	var insecure string
+	if insecureVar != nil {
+		insecure, err = tryCast[string](*insecureVar)
+		if err != nil {
+			return
+		}
+	}
+
+	client, err = newClient(url, username, password, insecure == "1")
 	return
 }
 
-func tryCast[T any](val *nu.Value) (T, error) {
+func tryCast[T any](val nu.Value) (T, error) {
 	cast, ok := val.Value.(T)
 	if !ok {
 		var zero T

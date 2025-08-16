@@ -60,23 +60,13 @@ func init() {
 var max_time = time.Unix(1<<63-62135596801, 999999999)
 
 func eventsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
-	client, err := getClientFromEnv()
+	client, err := getClientFromEnv(ctx, call)
 	if err != nil {
 		return
 	}
 
-	var calendarPath string
-	switch in := call.Input.(type) {
-	case nu.Value:
-		switch vt := in.Value.(type) {
-		case string:
-			calendarPath = vt
-		default:
-			err = fmt.Errorf("unsupported input type %T", call.Input)
-			return
-		}
-	default:
-		err = fmt.Errorf("unsupported input type %T", call.Input)
+	calendarPath, err := tryCast[string](call.Positional[0])
+	if err != nil {
 		return
 	}
 
