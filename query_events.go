@@ -14,7 +14,8 @@ import (
 	"github.com/teambition/rrule-go"
 )
 
-var eventType = types.Table(types.RecordDef{
+var eventsType = types.Table(types.RecordDef{
+	"object_path":      types.String(),
 	"uid":              types.String(),
 	"name":             types.String(),
 	"location":         types.String(),
@@ -30,12 +31,12 @@ var eventType = types.Table(types.RecordDef{
 	}),
 })
 
-var eventsCmd = &nu.Command{
+var queryEventsCmd = &nu.Command{
 	Signature: nu.PluginSignature{
 		Name:        "caldav query events",
 		Category:    "Network",
 		Desc:        "Reads events for a given calendar from CalDAV.",
-		SearchTerms: []string{"caldav", "events"},
+		SearchTerms: []string{"caldav", "query", "events"},
 		RequiredPositional: []nu.PositionalArg{
 			{
 				Name:  "calendar_path",
@@ -46,20 +47,20 @@ var eventsCmd = &nu.Command{
 		InputOutputTypes: []nu.InOutTypes{
 			{
 				In:  types.Nothing(),
-				Out: eventType,
+				Out: eventsType,
 			},
 		},
 	},
-	OnRun: eventsCmdExec,
+	OnRun: queryEventsCmdExec,
 }
 
 func init() {
-	commands = append(commands, eventsCmd)
+	commands = append(commands, queryEventsCmd)
 }
 
 var max_time = time.Unix(1<<63-62135596801, 999999999)
 
-func eventsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
+func queryEventsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
 	client, err := getClientFromEnv(ctx, call)
 	if err != nil {
 		return
@@ -104,14 +105,15 @@ func eventsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
 	}
 
 	var events []map[string]any
-	for _, eobj := range res {
-		for _, e := range eobj.Data.Events() {
-			parsed, err := parseEvent(e)
+	for _, calobj := range res {
+		for _, ev := range calobj.Data.Events() {
+			parsed, err := parseEvent(ev)
 			if err != nil {
 				slog.Warn("skip corrupted event", "err", err)
 				continue
 			}
-			events = append(events, parsed.ToMap())
+			convert := parsed.ToMap()
+			events = append(events, convert)
 		}
 	}
 
@@ -119,7 +121,7 @@ func eventsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
 	return
 }
 
-type EventTrigger struct {
+type eventTrigger struct {
 	Relative time.Duration
 	Absolute time.Time
 	NotNone  bool
@@ -136,7 +138,7 @@ type caldavEvent struct {
 	RRule       *rrule.RRule
 	RDates      string
 	RId         time.Time
-	Trigger     EventTrigger
+	Trigger     eventTrigger
 }
 
 func (ce caldavEvent) ToMap() (out map[string]any) {

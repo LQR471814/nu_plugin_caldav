@@ -57,23 +57,6 @@ type Event = {
         absolute?: datetime
     }
 }
-
-type UpdatedEvent = {
-	uid: string
-	name?: string
-	location?: string
-	description?: string
-    categories?: string[]
-    start?: datetime
-    end?: datetime
-    recurrence_id?: datetime
-    recurrence_rule?: string
-    recurrence_exceptions?: datetime[]
-    trigger?: {
-        relative?: duration
-        absolute?: datetime
-    }
-}
 ```
 
 ## Limitations

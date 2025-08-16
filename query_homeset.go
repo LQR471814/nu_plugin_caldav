@@ -13,7 +13,7 @@ var homesetCmd = &nu.Command{
 		Name:        "caldav query homeset",
 		Category:    "Network",
 		Desc:        "Find a homeset ID from CalDAV (optionally given a principal username).",
-		SearchTerms: []string{"caldav", "homeset"},
+		SearchTerms: []string{"caldav", "query", "homeset"},
 		OptionalPositional: []nu.PositionalArg{
 			{
 				Name:  "principal",

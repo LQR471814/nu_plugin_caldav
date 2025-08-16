@@ -13,7 +13,7 @@ var calendarsCmd = &nu.Command{
 		Name:        "caldav query calendars",
 		Category:    "Network",
 		Desc:        "Reads calendars for a given homeset from CalDAV.",
-		SearchTerms: []string{"caldav", "calendars"},
+		SearchTerms: []string{"caldav", "query", "calendars"},
 		RequiredPositional: []nu.PositionalArg{
 			{
 				Name:  "homeset",
