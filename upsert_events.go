@@ -151,7 +151,17 @@ func upsertEventsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) 
 		return
 	}
 
-	res, err := client.PutCalendarObject(ctx, calendarPath)
+	res, err := fetchCalendarObjects(ctx, client, calendarPath)
+	if err != nil {
+		return
+	}
+	for _, calobj := range res {
+		cal := calobj.Data
+		for _, ev := range calobj.Data.Events() {
+		}
+	}
+
+	_, err = client.PutCalendarObject(ctx, calendarPath)
 	if err != nil {
 		return
 	}

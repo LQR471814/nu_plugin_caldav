@@ -60,17 +60,7 @@ func init() {
 
 var max_time = time.Unix(1<<63-62135596801, 999999999)
 
-func queryEventsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
-	client, err := getClientFromEnv(ctx, call)
-	if err != nil {
-		return
-	}
-
-	calendarPath, err := tryCast[string](call.Positional[0])
-	if err != nil {
-		return
-	}
-
+func fetchCalendarObjects(ctx context.Context, client *caldav.Client, calendarPath string) ([]caldav.CalendarObject, error) {
 	res, err := client.QueryCalendar(ctx, calendarPath, &caldav.CalendarQuery{
 		CompFilter: caldav.CompFilter{
 			Name: ical.CompCalendar,
@@ -100,6 +90,21 @@ func queryEventsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
 			}},
 		},
 	})
+	return res, err
+}
+
+func queryEventsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
+	client, err := getClientFromEnv(ctx, call)
+	if err != nil {
+		return
+	}
+
+	calendarPath, err := tryCast[string](call.Positional[0])
+	if err != nil {
+		return
+	}
+
+	res, err := fetchCalendarObjects(ctx, client, calendarPath)
 	if err != nil {
 		return
 	}
