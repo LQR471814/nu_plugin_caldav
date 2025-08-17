@@ -23,14 +23,8 @@ var calendarsCmd = &nu.Command{
 		},
 		InputOutputTypes: []nu.InOutTypes{
 			{
-				In: types.Nothing(),
-				Out: types.Table(types.RecordDef{
-					"path":                    types.String(),
-					"name":                    types.String(),
-					"description":             types.String(),
-					"max_resource_size":       types.Int(),
-					"supported_component_set": types.List(types.String()),
-				}),
+				In:  types.Nothing(),
+				Out: calendarType,
 			},
 		},
 	},

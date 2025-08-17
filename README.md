@@ -29,34 +29,88 @@ Server configuration is done through environment variables:
 
 ## Types
 
-```typescript
-// note: passing nothing to a field that does not have the `?`
-// annotation will cause the plugin to return an error.
+```go
+var calendarType = types.Table(types.RecordDef{
+	// path to the calendar
+	"path": types.String(),
+	// name of the calendar
+	"name": types.String(),
+	// description of the calendar
+	"description": types.String(),
+	// quota information
+	"max_resource_size": types.Int(),
+	// support information
+	"supported_component_set": types.List(types.String()),
+})
 
-type Calendar = {
-    path: string
-    name: string
-    description: string
-    max_resource_size: int
-    supported_component_set: string[]
-}
+var dateType = types.Record(types.RecordDef{
+	// datetime represents the underlying datetime information of the date &
+	// time
+	"datetime": types.Date(),
+	// if all_day is true, just the date should be considered and the time
+	// ignored
+	"all_day": types.Bool(),
+	// if floating is true, the timezone of the date is always at the local
+	// time of whoever is using the calendar and not "official" timezone should
+	// be given to it
+	"floating": types.Bool(),
+})
 
-type Event = {
-	uid: string
-	name: string
-	location: string
-	description: string
-    categories: string[]
-    start: datetime
-    end: datetime
-    recurrence_id?: datetime
-    recurrence_rule?: string
-    recurrence_exceptions?: datetime[]
-    trigger?: {
-        relative?: duration
-        absolute?: datetime
-    }
-}
+var eventsType = types.Table(types.RecordDef{
+	// universal id for the event, unique across calendars
+	"uid": types.String(),
+	// name of the event
+	"name": types.String(),
+	// location the event occurs at
+	"location": types.String(),
+	// description of the event (possibly multiline)
+	"description": types.String(),
+	// list of "tags" for the event
+	"categories": types.List(types.String()),
+	// event start
+	"start": dateType,
+	// event end
+	"end": dateType,
+	// recurrence_id (optional) designates the event as an override of another
+	// recurring event (if set, recurrence_set must not be set)
+	"recurrence_id": dateType,
+	// recurrence_set (optional) designates the event as the originator of a
+	// recurring event (if set, recurrence_id must not be set)
+	"recurrence_set": types.Record(types.RecordDef{
+		// recurrence rule (required)
+		"rule": types.String(),
+		// defines which recurrences should not occur (optional)
+		//
+		// note: the timezone of these dates can only be one of:
+		// 1. UTC
+		// 2. Floating time (no timezone)
+		// 3. A single other explicit time zone
+		//
+		// Ex.
+		// 	OK:
+		// 		(UTC, floating, UTC, America/Los_Angeles, America/Los_Angeles)
+		// 	BAD:
+		// 		(UTC, floating, UTC, Asia/Shanghai, America/Los_Angeles)
+		// 	There can only be one other explicit time zone outside of UTC.
+		"exceptions": types.List(dateType),
+		// defines which additional dates recurrences should occur (optional)
+        //
+		// note: all recurrences' timezone will be:
+		// 1. UTC
+		// 2. Floating time (no timezone)
+		// 3. Specific time zone
+		"dates": types.List(dateType),
+	}),
+	// trigger (optional) defines a notification trigger for the event
+	"trigger": types.Record(types.RecordDef{
+		// if set, notification will be triggered this duration before the
+		// event (if set absolute should not be set)
+		"relative": types.Duration(),
+		// if set, notification will be triggered at a given absolute time (if
+		// set, relative should not be set)
+		"absolute": dateType,
+	}),
+})
 ```
 
 ## Limitations
