@@ -8,7 +8,7 @@ import (
 	"github.com/teambition/rrule-go"
 )
 
-var max_time = time.Unix(1<<63-62135596801, 999999999)
+var max_time = time.Date(2100, time.January, 1, 0, 0, 0, 0, time.UTC)
 
 var dateType = types.Record(types.RecordDef{
 	// date represents the underlying datetime information of the
@@ -52,12 +52,12 @@ func (d *Datetime) FromValue(v nu.Value) (err error) {
 	return
 }
 
-func (d Datetime) ToValue() (out nu.Value) {
-	return nu.ToValue(map[string]nu.Value{
-		"date":     nu.ToValue(d.Stamp),
-		"all_day":  nu.ToValue(d.AllDay),
-		"floating": nu.ToValue(d.Floating),
-	})
+func (d Datetime) ToRecord() (out map[string]any) {
+	return map[string]any{
+		"date":     d.Stamp,
+		"all_day":  d.AllDay,
+		"floating": d.Floating,
+	}
 }
 
 var eventsType = types.Table(types.RecordDef{
@@ -116,53 +116,53 @@ var eventsType = types.Table(types.RecordDef{
 	}),
 })
 
-func (ce caldavEvent) ToValue() (out nu.Value) {
-	rec := nu.Record{
-		"uid":         nu.ToValue(ce.Uid),
-		"name":        nu.ToValue(ce.Name),
-		"location":    nu.ToValue(ce.Location),
-		"description": nu.ToValue(ce.Description),
-		"categories":  nu.ToValue(ce.Categories),
-		"start":       nu.ToValue(ce.Start),
-		"end":         nu.ToValue(ce.End),
+func (ce caldavEvent) ToRecord() (out map[string]any) {
+	rec := map[string]any{
+		"uid":         ce.Uid,
+		"name":        ce.Name,
+		"location":    ce.Location,
+		"description": ce.Description,
+		"categories":  ce.Categories,
+		"start":       ce.Start,
+		"end":         ce.End,
 	}
 
-	rec["recurrence_set"] = nu.ToValue(nil)
+	rec["recurrence_set"] = nil
 	if ce.RecurrenceSet != nil {
-		set := make(nu.Record)
-		set["rule"] = nu.ToValue(ce.RecurrenceSet.Rule.String())
+		set := make(map[string]any)
+		set["rule"] = ce.RecurrenceSet.Rule.String()
 
-		exdates := make([]nu.Value, len(ce.RecurrenceSet.ExDates))
+		exdates := make([]map[string]any, len(ce.RecurrenceSet.ExDates))
 		for i, d := range ce.RecurrenceSet.ExDates {
-			exdates[i] = d.ToValue()
+			exdates[i] = d.ToRecord()
 		}
-		set["exceptions"] = nu.ToValue(exdates)
+		set["exceptions"] = exdates
 
-		rdates := make([]nu.Value, len(ce.RecurrenceSet.RDates))
+		rdates := make([]map[string]any, len(ce.RecurrenceSet.RDates))
 		for i, d := range ce.RecurrenceSet.RDates {
-			rdates[i] = d.ToValue()
+			rdates[i] = d.ToRecord()
 		}
-		set["additional"] = nu.ToValue(rdates)
+		set["additional"] = rdates
 
-		rec["recurrence_set"] = nu.ToValue(set)
+		rec["recurrence_set"] = set
 	}
 
-	rec["recurrence_id"] = nu.ToValue(nil)
+	rec["recurrence_id"] = nil
 	if ce.RecurrenceId != nil {
-		rec["recurrence_id"] = nu.ToValue(*ce.RecurrenceId)
+		rec["recurrence_id"] = *ce.RecurrenceId
 	}
 
-	rec["trigger"] = nu.ToValue(nil)
+	rec["trigger"] = nil
 	if ce.Trigger != nil {
-		trig := nu.Record{}
-		trig["relative"] = nu.ToValue(nil)
-		trig["absolute"] = nu.ToValue(nil)
+		trig := make(map[string]any)
+		trig["relative"] = nil
+		trig["absolute"] = nil
 		if ce.Trigger.Relative != nil {
-			trig["relative"] = nu.ToValue(*ce.Trigger.Relative)
+			trig["relative"] = *ce.Trigger.Relative
 		} else {
-			trig["absolute"] = (*ce.Trigger.Absolute).ToValue()
+			trig["absolute"] = (*ce.Trigger.Absolute).ToRecord()
 		}
-		rec["trigger"] = nu.ToValue(trig)
+		rec["trigger"] = trig
 	}
 	return
 }
@@ -312,4 +312,3 @@ var calendarType = types.Table(types.RecordDef{
 	// support information
 	"supported_component_set": types.List(types.String()),
 })
-

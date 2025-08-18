@@ -3,7 +3,7 @@ module nu_plugin_caldav
 go 1.24.3
 
 require (
-	github.com/ainvaltin/nu-plugin v0.0.0-20250726091949-d237018ffe59
+	github.com/ainvaltin/nu-plugin v0.0.0-20250607114725-c78905a09bc7
 	github.com/emersion/go-webdav v0.6.0
 )
 
