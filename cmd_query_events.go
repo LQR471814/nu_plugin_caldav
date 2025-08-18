@@ -88,7 +88,7 @@ func queryEventsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
 		return
 	}
 
-	var events []any
+	var events []nu.Value
 	for _, calobj := range res {
 		for _, ev := range calobj.Data.Events() {
 			parsed, err := parseEvent(ev)
@@ -96,10 +96,11 @@ func queryEventsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
 				slog.Warn("skip corrupted event", "err", err)
 				continue
 			}
-			events = append(events, parsed.ToRecord())
+			events = append(events, parsed.ToValue())
 		}
 	}
 
 	err = call.ReturnValue(ctx, nu.ToValue(events))
 	return
 }
+

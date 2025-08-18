@@ -51,15 +51,15 @@ func calendarsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
 		return
 	}
 
-	values := make([]map[string]any, len(calendars))
+	values := make([]nu.Value, len(calendars))
 	for i, cal := range calendars {
-		values[i] = map[string]any{
-			"path":                    cal.Path,
-			"name":                    cal.Name,
-			"description":             cal.Description,
-			"max_resource_size":       cal.MaxResourceSize,
-			"supported_component_set": cal.SupportedComponentSet,
-		}
+		values[i] = nu.ToValue(nu.Record{
+			"path":                    nu.ToValue(cal.Path),
+			"name":                    nu.ToValue(cal.Name),
+			"description":             nu.ToValue(cal.Description),
+			"max_resource_size":       nu.ToValue(cal.MaxResourceSize),
+			"supported_component_set": nu.ToValue(cal.SupportedComponentSet),
+		})
 	}
 
 	err = call.ReturnValue(ctx, nu.ToValue(values))

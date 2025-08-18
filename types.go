@@ -52,12 +52,12 @@ func (d *Datetime) FromValue(v nu.Value) (err error) {
 	return
 }
 
-func (d Datetime) ToRecord() (out map[string]any) {
-	return map[string]any{
-		"date":     d.Stamp,
-		"all_day":  d.AllDay,
-		"floating": d.Floating,
-	}
+func (d Datetime) ToValue() (out nu.Value) {
+	return nu.ToValue(nu.Record{
+		"date":     nu.ToValue(d.Stamp),
+		"all_day":  nu.ToValue(d.AllDay),
+		"floating": nu.ToValue(d.Floating),
+	})
 }
 
 var eventsType = types.Table(types.RecordDef{
@@ -116,54 +116,56 @@ var eventsType = types.Table(types.RecordDef{
 	}),
 })
 
-func (ce caldavEvent) ToRecord() (out map[string]any) {
-	rec := map[string]any{
-		"uid":         ce.Uid,
-		"name":        ce.Name,
-		"location":    ce.Location,
-		"description": ce.Description,
-		"categories":  ce.Categories,
-		"start":       ce.Start,
-		"end":         ce.End,
+func (ce caldavEvent) ToValue() (out nu.Value) {
+	rec := nu.Record{
+		"uid":         nu.ToValue(ce.Uid),
+		"name":        nu.ToValue(ce.Name),
+		"location":    nu.ToValue(ce.Location),
+		"description": nu.ToValue(ce.Description),
+		"categories":  nu.ToValue(ce.Categories),
+		"start":       nu.ToValue(ce.Start.ToValue()),
+		"end":         nu.ToValue(ce.End.ToValue()),
 	}
 
-	rec["recurrence_set"] = nil
+	rec["recurrence_set"] = nu.ToValue(nil)
 	if ce.RecurrenceSet != nil {
-		set := make(map[string]any)
-		set["rule"] = ce.RecurrenceSet.Rule.String()
+		set := make(nu.Record)
+		set["rule"] = nu.ToValue(ce.RecurrenceSet.Rule.String())
 
-		exdates := make([]map[string]any, len(ce.RecurrenceSet.ExDates))
+		exdates := make([]nu.Value, len(ce.RecurrenceSet.ExDates))
 		for i, d := range ce.RecurrenceSet.ExDates {
-			exdates[i] = d.ToRecord()
+			exdates[i] = d.ToValue()
 		}
-		set["exceptions"] = exdates
+		set["exceptions"] = nu.ToValue(exdates)
 
-		rdates := make([]map[string]any, len(ce.RecurrenceSet.RDates))
+		rdates := make([]nu.Value, len(ce.RecurrenceSet.RDates))
 		for i, d := range ce.RecurrenceSet.RDates {
-			rdates[i] = d.ToRecord()
+			rdates[i] = d.ToValue()
 		}
-		set["additional"] = rdates
+		set["additional"] = nu.ToValue(rdates)
 
-		rec["recurrence_set"] = set
+		rec["recurrence_set"] = nu.ToValue(set)
 	}
 
-	rec["recurrence_id"] = nil
+	rec["recurrence_id"] = nu.ToValue(nil)
 	if ce.RecurrenceId != nil {
-		rec["recurrence_id"] = *ce.RecurrenceId
+		rec["recurrence_id"] = nu.ToValue(*ce.RecurrenceId)
 	}
 
-	rec["trigger"] = nil
+	rec["trigger"] = nu.ToValue(nil)
 	if ce.Trigger != nil {
-		trig := make(map[string]any)
-		trig["relative"] = nil
-		trig["absolute"] = nil
+		trig := make(nu.Record)
+		trig["relative"] = nu.ToValue(nil)
+		trig["absolute"] = nu.ToValue(nil)
 		if ce.Trigger.Relative != nil {
-			trig["relative"] = *ce.Trigger.Relative
+			trig["relative"] = nu.ToValue(*ce.Trigger.Relative)
 		} else {
-			trig["absolute"] = (*ce.Trigger.Absolute).ToRecord()
+			trig["absolute"] = (*ce.Trigger.Absolute).ToValue()
 		}
-		rec["trigger"] = trig
+		rec["trigger"] = nu.ToValue(trig)
 	}
+
+	out = nu.ToValue(rec)
 	return
 }
 
@@ -312,3 +314,4 @@ var calendarType = types.Table(types.RecordDef{
 	// support information
 	"supported_component_set": types.List(types.String()),
 })
+
