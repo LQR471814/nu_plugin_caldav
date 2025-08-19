@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/emersion/go-ical"
@@ -67,10 +68,6 @@ func parseEvent(e ical.Event) (event caldavEvent, err error) {
 
 	if event.Uid == "" {
 		err = fmt.Errorf("uid is nil")
-		return
-	}
-	if event.Name == "" {
-		err = fmt.Errorf("name is nil")
 		return
 	}
 
@@ -195,7 +192,7 @@ func (out *caldavEvent) parseRecurrence(e ical.Event, start time.Time) (err erro
 	exdateProp := e.Props.Get(ical.PropExceptionDates)
 	if exdateProp != nil {
 		var dates []Datetime
-		dates, err = getPropDateList(rdateProp)
+		dates, err = getPropDateList(exdateProp)
 		if err != nil {
 			return
 		}
@@ -309,7 +306,6 @@ func setPropDate(prop *ical.Prop, date Datetime) {
 		setTzidParam(prop, date.Stamp.Location())
 	}
 	prop.SetText(serializeDateText(date))
-	return
 }
 
 func setPropDateList(prop *ical.Prop, dates []Datetime) {
@@ -326,11 +322,20 @@ func setPropDateList(prop *ical.Prop, dates []Datetime) {
 		setTzidParam(prop, specifytz)
 	}
 
+	allday := true
 	datestr := make([]string, len(dates))
 	for i, d := range dates {
+		if !d.AllDay {
+			allday = false
+		}
 		datestr[i] = serializeDateText(d)
 	}
-	prop.SetTextList(datestr)
+	if allday {
+		prop.Params.Set(ical.ParamValue, "DATE")
+	} else {
+		prop.Params.Set(ical.ParamValue, "DATE-TIME")
+	}
+	prop.Value = strings.Join(datestr, ",")
 }
 
 func getPropDateList(prop *ical.Prop) (dates []Datetime, err error) {
@@ -338,11 +343,8 @@ func getPropDateList(prop *ical.Prop) (dates []Datetime, err error) {
 	if err != nil {
 		return
 	}
-	var datestr []string
-	datestr, err = prop.TextList()
-	if err != nil {
-		return
-	}
+	datestr := strings.Split(prop.Value, ",")
+
 	dates = make([]Datetime, len(datestr))
 	for i, s := range datestr {
 		var parsed Datetime

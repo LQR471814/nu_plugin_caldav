@@ -10,7 +10,6 @@
 | `caldav query calendars <homeset>`     | Reads calendars for a given homeset from CalDAV.                    |
 | `caldav query events <calendar_path>`  | Reads events from a given CalDAV calendar.                          |
 | `caldav upsert events <calendar_path>` | Updates or inserts events from the given input.                     |
-| `<event record> \| caldav recurrences` | Render recurrences of a given event passed in.                      |
 
 ## Configuration
 
