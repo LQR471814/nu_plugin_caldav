@@ -112,6 +112,10 @@ var eventsType = types.Table(types.RecordDef{
 })
 ```
 
+## Example Usage
+
+https://github.com/LQR471814/nu_plugin_caldav/blob/main/example.nu#L1-L4
+
 ## Limitations
 
 - For now, this plugin will fetch **all** events from the server
