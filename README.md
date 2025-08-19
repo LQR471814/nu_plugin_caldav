@@ -114,7 +114,7 @@ var eventsType = types.Table(types.RecordDef{
 
 ## Example Usage
 
-https://github.com/LQR471814/nu_plugin_caldav/blob/main/example.nu#L1-L4
+https://github.com/LQR471814/nu_plugin_caldav/blob/75846f6f275acc754b72380a67b5e1cb0b04407d/example.nu#L1-L4
 
 ## Limitations
 
