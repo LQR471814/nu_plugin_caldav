@@ -27,7 +27,7 @@ func run() (err error) {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer cancel()
 
-	p, err := nu.New(commands, "0.0.1", nil)
+	p, err := nu.New(commands, "0.1.0", nil)
 	if err != nil {
 		return
 	}

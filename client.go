@@ -12,7 +12,64 @@ import (
 	"github.com/emersion/go-webdav/caldav"
 )
 
-func newClient(server, username, password string, insecure bool) (*caldav.Client, error) {
+type Env struct {
+	URL                string
+	Username, Password string
+	Insecure           bool
+}
+
+func getEnvString(ctx context.Context, call *nu.ExecCommand, env string) (val string, err error) {
+	variable, err := call.GetEnvVar(ctx, env)
+	if err != nil {
+		return
+	}
+	if variable == nil {
+		err = fmt.Errorf("%s not set", env)
+		return
+	}
+	str, err := tryCast[string](*variable)
+	if err != nil {
+		return
+	}
+	val = str
+	return
+}
+
+func getEnvBool(ctx context.Context, call *nu.ExecCommand, env string) (val bool, err error) {
+	variable, err := call.GetEnvVar(ctx, env)
+	if err != nil {
+		return
+	}
+	if variable == nil {
+		err = fmt.Errorf("%s not set", env)
+		return
+	}
+	str, err := tryCast[string](*variable)
+	if err != nil {
+		return
+	}
+	val = str == "1" || str == "true"
+	return
+}
+
+func getClient(ctx context.Context, call *nu.ExecCommand) (client *caldav.Client, err error) {
+	url, err := getEnvString(ctx, call, "NU_PLUGIN_CALDAV_URL")
+	if err != nil {
+		return
+	}
+	username, err := getEnvString(ctx, call, "NU_PLUGIN_CALDAV_USERNAME")
+	if err != nil {
+		return
+	}
+	password, err := getEnvString(ctx, call, "NU_PLUGIN_CALDAV_PASSWORD")
+	if err != nil {
+		return
+	}
+	insecure, err := getEnvBool(ctx, call, "NU_PLUGIN_CALDAV_INSECURE")
+	if err != nil {
+		return
+	}
+
 	transport := &http.Transport{
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: insecure,
@@ -26,72 +83,8 @@ func newClient(server, username, password string, insecure bool) (*caldav.Client
 	if username != "" && password != "" {
 		webdavHttp = webdav.HTTPClientWithBasicAuth(httpClient, username, password)
 	}
-	inner, err := caldav.NewClient(webdavHttp, server)
-	return inner, err
-}
+	client, err = caldav.NewClient(webdavHttp, url)
 
-func getClientFromEnv(ctx context.Context, call *nu.ExecCommand) (client *caldav.Client, err error) {
-	urlVar, err := call.GetEnvVar(ctx, "NU_PLUGIN_CALDAV_URL")
-	if err != nil {
-		return
-	}
-	usernameVar, err := call.GetEnvVar(ctx, "NU_PLUGIN_CALDAV_USERNAME")
-	if err != nil {
-		return
-	}
-	passwordVar, err := call.GetEnvVar(ctx, "NU_PLUGIN_CALDAV_PASSWORD")
-	if err != nil {
-		return
-	}
-	insecureVar, err := call.GetEnvVar(ctx, "NU_PLUGIN_CALDAV_INSECURE")
-	if err != nil {
-		return
-	}
-
-	if urlVar == nil {
-		err = fmt.Errorf("NU_PLUGIN_CALDAV_URL is not set")
-		return
-	}
-	url, err := tryCast[string](*urlVar)
-	if err != nil {
-		return
-	}
-	if url == "" {
-		err = fmt.Errorf("NU_PLUGIN_CALDAV_URL is an empty string")
-		return
-	}
-
-	var username string
-	if usernameVar != nil {
-		username, err = tryCast[string](*usernameVar)
-		if err != nil {
-			return
-		}
-	}
-	var password string
-	if passwordVar != nil {
-		password, err = tryCast[string](*passwordVar)
-		if err != nil {
-			return
-		}
-	}
-	var insecure string
-	if insecureVar != nil {
-		insecure, err = tryCast[string](*insecureVar)
-		if err != nil {
-			return
-		}
-	}
-
-	client, err = newClient(url, username, password, insecure == "1")
 	return
 }
 
-func tryCast[T any](val nu.Value) (T, error) {
-	cast, ok := val.Value.(T)
-	if !ok {
-		var zero T
-		return zero, fmt.Errorf("expected type %T, got %T", zero, val.Value)
-	}
-	return cast, nil
-}

@@ -8,16 +8,16 @@ import (
 	"github.com/ainvaltin/nu-plugin/types"
 )
 
-var homesetCmd = &nu.Command{
+var queryHomesetCmd = &nu.Command{
 	Signature: nu.PluginSignature{
 		Name:        "caldav query homeset",
 		Category:    "Network",
-		Desc:        "Find a homeset ID from CalDAV (optionally given a principal username).",
+		Desc:        "Finds a homeset ID from CalDAV (optionally given a principal username).",
 		SearchTerms: []string{"caldav", "query", "homeset"},
 		OptionalPositional: []nu.PositionalArg{
 			{
 				Name:  "principal",
-				Desc:  "Usually the username of the one that owns the calendar, can be left blank if CalDAV URL already includes the principal path.",
+				Desc:  "Usually the username of the one that owns the calendar, can be left blank if CalDAV URL already includes the principal path. The principal of the current user can also be found by the `caldav query principal` command.",
 				Shape: syntaxshape.String(),
 			},
 		},
@@ -28,19 +28,18 @@ var homesetCmd = &nu.Command{
 			},
 		},
 	},
-	OnRun: homesetCmdExec,
+	OnRun: queryHomesetCmdExec,
 }
 
 func init() {
-	commands = append(commands, homesetCmd)
+	commands = append(commands, queryHomesetCmd)
 }
 
-func homesetCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
-	client, err := getClientFromEnv(ctx, call)
+func queryHomesetCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
+	client, err := getClient(ctx, call)
 	if err != nil {
 		return
 	}
-
 	var principal string
 	if len(call.Positional) > 0 {
 		principal, err = tryCast[string](call.Positional[0])
@@ -48,12 +47,10 @@ func homesetCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
 			return
 		}
 	}
-
 	homeSet, err := client.FindCalendarHomeSet(ctx, principal)
 	if err != nil {
 		return
 	}
-
 	err = call.ReturnValue(ctx, nu.ToValue(homeSet))
 	return
 }

@@ -3,12 +3,13 @@ package main
 import (
 	"context"
 
+	"github.com/LQR471814/nu_plugin_caldav/internal/nutypes/conversions"
 	"github.com/ainvaltin/nu-plugin"
 	"github.com/ainvaltin/nu-plugin/syntaxshape"
 	"github.com/ainvaltin/nu-plugin/types"
 )
 
-var calendarsCmd = &nu.Command{
+var queryCalendarsCmd = &nu.Command{
 	Signature: nu.PluginSignature{
 		Name:        "caldav query calendars",
 		Category:    "Network",
@@ -24,44 +25,30 @@ var calendarsCmd = &nu.Command{
 		InputOutputTypes: []nu.InOutTypes{
 			{
 				In:  types.Nothing(),
-				Out: calendarType,
+				Out: conversions.CalendarListType,
 			},
 		},
 	},
-	OnRun: calendarsCmdExec,
+	OnRun: queryCalendarsCmdExec,
 }
 
 func init() {
-	commands = append(commands, calendarsCmd)
+	commands = append(commands, queryCalendarsCmd)
 }
 
-func calendarsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
-	client, err := getClientFromEnv(ctx, call)
+func queryCalendarsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
+	client, err := getClient(ctx, call)
 	if err != nil {
 		return
 	}
-
 	homeset, err := tryCast[string](call.Positional[0])
 	if err != nil {
 		return
 	}
-
 	calendars, err := client.FindCalendars(ctx, homeset)
 	if err != nil {
 		return
 	}
-
-	values := make([]nu.Value, len(calendars))
-	for i, cal := range calendars {
-		values[i] = nu.ToValue(nu.Record{
-			"path":                    nu.ToValue(cal.Path),
-			"name":                    nu.ToValue(cal.Name),
-			"description":             nu.ToValue(cal.Description),
-			"max_resource_size":       nu.ToValue(cal.MaxResourceSize),
-			"supported_component_set": nu.ToValue(cal.SupportedComponentSet),
-		})
-	}
-
-	err = call.ReturnValue(ctx, nu.ToValue(values))
+	err = call.ReturnValue(ctx, conversions.CalendarListToNu(calendars))
 	return
 }
