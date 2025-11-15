@@ -28,7 +28,7 @@ Server configuration is done through environment variables:
 
 ## Example Usage
 
-https://github.com/LQR471814/nu_plugin_caldav/blob/75846f6f275acc754b72380a67b5e1cb0b04407d/example.nu#L1-L16
+https://github.com/LQR471814/nu_plugin_caldav/blob/3fb5759ae5033a7cc5db553f61e0c8614b148e4d/example.nu#L1-L46
 
 ## Limitations
 
