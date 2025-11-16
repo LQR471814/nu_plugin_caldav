@@ -27,7 +27,7 @@ var saveEventsCmd = &nu.Command{
 		Name:        "caldav save events",
 		Category:    "Network",
 		Desc:        "Saves events to a calendar",
-		SearchTerms: []string{"caldav", "upsert", "events"},
+		SearchTerms: []string{"caldav", "save", "events"},
 		Named: []nu.Flag{
 			{
 				Long:    "update",
