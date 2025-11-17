@@ -40,7 +40,7 @@ func recvListInput[E any](call *nu.ExecCommand, mapping func(v nu.Value) E) (lis
 			err = fmt.Errorf("unknown input type: %v", v)
 			return
 		}
-	case chan nu.Value:
+	case <-chan nu.Value:
 		for v := range typed {
 			list = append(list, mapping(v))
 		}

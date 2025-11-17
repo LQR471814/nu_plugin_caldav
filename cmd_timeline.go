@@ -84,12 +84,21 @@ func expandEvents(out *[]nutypes.EventReplica, object nutypes.EventObjectReplica
 	// be added separately
 	for _, override := range object.Overrides {
 		exdates = append(exdates, override.RecurrenceInstance.Stamp)
+		if override.Start.Stamp.Before(start) || override.Start.Stamp.After(end) {
+			continue
+		}
 		*out = append(*out, override)
 	}
 	set.SetExDates(exdates)
 
 	times := set.Between(start, end, true)
 	for _, startTime := range times {
+		if startTime.Before(start) {
+			panic(fmt.Errorf("recurrence start time should not be before overall start time: %v", startTime))
+		}
+		if startTime.After(end) {
+			panic(fmt.Errorf("recurrence start time should not be after overall end time: %v", startTime))
+		}
 		replica := object.Main
 		dur := replica.End.Stamp.Sub(replica.Start.Stamp)
 		replica.Start.Stamp = startTime
