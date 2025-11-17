@@ -9,23 +9,34 @@ import "github.com/emersion/go-webdav/caldav"
 import "net/url"
 import "time"
 
-var type_15613163272824911089 = types.String()
-var type_15385297846572725340 = types.String()
-var type_4579713456482216358 = types.Record(type_13545470577293064413)
-var type_6714134590091148549 = types.Table(type_4505817543918974569)
+var type_2493169154543297135 = types.String()
+var type_5363327835607766502 = types.String()
 var type_581713733206709016 = types.RecordDef{
 	"object_path": type_15613163272824911089,
 	"main":        type_1808007570533396940,
 	"overrides":   type_6714134590091148549,
 }
+var type_11669970230249425419 = types.List(type_15613163272824911089)
+var type_8047992331715851194 = types.Date()
+var type_7161572108068222122 = types.RecordDef{
+	"latitude":  type_17860233973098560385,
+	"longitude": type_17860233973098560385,
+}
+var type_4579713456482216358 = types.Record(type_13545470577293064413)
+var type_3582939560623804181 = types.Record(type_581713733206709016)
 var type_2392839876798024645 = types.Table(type_581713733206709016)
-var type_4572434499988200822 = types.Table(type_18369289839240265122)
+var type_10893214126964739625 = types.Record(type_18369289839240265122)
+var type_729807561129781588 = types.Bool()
+var type_5454485661162817076 = types.RecordDef{
+	"stamp":    type_8047992331715851194,
+	"all_day":  type_729807561129781588,
+	"floating": type_729807561129781588,
+}
+var type_3931126380996215332 = types.Table(type_5454485661162817076)
 var type_15139881813094606131 = types.Int()
-var type_17860233973098560385 = types.Float()
-var type_18222208942348113876 = types.Record(type_7161572108068222122)
 var type_16589689216511618220 = types.Duration()
-var type_15560982419391353847 = types.Int()
-var type_14900610606431710770 = types.Table(type_4202073097562803312)
+var type_1808007570533396940 = types.Record(type_4505817543918974569)
+var type_6714134590091148549 = types.Table(type_4505817543918974569)
 var type_18369289839240265122 = types.RecordDef{
 	"path":                    type_15613163272824911089,
 	"name":                    type_15613163272824911089,
@@ -33,11 +44,13 @@ var type_18369289839240265122 = types.RecordDef{
 	"max_resource_size":       type_15139881813094606131,
 	"supported_component_set": type_11669970230249425419,
 }
-var type_729807561129781588 = types.Bool()
-var type_7057708295081751301 = types.String()
-var type_10893214126964739625 = types.Record(type_18369289839240265122)
 var type_9513336738104922479 = types.Record(type_5454485661162817076)
-var type_5363327835607766502 = types.String()
+var type_15385297846572725340 = types.String()
+var type_13545470577293064413 = types.RecordDef{
+	"relative":    type_16589689216511618220,
+	"relative_to": type_15560982419391353847,
+	"absolute":    type_8047992331715851194,
+}
 var type_4505817543918974569 = types.RecordDef{
 	"uid":                        type_15613163272824911089,
 	"summary":                    type_15613163272824911089,
@@ -65,79 +78,50 @@ var type_4505817543918974569 = types.RecordDef{
 	"recurrence_instance":        type_9513336738104922479,
 	"trigger":                    type_4579713456482216358,
 }
-var type_3582939560623804181 = types.Record(type_581713733206709016)
-var type_11669970230249425419 = types.List(type_15613163272824911089)
-var type_8047992331715851194 = types.Date()
-var type_5454485661162817076 = types.RecordDef{
-	"stamp":    type_8047992331715851194,
-	"all_day":  type_729807561129781588,
-	"floating": type_729807561129781588,
-}
-var type_7161572108068222122 = types.RecordDef{
-	"latitude":  type_17860233973098560385,
-	"longitude": type_17860233973098560385,
-}
-var type_1808007570533396940 = types.Record(type_4505817543918974569)
 var type_10890016574791629639 = types.Int()
-var type_3931126380996215332 = types.Table(type_5454485661162817076)
+var type_7057708295081751301 = types.String()
+var type_15560982419391353847 = types.Int()
+var type_15613163272824911089 = types.String()
+var type_17860233973098560385 = types.Float()
+var type_18222208942348113876 = types.Record(type_7161572108068222122)
+var type_18334623996676649874 = types.String()
 var type_4202073097562803312 = types.RecordDef{
 	"now":           type_8047992331715851194,
 	"duration":      type_16589689216511618220,
 	"active_events": type_6714134590091148549,
 }
-var type_2493169154543297135 = types.String()
-var type_18334623996676649874 = types.String()
-var type_13545470577293064413 = types.RecordDef{
-	"relative":    type_16589689216511618220,
-	"relative_to": type_15560982419391353847,
-	"absolute":    type_8047992331715851194,
-}
 var type_14033482930202471129 = types.Record(type_4202073097562803312)
+var type_4572434499988200822 = types.Table(type_18369289839240265122)
+var type_14900610606431710770 = types.Table(type_4202073097562803312)
 
-func type_2392839876798024645_FromNu(v nu.Value) nutypes.EventObjectReplicaList {
+func type_8971279483973357571_FromNu(v nu.Value) *events.EventTransparency {
+	if v.Value == nil {
+		return nil
+	}
+	res := type_7057708295081751301_FromNu(v)
+	return &res
+}
+func type_13545470577293064413_FromNu(v nu.Value) events.EventTrigger {
+	out := events.EventTrigger{}
+	record := v.Value.(nu.Record)
+	var val nu.Value
+	val, _ = record["relative"]
+	out.Relative = type_5863190983406162214_FromNu(val)
+	val, _ = record["relative_to"]
+	out.RelativeTo = type_15560982419391353847_FromNu(val)
+	val, _ = record["absolute"]
+	out.Absolute = type_15050730807189225719_FromNu(val)
+	return out
+}
+func type_14900610606431710770_FromNu(v nu.Value) nutypes.Timeline {
 	if v.Value == nil {
 		return nil
 	}
 	arr := v.Value.([]nu.Value)
-	out := make(nutypes.EventObjectReplicaList, len(arr))
+	out := make(nutypes.Timeline, len(arr))
 	for i, e := range arr {
-		out[i] = type_581713733206709016_FromNu(e)
+		out[i] = type_4202073097562803312_FromNu(e)
 	}
-	return out
-}
-func type_4202073097562803312_FromNu(v nu.Value) nutypes.TimeSegment {
-	out := nutypes.TimeSegment{}
-	record := v.Value.(nu.Record)
-	var val nu.Value
-	val, _ = record["now"]
-	out.Now = type_8047992331715851194_FromNu(val)
-	val, _ = record["duration"]
-	out.Duration = type_16589689216511618220_FromNu(val)
-	val, _ = record["active_events"]
-	out.ActiveEvents = type_6714134590091148549_FromNu(val)
-	return out
-}
-func type_4572434499988200822_FromNu(v nu.Value) nutypes.CalendarList {
-	if v.Value == nil {
-		return nil
-	}
-	arr := v.Value.([]nu.Value)
-	out := make(nutypes.CalendarList, len(arr))
-	for i, e := range arr {
-		out[i] = type_18369289839240265122_FromNu(e)
-	}
-	return out
-}
-func type_581713733206709016_FromNu(v nu.Value) nutypes.EventObjectReplica {
-	out := nutypes.EventObjectReplica{}
-	record := v.Value.(nu.Record)
-	var val nu.Value
-	val, _ = record["object_path"]
-	out.ObjectPath = type_17862013815172309399_FromNu(val)
-	val, _ = record["main"]
-	out.Main = type_4505817543918974569_FromNu(val)
-	val, _ = record["overrides"]
-	out.Overrides = type_6714134590091148549_FromNu(val)
 	return out
 }
 func type_12480522309550428545_FromNu(v nu.Value) *events.Datetime {
@@ -150,75 +134,21 @@ func type_12480522309550428545_FromNu(v nu.Value) *events.Datetime {
 func type_15385297846572725340_FromNu(v nu.Value) events.EventStatus {
 	return events.EventStatus(v.Value.(string))
 }
-func type_784588192188755836_FromNu(v nu.Value) *events.EventStatus {
+func type_16589689216511618220_FromNu(v nu.Value) time.Duration {
+	return v.Value.(time.Duration)
+}
+func type_9520111014888170891_FromNu(v nu.Value) *events.EventTrigger {
 	if v.Value == nil {
 		return nil
 	}
-	res := type_15385297846572725340_FromNu(v)
+	res := type_13545470577293064413_FromNu(v)
 	return &res
 }
-func type_5363327835607766502_FromNu(v nu.Value) *url.URL {
-	parsed, err := url.Parse(v.Value.(string))
-	if err != nil {
-		panic(err)
-	}
-	return parsed
+func type_10890016574791629639_FromNu(v nu.Value) int {
+	return int(v.Value.(int64))
 }
-func type_3931126380996215332_FromNu(v nu.Value) []events.Datetime {
-	if v.Value == nil {
-		return nil
-	}
-	arr := v.Value.([]nu.Value)
-	out := make([]events.Datetime, len(arr))
-	for i, e := range arr {
-		out[i] = type_5454485661162817076_FromNu(e)
-	}
-	return out
-}
-func type_5863190983406162214_FromNu(v nu.Value) *time.Duration {
-	if v.Value == nil {
-		return nil
-	}
-	res := type_16589689216511618220_FromNu(v)
-	return &res
-}
-func type_5454485661162817076_FromNu(v nu.Value) events.Datetime {
-	out := events.Datetime{}
-	record := v.Value.(nu.Record)
-	var val nu.Value
-	var ok bool
-	val, _ = record["stamp"]
-	out.Stamp = type_8047992331715851194_FromNu(val)
-	val, ok = record["all_day"]
-	if !ok {
-		out.AllDay = false
-	} else {
-		out.AllDay = type_729807561129781588_FromNu(val)
-	}
-	val, ok = record["floating"]
-	if !ok {
-		out.Floating = false
-	} else {
-		out.Floating = type_729807561129781588_FromNu(val)
-	}
-	return out
-}
-func type_7161572108068222122_FromNu(v nu.Value) events.EventGeo {
-	out := events.EventGeo{}
-	record := v.Value.(nu.Record)
-	var val nu.Value
-	val, _ = record["latitude"]
-	out.Latitude = type_17860233973098560385_FromNu(val)
-	val, _ = record["longitude"]
-	out.Longitude = type_17860233973098560385_FromNu(val)
-	return out
-}
-func type_7163250051298988498_FromNu(v nu.Value) *events.EventGeo {
-	if v.Value == nil {
-		return nil
-	}
-	res := type_7161572108068222122_FromNu(v)
-	return &res
+func type_7057708295081751301_FromNu(v nu.Value) events.EventTransparency {
+	return events.EventTransparency(v.Value.(string))
 }
 func type_18369289839240265122_FromNu(v nu.Value) caldav.Calendar {
 	out := caldav.Calendar{}
@@ -234,6 +164,17 @@ func type_18369289839240265122_FromNu(v nu.Value) caldav.Calendar {
 	out.MaxResourceSize = type_15139881813094606131_FromNu(val)
 	val, _ = record["supported_component_set"]
 	out.SupportedComponentSet = type_11669970230249425419_FromNu(val)
+	return out
+}
+func type_4572434499988200822_FromNu(v nu.Value) nutypes.CalendarList {
+	if v.Value == nil {
+		return nil
+	}
+	arr := v.Value.([]nu.Value)
+	out := make(nutypes.CalendarList, len(arr))
+	for i, e := range arr {
+		out[i] = type_18369289839240265122_FromNu(e)
+	}
 	return out
 }
 func type_11669970230249425419_FromNu(v nu.Value) []string {
@@ -254,51 +195,11 @@ func type_9664538759823739797_FromNu(v nu.Value) *events.EventClass {
 	res := type_2493169154543297135_FromNu(v)
 	return &res
 }
-func type_17860233973098560385_FromNu(v nu.Value) float64 {
-	return float64(v.Value.(float64))
-}
 func type_2584899110032584934_FromNu(v nu.Value) *int {
 	if v.Value == nil {
 		return nil
 	}
 	res := type_10890016574791629639_FromNu(v)
-	return &res
-}
-func type_2493169154543297135_FromNu(v nu.Value) events.EventClass {
-	return events.EventClass(v.Value.(string))
-}
-func type_7057708295081751301_FromNu(v nu.Value) events.EventTransparency {
-	return events.EventTransparency(v.Value.(string))
-}
-func type_8971279483973357571_FromNu(v nu.Value) *events.EventTransparency {
-	if v.Value == nil {
-		return nil
-	}
-	res := type_7057708295081751301_FromNu(v)
-	return &res
-}
-func type_9520111014888170891_FromNu(v nu.Value) *events.EventTrigger {
-	if v.Value == nil {
-		return nil
-	}
-	res := type_13545470577293064413_FromNu(v)
-	return &res
-}
-func type_15613163272824911089_FromNu(v nu.Value) string {
-	return string(v.Value.(string))
-}
-func type_17862013815172309399_FromNu(v nu.Value) *string {
-	if v.Value == nil {
-		return nil
-	}
-	res := type_15613163272824911089_FromNu(v)
-	return &res
-}
-func type_15050730807189225719_FromNu(v nu.Value) *time.Time {
-	if v.Value == nil {
-		return nil
-	}
-	res := type_8047992331715851194_FromNu(v)
 	return &res
 }
 func type_4505817543918974569_FromNu(v nu.Value) nutypes.EventReplica {
@@ -357,57 +258,128 @@ func type_4505817543918974569_FromNu(v nu.Value) nutypes.EventReplica {
 	out.Trigger = type_9520111014888170891_FromNu(val)
 	return out
 }
-func type_6714134590091148549_FromNu(v nu.Value) []nutypes.EventReplica {
-	if v.Value == nil {
-		return nil
+func type_5454485661162817076_FromNu(v nu.Value) events.Datetime {
+	out := events.Datetime{}
+	record := v.Value.(nu.Record)
+	var val nu.Value
+	var ok bool
+	val, _ = record["stamp"]
+	out.Stamp = type_8047992331715851194_FromNu(val)
+	val, ok = record["all_day"]
+	if !ok {
+		out.AllDay = false
+	} else {
+		out.AllDay = type_729807561129781588_FromNu(val)
 	}
-	arr := v.Value.([]nu.Value)
-	out := make([]nutypes.EventReplica, len(arr))
-	for i, e := range arr {
-		out[i] = type_4505817543918974569_FromNu(e)
+	val, ok = record["floating"]
+	if !ok {
+		out.Floating = false
+	} else {
+		out.Floating = type_729807561129781588_FromNu(val)
 	}
 	return out
 }
-func type_14900610606431710770_FromNu(v nu.Value) nutypes.Timeline {
+func type_784588192188755836_FromNu(v nu.Value) *events.EventStatus {
 	if v.Value == nil {
 		return nil
 	}
-	arr := v.Value.([]nu.Value)
-	out := make(nutypes.Timeline, len(arr))
-	for i, e := range arr {
-		out[i] = type_4202073097562803312_FromNu(e)
+	res := type_15385297846572725340_FromNu(v)
+	return &res
+}
+func type_5863190983406162214_FromNu(v nu.Value) *time.Duration {
+	if v.Value == nil {
+		return nil
 	}
+	res := type_16589689216511618220_FromNu(v)
+	return &res
+}
+func type_4202073097562803312_FromNu(v nu.Value) nutypes.TimeSegment {
+	out := nutypes.TimeSegment{}
+	record := v.Value.(nu.Record)
+	var val nu.Value
+	val, _ = record["now"]
+	out.Now = type_8047992331715851194_FromNu(val)
+	val, _ = record["duration"]
+	out.Duration = type_16589689216511618220_FromNu(val)
+	val, _ = record["active_events"]
+	out.ActiveEvents = type_6714134590091148549_FromNu(val)
 	return out
 }
-func type_15139881813094606131_FromNu(v nu.Value) int64 {
-	return int64(v.Value.(int64))
+func type_17862013815172309399_FromNu(v nu.Value) *string {
+	if v.Value == nil {
+		return nil
+	}
+	res := type_15613163272824911089_FromNu(v)
+	return &res
 }
-func type_8047992331715851194_FromNu(v nu.Value) time.Time {
-	return v.Value.(time.Time)
-}
-func type_16589689216511618220_FromNu(v nu.Value) time.Duration {
-	return v.Value.(time.Duration)
+func type_17860233973098560385_FromNu(v nu.Value) float64 {
+	return float64(v.Value.(float64))
 }
 func type_15560982419391353847_FromNu(v nu.Value) events.EventTriggerRelative {
 	return events.EventTriggerRelative(v.Value.(int64))
 }
-func type_13545470577293064413_FromNu(v nu.Value) events.EventTrigger {
-	out := events.EventTrigger{}
-	record := v.Value.(nu.Record)
-	var val nu.Value
-	val, _ = record["relative"]
-	out.Relative = type_5863190983406162214_FromNu(val)
-	val, _ = record["relative_to"]
-	out.RelativeTo = type_15560982419391353847_FromNu(val)
-	val, _ = record["absolute"]
-	out.Absolute = type_15050730807189225719_FromNu(val)
-	return out
+func type_15050730807189225719_FromNu(v nu.Value) *time.Time {
+	if v.Value == nil {
+		return nil
+	}
+	res := type_8047992331715851194_FromNu(v)
+	return &res
 }
 func type_729807561129781588_FromNu(v nu.Value) bool {
 	return bool(v.Value.(bool))
 }
-func type_10890016574791629639_FromNu(v nu.Value) int {
-	return int(v.Value.(int64))
+func type_7161572108068222122_FromNu(v nu.Value) events.EventGeo {
+	out := events.EventGeo{}
+	record := v.Value.(nu.Record)
+	var val nu.Value
+	val, _ = record["latitude"]
+	out.Latitude = type_17860233973098560385_FromNu(val)
+	val, _ = record["longitude"]
+	out.Longitude = type_17860233973098560385_FromNu(val)
+	return out
+}
+func type_5363327835607766502_FromNu(v nu.Value) *url.URL {
+	if v.Value == nil {
+		return nil
+	}
+	parsed, err := url.Parse(v.Value.(string))
+	if err != nil {
+		panic(err)
+	}
+	return parsed
+}
+func type_581713733206709016_FromNu(v nu.Value) nutypes.EventObjectReplica {
+	out := nutypes.EventObjectReplica{}
+	record := v.Value.(nu.Record)
+	var val nu.Value
+	val, _ = record["object_path"]
+	out.ObjectPath = type_17862013815172309399_FromNu(val)
+	val, _ = record["main"]
+	out.Main = type_4505817543918974569_FromNu(val)
+	val, _ = record["overrides"]
+	out.Overrides = type_6714134590091148549_FromNu(val)
+	return out
+}
+func type_2392839876798024645_FromNu(v nu.Value) nutypes.EventObjectReplicaList {
+	if v.Value == nil {
+		return nil
+	}
+	arr := v.Value.([]nu.Value)
+	out := make(nutypes.EventObjectReplicaList, len(arr))
+	for i, e := range arr {
+		out[i] = type_581713733206709016_FromNu(e)
+	}
+	return out
+}
+func type_15613163272824911089_FromNu(v nu.Value) string {
+	return string(v.Value.(string))
+}
+func type_7163250051298988498_FromNu(v nu.Value) *events.EventGeo {
+	if v.Value == nil {
+		return nil
+	}
+	res := type_7161572108068222122_FromNu(v)
+	return &res
 }
 func type_18334623996676649874_FromNu(v nu.Value) *rrule.RRule {
 	if v.Value == nil {
@@ -419,49 +391,73 @@ func type_18334623996676649874_FromNu(v nu.Value) *rrule.RRule {
 	}
 	return parsed
 }
-func type_15385297846572725340_ToNu(v events.EventStatus) nu.Value {
+func type_3931126380996215332_FromNu(v nu.Value) []events.Datetime {
+	if v.Value == nil {
+		return nil
+	}
+	arr := v.Value.([]nu.Value)
+	out := make([]events.Datetime, len(arr))
+	for i, e := range arr {
+		out[i] = type_5454485661162817076_FromNu(e)
+	}
+	return out
+}
+func type_6714134590091148549_FromNu(v nu.Value) []nutypes.EventReplica {
+	if v.Value == nil {
+		return nil
+	}
+	arr := v.Value.([]nu.Value)
+	out := make([]nutypes.EventReplica, len(arr))
+	for i, e := range arr {
+		out[i] = type_4505817543918974569_FromNu(e)
+	}
+	return out
+}
+func type_15139881813094606131_FromNu(v nu.Value) int64 {
+	return int64(v.Value.(int64))
+}
+func type_8047992331715851194_FromNu(v nu.Value) time.Time {
+	return v.Value.(time.Time)
+}
+func type_2493169154543297135_FromNu(v nu.Value) events.EventClass {
+	return events.EventClass(v.Value.(string))
+}
+func type_5363327835607766502_ToNu(v *url.URL) nu.Value {
+	if v == nil {
+		return nu.Value{Value: nil}
+	}
+	return nu.ToValue(v.String())
+}
+func type_4202073097562803312_ToNu(v nutypes.TimeSegment) nu.Value {
+	return nu.Value{Value: nu.Record{
+		"now":           type_8047992331715851194_ToNu(v.Now),
+		"duration":      type_16589689216511618220_ToNu(v.Duration),
+		"active_events": type_6714134590091148549_ToNu(v.ActiveEvents),
+	}}
+}
+func type_8047992331715851194_ToNu(v time.Time) nu.Value {
 	return nu.ToValue(v)
 }
-func type_9520111014888170891_ToNu(v *events.EventTrigger) nu.Value {
-	if v == nil {
-		return nu.Value{Value: nil}
-	}
-	return type_13545470577293064413_ToNu(*v)
-}
-func type_17862013815172309399_ToNu(v *string) nu.Value {
-	if v == nil {
-		return nu.Value{Value: nil}
-	}
-	return type_15613163272824911089_ToNu(*v)
-}
-func type_7161572108068222122_ToNu(v events.EventGeo) nu.Value {
-	return nu.Value{Value: nu.Record{
-		"latitude":  type_17860233973098560385_ToNu(v.Latitude),
-		"longitude": type_17860233973098560385_ToNu(v.Longitude),
-	}}
-}
-func type_16589689216511618220_ToNu(v time.Duration) nu.Value {
+func type_2493169154543297135_ToNu(v events.EventClass) nu.Value {
 	return nu.ToValue(v)
 }
-func type_15050730807189225719_ToNu(v *time.Time) nu.Value {
+func type_10890016574791629639_ToNu(v int) nu.Value {
+	return nu.ToValue(v)
+}
+func type_784588192188755836_ToNu(v *events.EventStatus) nu.Value {
 	if v == nil {
 		return nu.Value{Value: nil}
 	}
-	return type_8047992331715851194_ToNu(*v)
+	return type_15385297846572725340_ToNu(*v)
 }
-func type_13545470577293064413_ToNu(v events.EventTrigger) nu.Value {
-	return nu.Value{Value: nu.Record{
-		"relative":    type_5863190983406162214_ToNu(v.Relative),
-		"relative_to": type_15560982419391353847_ToNu(v.RelativeTo),
-		"absolute":    type_15050730807189225719_ToNu(v.Absolute),
-	}}
+func type_18334623996676649874_ToNu(v *rrule.RRule) nu.Value {
+	if v == nil {
+		return nu.Value{Value: nil}
+	}
+	return nu.ToValue(v.String())
 }
-func type_581713733206709016_ToNu(v nutypes.EventObjectReplica) nu.Value {
-	return nu.Value{Value: nu.Record{
-		"object_path": type_17862013815172309399_ToNu(v.ObjectPath),
-		"main":        type_4505817543918974569_ToNu(v.Main),
-		"overrides":   type_6714134590091148549_ToNu(v.Overrides),
-	}}
+func type_15560982419391353847_ToNu(v events.EventTriggerRelative) nu.Value {
+	return nu.ToValue(v)
 }
 func type_14900610606431710770_ToNu(v nutypes.Timeline) nu.Value {
 	list := make([]nu.Value, len(v))
@@ -479,13 +475,19 @@ func type_18369289839240265122_ToNu(v caldav.Calendar) nu.Value {
 		"supported_component_set": type_11669970230249425419_ToNu(v.SupportedComponentSet),
 	}}
 }
-func type_12480522309550428545_ToNu(v *events.Datetime) nu.Value {
+func type_15613163272824911089_ToNu(v string) nu.Value {
+	return nu.ToValue(v)
+}
+func type_7057708295081751301_ToNu(v events.EventTransparency) nu.Value {
+	return nu.ToValue(v)
+}
+func type_17862013815172309399_ToNu(v *string) nu.Value {
 	if v == nil {
 		return nu.Value{Value: nil}
 	}
-	return type_5454485661162817076_ToNu(*v)
+	return type_15613163272824911089_ToNu(*v)
 }
-func type_2493169154543297135_ToNu(v events.EventClass) nu.Value {
+func type_729807561129781588_ToNu(v bool) nu.Value {
 	return nu.ToValue(v)
 }
 func type_17860233973098560385_ToNu(v float64) nu.Value {
@@ -497,12 +499,77 @@ func type_7163250051298988498_ToNu(v *events.EventGeo) nu.Value {
 	}
 	return type_7161572108068222122_ToNu(*v)
 }
+func type_9664538759823739797_ToNu(v *events.EventClass) nu.Value {
+	if v == nil {
+		return nu.Value{Value: nil}
+	}
+	return type_2493169154543297135_ToNu(*v)
+}
+func type_7161572108068222122_ToNu(v events.EventGeo) nu.Value {
+	return nu.Value{Value: nu.Record{
+		"latitude":  type_17860233973098560385_ToNu(v.Latitude),
+		"longitude": type_17860233973098560385_ToNu(v.Longitude),
+	}}
+}
+func type_16589689216511618220_ToNu(v time.Duration) nu.Value {
+	return nu.ToValue(v)
+}
+func type_15050730807189225719_ToNu(v *time.Time) nu.Value {
+	if v == nil {
+		return nu.Value{Value: nil}
+	}
+	return type_8047992331715851194_ToNu(*v)
+}
+func type_9520111014888170891_ToNu(v *events.EventTrigger) nu.Value {
+	if v == nil {
+		return nu.Value{Value: nil}
+	}
+	return type_13545470577293064413_ToNu(*v)
+}
+func type_6714134590091148549_ToNu(v []nutypes.EventReplica) nu.Value {
+	list := make([]nu.Value, len(v))
+	for i, e := range v {
+		list[i] = type_4505817543918974569_ToNu(e)
+	}
+	return nu.Value{Value: list}
+}
+func type_15139881813094606131_ToNu(v int64) nu.Value {
+	return nu.ToValue(v)
+}
+func type_12480522309550428545_ToNu(v *events.Datetime) nu.Value {
+	if v == nil {
+		return nu.Value{Value: nil}
+	}
+	return type_5454485661162817076_ToNu(*v)
+}
 func type_3931126380996215332_ToNu(v []events.Datetime) nu.Value {
 	list := make([]nu.Value, len(v))
 	for i, e := range v {
 		list[i] = type_5454485661162817076_ToNu(e)
 	}
 	return nu.Value{Value: list}
+}
+func type_5863190983406162214_ToNu(v *time.Duration) nu.Value {
+	if v == nil {
+		return nu.Value{Value: nil}
+	}
+	return type_16589689216511618220_ToNu(*v)
+}
+func type_5454485661162817076_ToNu(v events.Datetime) nu.Value {
+	return nu.Value{Value: nu.Record{
+		"stamp":    type_8047992331715851194_ToNu(v.Stamp),
+		"all_day":  type_729807561129781588_ToNu(v.AllDay),
+		"floating": type_729807561129781588_ToNu(v.Floating),
+	}}
+}
+func type_15385297846572725340_ToNu(v events.EventStatus) nu.Value {
+	return nu.ToValue(v)
+}
+func type_8971279483973357571_ToNu(v *events.EventTransparency) nu.Value {
+	if v == nil {
+		return nu.Value{Value: nil}
+	}
+	return type_7057708295081751301_ToNu(*v)
 }
 func type_4505817543918974569_ToNu(v nutypes.EventReplica) nu.Value {
 	return nu.Value{Value: nu.Record{
@@ -533,24 +600,12 @@ func type_4505817543918974569_ToNu(v nutypes.EventReplica) nu.Value {
 		"trigger":                    type_9520111014888170891_ToNu(v.Trigger),
 	}}
 }
-func type_5454485661162817076_ToNu(v events.Datetime) nu.Value {
+func type_581713733206709016_ToNu(v nutypes.EventObjectReplica) nu.Value {
 	return nu.Value{Value: nu.Record{
-		"stamp":    type_8047992331715851194_ToNu(v.Stamp),
-		"all_day":  type_729807561129781588_ToNu(v.AllDay),
-		"floating": type_729807561129781588_ToNu(v.Floating),
+		"object_path": type_17862013815172309399_ToNu(v.ObjectPath),
+		"main":        type_4505817543918974569_ToNu(v.Main),
+		"overrides":   type_6714134590091148549_ToNu(v.Overrides),
 	}}
-}
-func type_9664538759823739797_ToNu(v *events.EventClass) nu.Value {
-	if v == nil {
-		return nu.Value{Value: nil}
-	}
-	return type_2493169154543297135_ToNu(*v)
-}
-func type_18334623996676649874_ToNu(v *rrule.RRule) nu.Value {
-	if v == nil {
-		return nu.Value{Value: nil}
-	}
-	return nu.ToValue(v.String())
 }
 func type_2392839876798024645_ToNu(v nutypes.EventObjectReplicaList) nu.Value {
 	list := make([]nu.Value, len(v))
@@ -566,22 +621,6 @@ func type_4572434499988200822_ToNu(v nutypes.CalendarList) nu.Value {
 	}
 	return nu.Value{Value: list}
 }
-func type_784588192188755836_ToNu(v *events.EventStatus) nu.Value {
-	if v == nil {
-		return nu.Value{Value: nil}
-	}
-	return type_15385297846572725340_ToNu(*v)
-}
-func type_6714134590091148549_ToNu(v []nutypes.EventReplica) nu.Value {
-	list := make([]nu.Value, len(v))
-	for i, e := range v {
-		list[i] = type_4505817543918974569_ToNu(e)
-	}
-	return nu.Value{Value: list}
-}
-func type_15613163272824911089_ToNu(v string) nu.Value {
-	return nu.ToValue(v)
-}
 func type_11669970230249425419_ToNu(v []string) nu.Value {
 	list := make([]nu.Value, len(v))
 	for i, e := range v {
@@ -589,59 +628,20 @@ func type_11669970230249425419_ToNu(v []string) nu.Value {
 	}
 	return nu.Value{Value: list}
 }
-func type_5863190983406162214_ToNu(v *time.Duration) nu.Value {
-	if v == nil {
-		return nu.Value{Value: nil}
-	}
-	return type_16589689216511618220_ToNu(*v)
-}
-func type_15560982419391353847_ToNu(v events.EventTriggerRelative) nu.Value {
-	return nu.ToValue(v)
-}
-func type_4202073097562803312_ToNu(v nutypes.TimeSegment) nu.Value {
-	return nu.Value{Value: nu.Record{
-		"now":           type_8047992331715851194_ToNu(v.Now),
-		"duration":      type_16589689216511618220_ToNu(v.Duration),
-		"active_events": type_6714134590091148549_ToNu(v.ActiveEvents),
-	}}
-}
-func type_729807561129781588_ToNu(v bool) nu.Value {
-	return nu.ToValue(v)
-}
-func type_10890016574791629639_ToNu(v int) nu.Value {
-	return nu.ToValue(v)
-}
-func type_8971279483973357571_ToNu(v *events.EventTransparency) nu.Value {
-	if v == nil {
-		return nu.Value{Value: nil}
-	}
-	return type_7057708295081751301_ToNu(*v)
-}
-func type_5363327835607766502_ToNu(v *url.URL) nu.Value {
-	if v == nil {
-		return nu.Value{Value: nil}
-	}
-	return nu.ToValue(v.String())
-}
-func type_15139881813094606131_ToNu(v int64) nu.Value {
-	return nu.ToValue(v)
-}
 func type_2584899110032584934_ToNu(v *int) nu.Value {
 	if v == nil {
 		return nu.Value{Value: nil}
 	}
 	return type_10890016574791629639_ToNu(*v)
 }
-func type_7057708295081751301_ToNu(v events.EventTransparency) nu.Value {
-	return nu.ToValue(v)
-}
-func type_8047992331715851194_ToNu(v time.Time) nu.Value {
-	return nu.ToValue(v)
+func type_13545470577293064413_ToNu(v events.EventTrigger) nu.Value {
+	return nu.Value{Value: nu.Record{
+		"relative":    type_5863190983406162214_ToNu(v.Relative),
+		"relative_to": type_15560982419391353847_ToNu(v.RelativeTo),
+		"absolute":    type_15050730807189225719_ToNu(v.Absolute),
+	}}
 }
 
-var CalendarListType = type_4572434499988200822
-var CalendarListFromNu = type_4572434499988200822_FromNu
-var CalendarListToNu = type_4572434499988200822_ToNu
 var EventObjectReplicaListType = type_2392839876798024645
 var EventObjectReplicaListFromNu = type_2392839876798024645_FromNu
 var EventObjectReplicaListToNu = type_2392839876798024645_ToNu
@@ -654,3 +654,6 @@ var EventReplicaToNu = type_4505817543918974569_ToNu
 var TimelineType = type_14900610606431710770
 var TimelineFromNu = type_14900610606431710770_FromNu
 var TimelineToNu = type_14900610606431710770_ToNu
+var CalendarListType = type_4572434499988200822
+var CalendarListFromNu = type_4572434499988200822_FromNu
+var CalendarListToNu = type_4572434499988200822_ToNu
