@@ -120,6 +120,7 @@ func init() {
 
 			(&out).SetTypeStr("*url.URL")
 			var sb strings.Builder
+			fmt.Fprintln(&sb, "if v.Value == nil { return nil }")
 			fmt.Fprintln(&sb, "parsed, err := url.Parse(v.Value.(string))")
 			fmt.Fprintln(&sb, "if err != nil { panic(err) }")
 			fmt.Fprintln(&sb, "return parsed")
