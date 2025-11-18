@@ -45,7 +45,7 @@ var timelineCmd = &nu.Command{
 			},
 		},
 	},
-	OnRun: expandEventsCmdExec,
+	OnRun: timelineCmdExec,
 }
 
 func init() {
@@ -236,7 +236,7 @@ func convertToTimeline(eventList []nutypes.EventReplica, start, end time.Time) (
 	return
 }
 
-func expandEventsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
+func timelineCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
 	start, ok := call.Named["start"].Value.(time.Time)
 	if !ok {
 		err = fmt.Errorf("must specify -start")
@@ -244,7 +244,7 @@ func expandEventsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) 
 	}
 	end, ok := call.Named["end"].Value.(time.Time)
 	if !ok {
-		err = fmt.Errorf("must specify -start")
+		err = fmt.Errorf("must specify -end")
 		return
 	}
 
