@@ -222,7 +222,7 @@ func mapTypeDecl(cache map[uint64]TypeDecl, t reflect.Type) (out TypeDecl) {
 
 	return TypeDecl{
 		TypeId: typeId(t),
-		// looks like nushell's type system isn't expressive enough yet
+		// TODO: looks like nushell's type system isn't expressive enough yet
 		Value: "types.Any()",
 	}
 }

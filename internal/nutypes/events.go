@@ -6,9 +6,15 @@ import (
 	"strings"
 
 	"github.com/LQR471814/nu_plugin_caldav/events"
+	"github.com/emersion/go-ical"
 	"github.com/emersion/go-webdav/caldav"
 	"github.com/teambition/rrule-go"
 )
+
+type PropValueReplica struct {
+	Value  string
+	Params map[string][]string
+}
 
 type EventReplica struct {
 	Uid          *string
@@ -38,6 +44,7 @@ type EventReplica struct {
 	RecurrenceExceptionDates []events.Datetime
 	RecurrenceInstance       *events.Datetime
 	Trigger                  *events.EventTrigger
+	Other                    map[string][]PropValueReplica
 }
 
 func (e EventReplica) String() string {
@@ -175,6 +182,11 @@ func (e EventReplica) String() string {
 		sb.WriteString("Trigger:")
 		fmt.Fprint(&sb, e.Trigger)
 	}
+	if e.Other != nil {
+		sb.WriteString(" ")
+		sb.WriteString("Other:")
+		fmt.Fprint(&sb, e.Other)
+	}
 	sb.WriteString("}")
 
 	return sb.String()
@@ -267,6 +279,14 @@ func NewEventReplica(e events.Event) (out EventReplica) {
 		out.Trigger = &res
 	}
 
+	for _, p := range e.GetOtherProps() {
+		values := make([]PropValueReplica, len(p.Values))
+		for i, v := range p.Values {
+			values[i] = PropValueReplica{Value: v.Value, Params: v.Params}
+		}
+		out.Other[p.Key] = values
+	}
+
 	return
 }
 
@@ -341,6 +361,20 @@ func (o EventReplica) Apply(e events.Event) {
 	}
 	if o.Trigger != nil {
 		e.SetTrigger(o.Trigger)
+	}
+	for key, values := range o.Other {
+		props := make([]ical.Prop, len(values))
+		for i, v := range values {
+			props[i] = ical.Prop{
+				Name:   key,
+				Value:  v.Value,
+				Params: v.Params,
+			}
+		}
+		e.AddOtherProp(events.KeyValues{
+			Key:    key,
+			Values: props,
+		})
 	}
 }
 

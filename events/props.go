@@ -489,3 +489,65 @@ func (e Event) SetTrigger(trigger *EventTrigger) {
 	}
 	prop.SetDateTime(*trigger.Absolute)
 }
+
+type KeyValues struct {
+	Key    string
+	Values []ical.Prop
+}
+
+// GetOtherProps returns the remaining props on the event not covered by the
+// standard ical spec
+func (e Event) GetOtherProps() (out []KeyValues) {
+	for k, v := range e.Props {
+		switch k {
+		case ical.PropUID,
+			ical.PropSummary,
+			ical.PropLocation,
+			ical.PropDescription,
+			ical.PropCategories,
+			ical.PropCreated,
+			ical.PropLastModified,
+			ical.PropClass,
+			ical.PropGeo,
+			ical.PropPriority,
+			ical.PropSequence,
+			ical.PropStatus,
+			ical.PropTransparency,
+			ical.PropURL,
+			ical.PropComment,
+			ical.PropAttach,
+			// TODO: implement
+			// ical.PropAttendee,
+			ical.PropContact,
+			ical.PropOrganizer,
+			// TODO: implement
+			// rstatus
+			// resources
+			ical.PropDateTimeStart,
+			ical.PropDateTimeEnd,
+			// TODO: implement
+			// ical.PropDuration,
+			ical.PropRecurrenceRule,
+			ical.PropRecurrenceDates,
+			ical.PropExceptionDates,
+			ical.PropRecurrenceID:
+			continue
+		default:
+			out = append(out, KeyValues{
+				Key:    k,
+				Values: v,
+			})
+		}
+	}
+	return
+}
+
+func (e Event) SetOtherProp(prop *ical.Prop) {
+	e.Props.Set(prop)
+}
+
+func (e Event) AddOtherProp(prop KeyValues) {
+	for _, v := range prop.Values {
+		e.Props.Add(&v)
+	}
+}
