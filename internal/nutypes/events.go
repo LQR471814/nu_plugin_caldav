@@ -17,22 +17,23 @@ type PropValueReplica struct {
 }
 
 type EventReplica struct {
-	Uid          *string
-	Summary      *string
-	Location     *string
-	Description  *string
-	Categories   []string
-	Created      *events.Datetime
-	LastModified *events.Datetime
-	Class        *events.EventClass
-	Geo          *events.EventGeo
-	Priority     *int
-	Sequence     *int
-	Status       *events.EventStatus
-	Transparency *events.EventTransparency
-	URL          *url.URL `name:"url"`
-	Comment      *string
-	Attach       *url.URL
+	Uid           *string
+	Summary       *string
+	Location      *string
+	Description   *string
+	Categories    []string
+	DatetimeStamp *events.Datetime
+	Created       *events.Datetime
+	LastModified  *events.Datetime
+	Class         *events.EventClass
+	Geo           *events.EventGeo
+	Priority      *int
+	Sequence      *int
+	Status        *events.EventStatus
+	Transparency  *events.EventTransparency
+	URL           *url.URL `name:"url"`
+	Comment       *string
+	Attach        *url.URL
 	// TODO: implement attendees
 	Contact   *string
 	Organizer *url.URL
@@ -70,7 +71,7 @@ func (e EventReplica) String() string {
 
 	if e.Uid != nil {
 		sb.WriteString("Uid:")
-		fmt.Fprint(&sb, e.Uid)
+		fmt.Fprint(&sb, *e.Uid)
 	}
 	if e.Summary != nil {
 		sb.WriteString(" ")
@@ -80,87 +81,92 @@ func (e EventReplica) String() string {
 	if e.Location != nil {
 		sb.WriteString(" ")
 		sb.WriteString("Location:")
-		fmt.Fprint(&sb, e.Location)
+		fmt.Fprint(&sb, *e.Location)
 	}
 	if e.Description != nil {
 		sb.WriteString(" ")
 		sb.WriteString("Description:")
-		fmt.Fprint(&sb, e.Description)
+		fmt.Fprint(&sb, *e.Description)
 	}
 	if e.Categories != nil {
 		sb.WriteString(" ")
 		sb.WriteString("Categories:")
 		fmt.Fprint(&sb, e.Categories)
 	}
+	if e.DatetimeStamp != nil {
+		sb.WriteString(" ")
+		sb.WriteString("DatetimeStamp:")
+		fmt.Fprint(&sb, *e.DatetimeStamp)
+	}
 	if e.Created != nil {
 		sb.WriteString(" ")
 		sb.WriteString("Created:")
-		fmt.Fprint(&sb, e.Created)
+		fmt.Fprint(&sb, *e.Created)
 	}
 	if e.LastModified != nil {
 		sb.WriteString(" ")
 		sb.WriteString("LastModified:")
-		fmt.Fprint(&sb, e.LastModified)
+		fmt.Fprint(&sb, *e.LastModified)
 	}
 	if e.Class != nil {
 		sb.WriteString(" ")
 		sb.WriteString("Class:")
-		fmt.Fprint(&sb, e.Class)
+		fmt.Fprint(&sb, *e.Class)
 	}
 	if e.Geo != nil {
 		sb.WriteString(" ")
 		sb.WriteString("Geo:")
-		fmt.Fprint(&sb, e.Geo)
+		fmt.Fprint(&sb, *e.Geo)
 	}
 	if e.Priority != nil {
 		sb.WriteString(" ")
 		sb.WriteString("Priority:")
-		fmt.Fprint(&sb, e.Priority)
+		fmt.Fprint(&sb, *e.Priority)
 	}
 	if e.Sequence != nil {
 		sb.WriteString(" ")
 		sb.WriteString("Sequence:")
-		fmt.Fprint(&sb, e.Sequence)
+		fmt.Fprint(&sb, *e.Sequence)
 	}
 	if e.Status != nil {
 		sb.WriteString(" ")
 		sb.WriteString("Status:")
-		fmt.Fprint(&sb, e.Status)
+		fmt.Fprint(&sb, *e.Status)
 	}
 	if e.Transparency != nil {
 		sb.WriteString(" ")
 		sb.WriteString("Transparency:")
-		fmt.Fprint(&sb, e.Transparency)
+		fmt.Fprint(&sb, *e.Transparency)
 	}
 	if e.URL != nil {
 		sb.WriteString(" ")
 		sb.WriteString("URL:")
-		fmt.Fprint(&sb, e.URL)
+		fmt.Fprint(&sb, *e.URL)
 	}
 	if e.Comment != nil {
 		sb.WriteString(" ")
 		sb.WriteString("Comment:")
-		fmt.Fprint(&sb, e.Comment)
+		fmt.Fprint(&sb, *e.Comment)
 	}
 	if e.Attach != nil {
 		sb.WriteString(" ")
 		sb.WriteString("Attach:")
-		fmt.Fprint(&sb, e.Attach)
+		fmt.Fprint(&sb, *e.Attach)
 	}
 	if e.Contact != nil {
 		sb.WriteString(" ")
 		sb.WriteString("Contact:")
-		fmt.Fprint(&sb, e.Contact)
+		fmt.Fprint(&sb, *e.Contact)
 	}
 	if e.Organizer != nil {
 		sb.WriteString(" ")
 		sb.WriteString("Organizer:")
-		fmt.Fprint(&sb, e.Organizer)
+		fmt.Fprint(&sb, *e.Organizer)
 	}
 	if e.RecurrenceRule != nil {
 		sb.WriteString(" ")
 		sb.WriteString("RecurrenceRule:")
-		fmt.Fprint(&sb, e.RecurrenceRule)
+		fmt.Fprint(&sb, *e.RecurrenceRule)
 	}
 	if e.RecurrenceDates != nil {
 		sb.WriteString(" ")
@@ -175,12 +181,12 @@ func (e EventReplica) String() string {
 	if e.RecurrenceInstance != nil {
 		sb.WriteString(" ")
 		sb.WriteString("RecurrenceInstance:")
-		fmt.Fprint(&sb, e.RecurrenceInstance)
+		fmt.Fprint(&sb, *e.RecurrenceInstance)
 	}
 	if e.Trigger != nil {
 		sb.WriteString(" ")
 		sb.WriteString("Trigger:")
-		fmt.Fprint(&sb, e.Trigger)
+		fmt.Fprint(&sb, *e.Trigger)
 	}
 	if e.Other != nil {
 		sb.WriteString(" ")
@@ -210,6 +216,9 @@ func NewEventReplica(e events.Event) (out EventReplica) {
 	}
 	if res, ok := e.GetCategories(); ok {
 		out.Categories = res
+	}
+	if res, ok := e.GetDatetimeStamp(); ok {
+		out.DatetimeStamp = &res
 	}
 	if res, ok := e.GetCreated(); ok {
 		out.Created = &res
@@ -279,6 +288,7 @@ func NewEventReplica(e events.Event) (out EventReplica) {
 		out.Trigger = &res
 	}
 
+	out.Other = make(map[string][]PropValueReplica)
 	for _, p := range e.GetOtherProps() {
 		values := make([]PropValueReplica, len(p.Values))
 		for i, v := range p.Values {
@@ -305,6 +315,9 @@ func (o EventReplica) Apply(e events.Event) {
 	}
 	if o.Categories != nil {
 		e.SetCategories(o.Categories)
+	}
+	if o.DatetimeStamp != nil {
+		e.SetDatetimeStamp(o.DatetimeStamp)
 	}
 	if o.Created != nil {
 		e.SetCreated(o.Created)

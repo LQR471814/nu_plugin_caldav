@@ -74,7 +74,22 @@ func (e Event) SetCategories(categories []string) {
 	}
 }
 
-// Created defines when the event was created.
+// DatetimeStamp defines when the event is initially created (not in the store,
+// but on the client).
+//
+// VEVENT Property: DTSTAMP
+func (e Event) GetDatetimeStamp() (Datetime, bool) {
+	return e.getDatetime(ical.PropDateTimeStamp)
+}
+func (e Event) SetDatetimeStamp(stamp *Datetime) {
+	if stamp == nil {
+		e.Props.Del(ical.PropDateTimeStamp)
+		return
+	}
+	e.setDatetime(ical.PropDateTimeStamp, *stamp)
+}
+
+// Created defines when the event was created in the store.
 //
 // VEVENT Property: CREATED
 func (e Event) GetCreated() (Datetime, bool) {
@@ -88,7 +103,7 @@ func (e Event) SetCreated(createdAt *Datetime) {
 	e.setDatetime(ical.PropCreated, *createdAt)
 }
 
-// LastModified defines when the event was last modified.
+// LastModified defines when the event was last modified in the store.
 //
 // VEVENT Property: LAST-MOD
 func (e Event) GetLastModified() (Datetime, bool) {
@@ -505,6 +520,7 @@ func (e Event) GetOtherProps() (out []KeyValues) {
 			ical.PropLocation,
 			ical.PropDescription,
 			ical.PropCategories,
+			ical.PropDateTimeStamp,
 			ical.PropCreated,
 			ical.PropLastModified,
 			ical.PropClass,
