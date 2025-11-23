@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/emersion/go-ical"
+	"github.com/thlib/go-timezone-local/tzlocal"
 )
 
 func parseDateText(s string, tz *time.Location) (d Datetime, err error) {
@@ -55,6 +56,16 @@ func getTzidParam(prop *ical.Prop, defaultzone *time.Location) (tz *time.Locatio
 	return
 }
 
+var tzname string
+
+func init() {
+	var err error
+	tzname, err = tzlocal.RuntimeTZ()
+	if err != nil {
+		panic(err)
+	}
+}
+
 func setTzidParam(prop *ical.Prop, tz *time.Location) {
 	if prop.Params == nil {
 		prop.Params = make(ical.Params)
@@ -63,5 +74,9 @@ func setTzidParam(prop *ical.Prop, tz *time.Location) {
 		prop.Params.Del(ical.PropTimezoneID)
 		return
 	}
-	prop.Params.Set(ical.PropTimezoneID, tz.String())
+	name := tz.String()
+	if name == "Local" {
+		name = tzname
+	}
+	prop.Params.Set(ical.PropTimezoneID, name)
 }

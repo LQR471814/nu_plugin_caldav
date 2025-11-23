@@ -8,6 +8,7 @@ require (
 	github.com/emersion/go-webdav v0.6.0
 	github.com/google/uuid v1.6.0
 	github.com/teambition/rrule-go v1.8.2
+	github.com/thlib/go-timezone-local v0.0.7
 	github.com/zeebo/xxh3 v1.0.2
 )
 
@@ -16,4 +17,5 @@ require (
 	github.com/stretchr/testify v1.7.1 // indirect
 	github.com/vmihailenco/msgpack/v5 v5.4.1 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
+	golang.org/x/sys v0.0.0-20210831042530-f4d43177bf5e // indirect
 )
