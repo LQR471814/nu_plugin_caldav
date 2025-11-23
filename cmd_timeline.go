@@ -259,6 +259,10 @@ func timelineCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
 	}
 	timeline := convertToTimeline(eventList, start, end)
 
-	err = call.ReturnValue(ctx, conversions.TimelineToNu(timeline))
+	out, err := conversions.TimelineToNu(timeline)
+	if err != nil {
+		return
+	}
+	err = call.ReturnValue(ctx, out)
 	return
 }

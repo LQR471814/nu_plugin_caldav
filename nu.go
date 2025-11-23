@@ -17,7 +17,7 @@ func tryCast[T any](val nu.Value) (T, error) {
 	return cast, nil
 }
 
-func recvListInput[E any](call *nu.ExecCommand, mapping func(v nu.Value) E) (list []E, err error) {
+func recvListInput[E any](call *nu.ExecCommand, mapping func(v nu.Value) (E, error)) (list []E, err error) {
 	switch typed := call.Input.(type) {
 	case nil:
 		err = fmt.Errorf("cannot receive null as input")
@@ -30,11 +30,19 @@ func recvListInput[E any](call *nu.ExecCommand, mapping func(v nu.Value) E) (lis
 		case []nu.Value:
 			list = make([]E, len(v))
 			for i, e := range v {
-				list[i] = mapping(e)
+				list[i], err = mapping(e)
+				if err != nil {
+					return
+				}
 			}
 			return
 		case nu.Record:
-			list = []E{mapping(typed)}
+			var mapped E
+			mapped, err = mapping(typed)
+			if err != nil {
+				return
+			}
+			list = []E{mapped}
 			return
 		default:
 			err = fmt.Errorf("unknown input type: %v", v)
@@ -42,7 +50,12 @@ func recvListInput[E any](call *nu.ExecCommand, mapping func(v nu.Value) E) (lis
 		}
 	case <-chan nu.Value:
 		for v := range typed {
-			list = append(list, mapping(v))
+			var mapped E
+			mapped, err = mapping(v)
+			if err != nil {
+				return
+			}
+			list = append(list, mapped)
 		}
 		return
 	}

@@ -99,7 +99,7 @@ func queryEventsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
 		return
 	}
 
-	var out []nutypes.EventObjectReplica
+	var replicaObjects []nutypes.EventObjectReplica
 
 	// each calendar object only ever stores one unique VEVENT object.
 	//
@@ -127,9 +127,13 @@ func queryEventsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
 			replica.Main = nutypes.NewEventReplica(event)
 		}
 
-		out = append(out, replica)
+		replicaObjects = append(replicaObjects, replica)
 	}
 
-	err = call.ReturnValue(ctx, conversions.EventObjectReplicaListToNu(out))
+	out, err := conversions.EventObjectReplicaListToNu(replicaObjects)
+	if err != nil {
+		return
+	}
+	err = call.ReturnValue(ctx, out)
 	return
 }

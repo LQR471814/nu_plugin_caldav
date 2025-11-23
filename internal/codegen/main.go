@@ -13,14 +13,15 @@ import (
 
 func code() *Code {
 	c := NewCode()
+	c.AddImport("net/url")
+	c.AddImport("time")
+	c.AddImport("fmt")
 	c.AddImport("github.com/ainvaltin/nu-plugin")
 	c.AddImport("github.com/ainvaltin/nu-plugin/types")
 	c.AddImport("github.com/LQR471814/nu_plugin_caldav/events")
 	c.AddImport("github.com/LQR471814/nu_plugin_caldav/internal/nutypes")
 	c.AddImport("github.com/teambition/rrule-go")
 	c.AddImport("github.com/emersion/go-webdav/caldav")
-	c.AddImport("net/url")
-	c.AddImport("time")
 	c.Use("EventObjectReplicaList", reflect.TypeOf(nutypes.EventObjectReplicaList{}))
 	c.Use("EventObjectReplica", reflect.TypeOf(nutypes.EventObjectReplica{}))
 	c.Use("EventReplica", reflect.TypeOf(nutypes.EventReplica{}))
@@ -43,7 +44,8 @@ func render(pkg string) []byte {
 
 	src, err := format.Source(buf.Bytes())
 	if err != nil {
-		panic(err)
+		fmt.Fprintf(os.Stderr, "format failed: %v\n", err)
+		return buf.Bytes()
 	}
 	return src
 }

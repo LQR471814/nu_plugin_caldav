@@ -80,7 +80,12 @@ func builtinFromDecl(cache map[uint64]FromDecl, t reflect.Type) (out FromDecl) {
 		underlyingType = "bool"
 	}
 
-	out.Body = fmt.Sprintf("return %s(v.Value.(%s))", t.String(), underlyingType)
+	var sb strings.Builder
+	fmt.Fprintf(&sb, "casted, ok := v.Value.(%s)\n", underlyingType)
+	fmt.Fprintf(&sb, "converted := %s(casted)\n", t.String())
+	fmt.Fprintf(&sb, "if !ok { return converted, fmt.Errorf(\"expected %s got %%v\", v.Value) }\n", underlyingType)
+	fmt.Fprintln(&sb, "return converted, nil")
+	out.Body = sb.String()
 
 	return
 }
@@ -94,7 +99,7 @@ func builtinToDecl(cache map[uint64]ToDecl, t reflect.Type) (out ToDecl) {
 
 	(&out).SetTypeStr(t.String())
 
-	out.Body = "return nu.ToValue(v)"
+	out.Body = "return nu.ToValue(v), nil"
 	return
 }
 
@@ -113,10 +118,11 @@ func pointerFromDecl(cache map[uint64]FromDecl, t reflect.Type) (out FromDecl) {
 	(&out).SetTypeStr(t.String())
 
 	var sb strings.Builder
-	fmt.Fprintln(&sb, "if v.Value == nil { return nil }")
+	fmt.Fprintln(&sb, "if v.Value == nil { return nil, nil }")
 	decl := fromDecl(cache, t.Elem())
-	fmt.Fprintf(&sb, "res := %s(v)\n", FromDeclId(decl.TypeId))
-	fmt.Fprintf(&sb, "return &res")
+	fmt.Fprintf(&sb, "res, err := %s(v)\n", FromDeclId(decl.TypeId))
+	fmt.Fprintln(&sb, "if err != nil { return nil, err }")
+	fmt.Fprintf(&sb, "return &res, nil")
 	out.Body = sb.String()
 
 	return
@@ -132,7 +138,7 @@ func pointerToDecl(cache map[uint64]ToDecl, t reflect.Type) (out ToDecl) {
 	(&out).SetTypeStr(t.String())
 
 	var sb strings.Builder
-	fmt.Fprintln(&sb, "if v == nil { return nu.Value{Value: nil} }")
+	fmt.Fprintln(&sb, "if v == nil { return nu.Value{}, nil }")
 	decl := toDecl(cache, t.Elem())
 	fmt.Fprintf(&sb, "return %s(*v)", ToDeclId(decl.TypeId))
 	out.Body = sb.String()
@@ -177,13 +183,15 @@ func sliceFromDecl(cache map[uint64]FromDecl, t reflect.Type) (out FromDecl) {
 	decl := fromDecl(cache, t.Elem())
 
 	var sb strings.Builder
-	fmt.Fprintln(&sb, "if v.Value == nil { return nil }")
-	fmt.Fprintln(&sb, "arr := v.Value.([]nu.Value)")
-	fmt.Fprintf(&sb, "out := make(%s, len(arr))\n", out.TypeStr)
+	fmt.Fprintln(&sb, "if v.Value == nil { return nil, nil }")
+	fmt.Fprintln(&sb, "arr, ok := v.Value.([]nu.Value)")
+	fmt.Fprintf(&sb, "if !ok { return nil, fmt.Errorf(\"expected []nu.Value got %%T\", v.Value) }\n")
+	fmt.Fprintf(&sb, "out = make(%s, len(arr))\n", out.TypeStr)
 	fmt.Fprintln(&sb, "for i, e := range arr {")
-	fmt.Fprintf(&sb, "out[i] = %s(e)\n", FromDeclId(decl.TypeId))
+	fmt.Fprintf(&sb, "out[i], err = %s(e)\n", FromDeclId(decl.TypeId))
+	fmt.Fprintln(&sb, "if err != nil { return nil, err }")
 	fmt.Fprintln(&sb, "}")
-	fmt.Fprintln(&sb, "return out")
+	fmt.Fprintln(&sb, "return out, nil")
 
 	out.Body = sb.String()
 	return
@@ -203,9 +211,10 @@ func sliceToDecl(cache map[uint64]ToDecl, t reflect.Type) (out ToDecl) {
 	var sb strings.Builder
 	fmt.Fprintln(&sb, "list := make([]nu.Value, len(v))")
 	fmt.Fprintln(&sb, "for i, e := range v {")
-	fmt.Fprintf(&sb, "list[i] = %s(e)\n", ToDeclId(decl.TypeId))
+	fmt.Fprintf(&sb, "list[i], err = %s(e)\n", ToDeclId(decl.TypeId))
+	fmt.Fprintln(&sb, "if err != nil { return nu.Value{}, err }")
 	fmt.Fprintln(&sb, "}")
-	fmt.Fprintln(&sb, "return nu.Value{Value: list}")
+	fmt.Fprintln(&sb, "return nu.Value{Value: list}, nil")
 
 	out.Body = sb.String()
 	return
@@ -239,12 +248,14 @@ func mapFromDecl(cache map[uint64]FromDecl, t reflect.Type) (out FromDecl) {
 	valDecl := fromDecl(cache, t.Elem())
 
 	var sb strings.Builder
-	fmt.Fprintln(&sb, "dict := v.Value.(nu.Record)")
-	fmt.Fprintf(&sb, "out := make(%s, len(dict))\n", out.TypeStr)
+	fmt.Fprintln(&sb, "dict, ok := v.Value.(nu.Record)")
+	fmt.Fprintf(&sb, "if !ok { return nil, fmt.Errorf(\"expected nu.Record got %%T\", v.Value) }\n")
+	fmt.Fprintf(&sb, "out = make(%s, len(dict))\n", out.TypeStr)
 	fmt.Fprintln(&sb, "for k, v := range dict {")
-	fmt.Fprintf(&sb, "out[k] = %s(v)\n", FromDeclId(valDecl.TypeId))
+	fmt.Fprintf(&sb, "out[k], err = %s(v)\n", FromDeclId(valDecl.TypeId))
+	fmt.Fprintln(&sb, "if err != nil { return nil, err }")
 	fmt.Fprintln(&sb, "}")
-	fmt.Fprintln(&sb, "return out")
+	fmt.Fprintln(&sb, "return out, nil")
 
 	out.Body = sb.String()
 	return
@@ -264,9 +275,10 @@ func mapToDecl(cache map[uint64]ToDecl, t reflect.Type) (out ToDecl) {
 	var sb strings.Builder
 	fmt.Fprintln(&sb, "dict := make(nu.Record, len(v))")
 	fmt.Fprintln(&sb, "for k, v := range v {")
-	fmt.Fprintf(&sb, "dict[k] = %s(v)\n", ToDeclId(valDecl.TypeId))
+	fmt.Fprintf(&sb, "dict[k], err = %s(v)\n", ToDeclId(valDecl.TypeId))
+	fmt.Fprintln(&sb, "if err != nil { return nu.Value{}, err }")
 	fmt.Fprintln(&sb, "}")
-	fmt.Fprintln(&sb, "return nu.Value{Value: dict}")
+	fmt.Fprintln(&sb, "return nu.Value{Value: dict}, nil")
 
 	out.Body = sb.String()
 	return
@@ -355,17 +367,9 @@ func structFromDecl(cache map[uint64]FromDecl, t reflect.Type) (out FromDecl) {
 
 	var sb strings.Builder
 
-	fmt.Fprintf(&sb, "out := %s{}\n", out.TypeStr)
-	fmt.Fprintln(&sb, "record := v.Value.(nu.Record)")
+	fmt.Fprintln(&sb, "record, ok := v.Value.(nu.Record)")
+	fmt.Fprintf(&sb, "if !ok { return out, fmt.Errorf(\"expected nu.Record got %%T\", v.Value) }\n")
 	fmt.Fprintln(&sb, "var val nu.Value")
-
-	for i := range t.NumField() {
-		if t.Field(i).Tag.Get("default") == "" {
-			continue
-		}
-		fmt.Fprintln(&sb, "var ok bool")
-		break
-	}
 
 	for i := range t.NumField() {
 		f := t.Field(i)
@@ -394,15 +398,16 @@ func structFromDecl(cache map[uint64]FromDecl, t reflect.Type) (out FromDecl) {
 			// all nullables are represented with a pointer, therefore if the
 			// key doesn't exist it will simply return nil, which is the
 			// correct behavior
-			"out.%s = %s(val)\n",
+			"out.%s, err = %s(val)\n",
 			f.Name,
 			FromDeclId(decl.TypeId),
 		)
+		fmt.Fprintln(&sb, "if err != nil { return out, err }")
 		if defaultVal != "" {
 			fmt.Fprintln(&sb, "}")
 		}
 	}
-	fmt.Fprintln(&sb, "return out")
+	fmt.Fprintln(&sb, "return out, nil")
 	out.Body = sb.String()
 
 	return
@@ -423,7 +428,7 @@ func structToDecl(cache map[uint64]ToDecl, t reflect.Type) (out ToDecl) {
 
 	var sb strings.Builder
 
-	fmt.Fprintln(&sb, "return nu.Value{Value: nu.Record{")
+	fmt.Fprintln(&sb, "rec := nu.Record{}")
 	for i := range t.NumField() {
 		f := t.Field(i)
 
@@ -433,9 +438,10 @@ func structToDecl(cache map[uint64]ToDecl, t reflect.Type) (out ToDecl) {
 		}
 
 		decl := toDecl(cache, f.Type)
-		fmt.Fprintf(&sb, "\"%s\": %s(v.%s),\n", recordField, ToDeclId(decl.TypeId), f.Name)
+		fmt.Fprintf(&sb, "rec[\"%s\"], err = %s(v.%s)\n", recordField, ToDeclId(decl.TypeId), f.Name)
+		fmt.Fprintln(&sb, "if err != nil { return nu.Value{}, err }")
 	}
-	fmt.Fprintln(&sb, "}}")
+	fmt.Fprintln(&sb, "return nu.Value{Value: rec}, nil")
 	out.Body = sb.String()
 
 	return

@@ -129,7 +129,7 @@ func deleteEventsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) 
 		parallel = v.Value.(int)
 	}
 
-	inputs, err := recvListInput(call, func(v nu.Value) string { return v.Value.(string) })
+	inputs, err := recvListInput(call, func(v nu.Value) (string, error) { return tryCast[string](v) })
 	if err != nil {
 		return
 	}

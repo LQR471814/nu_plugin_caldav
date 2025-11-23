@@ -49,6 +49,10 @@ func queryCalendarsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error
 	if err != nil {
 		return
 	}
-	err = call.ReturnValue(ctx, conversions.CalendarListToNu(calendars))
+	out, err := conversions.CalendarListToNu(calendars)
+	if err != nil {
+		return
+	}
+	err = call.ReturnValue(ctx, out)
 	return
 }

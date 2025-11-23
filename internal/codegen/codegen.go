@@ -43,8 +43,9 @@ func FromDeclId(typeId uint64) string {
 
 func (d FromDecl) String() string {
 	var sb strings.Builder
-	fmt.Fprintf(&sb, "func %s(v nu.Value) %s {\n", FromDeclId(d.TypeId), d.TypeStr)
-	fmt.Fprint(&sb, d.Body)
+	fmt.Fprintf(&sb, "func %s(v nu.Value) (out %s, err error) {\n", FromDeclId(d.TypeId), d.TypeStr)
+	fmt.Fprintf(&sb, "defer func() { if err != nil { err = fmt.Errorf(\"%s: %%w\", err) } }()\n", d.TypeStr)
+	sb.WriteString(d.Body)
 	fmt.Fprint(&sb, "}")
 	return sb.String()
 }
@@ -70,8 +71,9 @@ func ToDeclId(typeId uint64) string {
 
 func (d ToDecl) String() string {
 	var sb strings.Builder
-	fmt.Fprintf(&sb, "func %s(v %s) nu.Value {\n", ToDeclId(d.TypeId), d.TypeStr)
-	fmt.Fprint(&sb, d.Body)
+	fmt.Fprintf(&sb, "func %s(v %s) (out nu.Value, err error) {\n", ToDeclId(d.TypeId), d.TypeStr)
+	fmt.Fprintf(&sb, "defer func() { if err != nil { err = fmt.Errorf(\"%s: %%w\", err) } }()\n", d.TypeStr)
+	sb.WriteString(d.Body)
 	fmt.Fprint(&sb, "}")
 	return sb.String()
 }
