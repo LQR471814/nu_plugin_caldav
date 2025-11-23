@@ -248,6 +248,7 @@ func mapFromDecl(cache map[uint64]FromDecl, t reflect.Type) (out FromDecl) {
 	valDecl := fromDecl(cache, t.Elem())
 
 	var sb strings.Builder
+	fmt.Fprintln(&sb, "if v.Value == nil { return nil, nil }")
 	fmt.Fprintln(&sb, "dict, ok := v.Value.(nu.Record)")
 	fmt.Fprintf(&sb, "if !ok { return nil, fmt.Errorf(\"expected nu.Record got %%T\", v.Value) }\n")
 	fmt.Fprintf(&sb, "out = make(%s, len(dict))\n", out.TypeStr)

@@ -10,33 +10,37 @@ import "github.com/LQR471814/nu_plugin_caldav/internal/nutypes"
 import "github.com/teambition/rrule-go"
 import "github.com/emersion/go-webdav/caldav"
 
-var type_11669970230249425419 = types.List(type_15613163272824911089)
-var type_8207267565485682006 = types.Any()
-var type_4202073097562803312 = types.RecordDef{
-	"now":           type_8047992331715851194,
-	"duration":      type_16589689216511618220,
-	"active_events": type_6714134590091148549,
+var type_5454485661162817076 = types.RecordDef{
+	"stamp":    type_8047992331715851194,
+	"all_day":  type_729807561129781588,
+	"floating": type_729807561129781588,
 }
-var type_10893214126964739625 = types.Record(type_18369289839240265122)
-var type_729807561129781588 = types.Bool()
+var type_15385297846572725340 = types.String()
 var type_7057708295081751301 = types.String()
+var type_4579713456482216358 = types.Record(type_13545470577293064413)
+var type_581713733206709016 = types.RecordDef{
+	"object_path": type_15613163272824911089,
+	"main":        type_1808007570533396940,
+	"overrides":   type_6714134590091148549,
+}
+var type_8047992331715851194 = types.Date()
+var type_7161572108068222122 = types.RecordDef{
+	"latitude":  type_17860233973098560385,
+	"longitude": type_17860233973098560385,
+}
+var type_15560982419391353847 = types.Int()
+var type_3582939560623804181 = types.Record(type_581713733206709016)
+var type_10893214126964739625 = types.Record(type_18369289839240265122)
+var type_4572434499988200822 = types.Table(type_18369289839240265122)
+var type_2493169154543297135 = types.String()
+var type_18222208942348113876 = types.Record(type_7161572108068222122)
+var type_3931126380996215332 = types.Table(type_5454485661162817076)
 var type_18334623996676649874 = types.String()
 var type_13545470577293064413 = types.RecordDef{
 	"relative":    type_16589689216511618220,
 	"relative_to": type_15560982419391353847,
 	"absolute":    type_8047992331715851194,
 }
-var type_1808007570533396940 = types.Record(type_4505817543918974569)
-var type_18369289839240265122 = types.RecordDef{
-	"path":                    type_15613163272824911089,
-	"name":                    type_15613163272824911089,
-	"description":             type_15613163272824911089,
-	"max_resource_size":       type_15139881813094606131,
-	"supported_component_set": type_11669970230249425419,
-}
-var type_17860233973098560385 = types.Float()
-var type_3931126380996215332 = types.Table(type_5454485661162817076)
-var type_4579713456482216358 = types.Record(type_13545470577293064413)
 var type_4505817543918974569 = types.RecordDef{
 	"uid":                        type_15613163272824911089,
 	"summary":                    type_15613163272824911089,
@@ -66,72 +70,63 @@ var type_4505817543918974569 = types.RecordDef{
 	"trigger":                    type_4579713456482216358,
 	"other":                      type_8207267565485682006,
 }
-var type_581713733206709016 = types.RecordDef{
-	"object_path": type_15613163272824911089,
-	"main":        type_1808007570533396940,
-	"overrides":   type_6714134590091148549,
-}
-var type_9513336738104922479 = types.Record(type_5454485661162817076)
 var type_14033482930202471129 = types.Record(type_4202073097562803312)
+var type_15613163272824911089 = types.String()
+var type_11669970230249425419 = types.List(type_15613163272824911089)
+var type_729807561129781588 = types.Bool()
+var type_1808007570533396940 = types.Record(type_4505817543918974569)
+var type_2392839876798024645 = types.Table(type_581713733206709016)
 var type_10890016574791629639 = types.Int()
+var type_8207267565485682006 = types.Any()
+var type_17860233973098560385 = types.Float()
 var type_16589689216511618220 = types.Duration()
-var type_15560982419391353847 = types.Int()
+var type_4202073097562803312 = types.RecordDef{
+	"now":           type_8047992331715851194,
+	"duration":      type_16589689216511618220,
+	"active_events": type_6714134590091148549,
+}
+var type_14900610606431710770 = types.Table(type_4202073097562803312)
+var type_9513336738104922479 = types.Record(type_5454485661162817076)
+var type_5363327835607766502 = types.String()
 var type_6714134590091148549 = types.Table(type_4505817543918974569)
 var type_15139881813094606131 = types.Int()
-var type_4572434499988200822 = types.Table(type_18369289839240265122)
-var type_15613163272824911089 = types.String()
-var type_8047992331715851194 = types.Date()
-var type_2493169154543297135 = types.String()
-var type_18222208942348113876 = types.Record(type_7161572108068222122)
-var type_7161572108068222122 = types.RecordDef{
-	"latitude":  type_17860233973098560385,
-	"longitude": type_17860233973098560385,
+var type_18369289839240265122 = types.RecordDef{
+	"path":                    type_15613163272824911089,
+	"name":                    type_15613163272824911089,
+	"description":             type_15613163272824911089,
+	"max_resource_size":       type_15139881813094606131,
+	"supported_component_set": type_11669970230249425419,
 }
-var type_5363327835607766502 = types.String()
-var type_3582939560623804181 = types.Record(type_581713733206709016)
-var type_2392839876798024645 = types.Table(type_581713733206709016)
-var type_14900610606431710770 = types.Table(type_4202073097562803312)
-var type_5454485661162817076 = types.RecordDef{
-	"stamp":    type_8047992331715851194,
-	"all_day":  type_729807561129781588,
-	"floating": type_729807561129781588,
-}
-var type_15385297846572725340 = types.String()
 
-func type_12480522309550428545_FromNu(v nu.Value) (out *events.Datetime, err error) {
+func type_16589689216511618220_FromNu(v nu.Value) (out time.Duration, err error) {
 	defer func() {
 		if err != nil {
-			err = fmt.Errorf("*events.Datetime: %w", err)
+			err = fmt.Errorf("time.Duration: %w", err)
 		}
 	}()
-	if v.Value == nil {
-		return nil, nil
+	out, ok := v.Value.(time.Duration)
+	if !ok {
+		return out, fmt.Errorf("expected time.Duration got %T", v.Value)
 	}
-	res, err := type_5454485661162817076_FromNu(v)
-	if err != nil {
-		return nil, err
-	}
-	return &res, nil
+	return
 }
-func type_784588192188755836_FromNu(v nu.Value) (out *events.EventStatus, err error) {
+func type_15560982419391353847_FromNu(v nu.Value) (out events.EventTriggerRelative, err error) {
 	defer func() {
 		if err != nil {
-			err = fmt.Errorf("*events.EventStatus: %w", err)
+			err = fmt.Errorf("events.EventTriggerRelative: %w", err)
 		}
 	}()
-	if v.Value == nil {
-		return nil, nil
+	casted, ok := v.Value.(int64)
+	converted := events.EventTriggerRelative(casted)
+	if !ok {
+		return converted, fmt.Errorf("expected int64 got %v", v.Value)
 	}
-	res, err := type_15385297846572725340_FromNu(v)
-	if err != nil {
-		return nil, err
-	}
-	return &res, nil
+	return converted, nil
 }
-func type_4202073097562803312_FromNu(v nu.Value) (out nutypes.TimeSegment, err error) {
+func type_2040221911794545828_FromNu(v nu.Value) (out nutypes.PropValueReplica, err error) {
 	defer func() {
 		if err != nil {
-			err = fmt.Errorf("nutypes.TimeSegment: %w", err)
+			err = fmt.Errorf("nutypes.PropValueReplica: %w", err)
 		}
 	}()
 	record, ok := v.Value.(nu.Record)
@@ -139,170 +134,17 @@ func type_4202073097562803312_FromNu(v nu.Value) (out nutypes.TimeSegment, err e
 		return out, fmt.Errorf("expected nu.Record got %T", v.Value)
 	}
 	var val nu.Value
-	val, _ = record["now"]
-	out.Now, err = type_8047992331715851194_FromNu(val)
+	val, _ = record["value"]
+	out.Value, err = type_15613163272824911089_FromNu(val)
 	if err != nil {
 		return out, err
 	}
-	val, _ = record["duration"]
-	out.Duration, err = type_16589689216511618220_FromNu(val)
-	if err != nil {
-		return out, err
-	}
-	val, _ = record["active_events"]
-	out.ActiveEvents, err = type_6714134590091148549_FromNu(val)
+	val, _ = record["params"]
+	out.Params, err = type_14293658896741725053_FromNu(val)
 	if err != nil {
 		return out, err
 	}
 	return out, nil
-}
-func type_14900610606431710770_FromNu(v nu.Value) (out nutypes.Timeline, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("nutypes.Timeline: %w", err)
-		}
-	}()
-	if v.Value == nil {
-		return nil, nil
-	}
-	arr, ok := v.Value.([]nu.Value)
-	if !ok {
-		return nil, fmt.Errorf("expected []nu.Value got %T", v.Value)
-	}
-	out = make(nutypes.Timeline, len(arr))
-	for i, e := range arr {
-		out[i], err = type_4202073097562803312_FromNu(e)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return out, nil
-}
-func type_9520111014888170891_FromNu(v nu.Value) (out *events.EventTrigger, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("*events.EventTrigger: %w", err)
-		}
-	}()
-	if v.Value == nil {
-		return nil, nil
-	}
-	res, err := type_13545470577293064413_FromNu(v)
-	if err != nil {
-		return nil, err
-	}
-	return &res, nil
-}
-func type_11669970230249425419_FromNu(v nu.Value) (out []string, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("[]string: %w", err)
-		}
-	}()
-	if v.Value == nil {
-		return nil, nil
-	}
-	arr, ok := v.Value.([]nu.Value)
-	if !ok {
-		return nil, fmt.Errorf("expected []nu.Value got %T", v.Value)
-	}
-	out = make([]string, len(arr))
-	for i, e := range arr {
-		out[i], err = type_15613163272824911089_FromNu(e)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return out, nil
-}
-func type_17860233973098560385_FromNu(v nu.Value) (out float64, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("float64: %w", err)
-		}
-	}()
-	casted, ok := v.Value.(float64)
-	converted := float64(casted)
-	if !ok {
-		return converted, fmt.Errorf("expected float64 got %v", v.Value)
-	}
-	return converted, nil
-}
-func type_15385297846572725340_FromNu(v nu.Value) (out events.EventStatus, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("events.EventStatus: %w", err)
-		}
-	}()
-	casted, ok := v.Value.(string)
-	converted := events.EventStatus(casted)
-	if !ok {
-		return converted, fmt.Errorf("expected string got %v", v.Value)
-	}
-	return converted, nil
-}
-func type_18334623996676649874_FromNu(v nu.Value) (out *rrule.RRule, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("*rrule.RRule: %w", err)
-		}
-	}()
-	if v.Value == nil {
-		return nil, nil
-	}
-	parsed, err := rrule.StrToRRule(v.Value.(string))
-	if err != nil {
-		return nil, err
-	}
-	return parsed, nil
-}
-func type_3931126380996215332_FromNu(v nu.Value) (out []events.Datetime, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("[]events.Datetime: %w", err)
-		}
-	}()
-	if v.Value == nil {
-		return nil, nil
-	}
-	arr, ok := v.Value.([]nu.Value)
-	if !ok {
-		return nil, fmt.Errorf("expected []nu.Value got %T", v.Value)
-	}
-	out = make([]events.Datetime, len(arr))
-	for i, e := range arr {
-		out[i], err = type_5454485661162817076_FromNu(e)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return out, nil
-}
-func type_729807561129781588_FromNu(v nu.Value) (out bool, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("bool: %w", err)
-		}
-	}()
-	casted, ok := v.Value.(bool)
-	converted := bool(casted)
-	if !ok {
-		return converted, fmt.Errorf("expected bool got %v", v.Value)
-	}
-	return converted, nil
-}
-func type_10890016574791629639_FromNu(v nu.Value) (out int, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("int: %w", err)
-		}
-	}()
-	casted, ok := v.Value.(int64)
-	converted := int(casted)
-	if !ok {
-		return converted, fmt.Errorf("expected int64 got %v", v.Value)
-	}
-	return converted, nil
 }
 func type_18369289839240265122_FromNu(v nu.Value) (out caldav.Calendar, err error) {
 	defer func() {
@@ -342,10 +184,104 @@ func type_18369289839240265122_FromNu(v nu.Value) (out caldav.Calendar, err erro
 	}
 	return out, nil
 }
-func type_4572434499988200822_FromNu(v nu.Value) (out nutypes.CalendarList, err error) {
+func type_729807561129781588_FromNu(v nu.Value) (out bool, err error) {
 	defer func() {
 		if err != nil {
-			err = fmt.Errorf("nutypes.CalendarList: %w", err)
+			err = fmt.Errorf("bool: %w", err)
+		}
+	}()
+	casted, ok := v.Value.(bool)
+	converted := bool(casted)
+	if !ok {
+		return converted, fmt.Errorf("expected bool got %v", v.Value)
+	}
+	return converted, nil
+}
+func type_9664538759823739797_FromNu(v nu.Value) (out *events.EventClass, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("*events.EventClass: %w", err)
+		}
+	}()
+	if v.Value == nil {
+		return nil, nil
+	}
+	res, err := type_2493169154543297135_FromNu(v)
+	if err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+func type_7161572108068222122_FromNu(v nu.Value) (out events.EventGeo, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("events.EventGeo: %w", err)
+		}
+	}()
+	record, ok := v.Value.(nu.Record)
+	if !ok {
+		return out, fmt.Errorf("expected nu.Record got %T", v.Value)
+	}
+	var val nu.Value
+	val, _ = record["latitude"]
+	out.Latitude, err = type_17860233973098560385_FromNu(val)
+	if err != nil {
+		return out, err
+	}
+	val, _ = record["longitude"]
+	out.Longitude, err = type_17860233973098560385_FromNu(val)
+	if err != nil {
+		return out, err
+	}
+	return out, nil
+}
+func type_15385297846572725340_FromNu(v nu.Value) (out events.EventStatus, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("events.EventStatus: %w", err)
+		}
+	}()
+	casted, ok := v.Value.(string)
+	converted := events.EventStatus(casted)
+	if !ok {
+		return converted, fmt.Errorf("expected string got %v", v.Value)
+	}
+	return converted, nil
+}
+func type_784588192188755836_FromNu(v nu.Value) (out *events.EventStatus, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("*events.EventStatus: %w", err)
+		}
+	}()
+	if v.Value == nil {
+		return nil, nil
+	}
+	res, err := type_15385297846572725340_FromNu(v)
+	if err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+func type_5863190983406162214_FromNu(v nu.Value) (out *time.Duration, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("*time.Duration: %w", err)
+		}
+	}()
+	if v.Value == nil {
+		return nil, nil
+	}
+	res, err := type_16589689216511618220_FromNu(v)
+	if err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+func type_14900610606431710770_FromNu(v nu.Value) (out nutypes.Timeline, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("nutypes.Timeline: %w", err)
 		}
 	}()
 	if v.Value == nil {
@@ -355,63 +291,112 @@ func type_4572434499988200822_FromNu(v nu.Value) (out nutypes.CalendarList, err 
 	if !ok {
 		return nil, fmt.Errorf("expected []nu.Value got %T", v.Value)
 	}
-	out = make(nutypes.CalendarList, len(arr))
+	out = make(nutypes.Timeline, len(arr))
 	for i, e := range arr {
-		out[i], err = type_18369289839240265122_FromNu(e)
+		out[i], err = type_4202073097562803312_FromNu(e)
 		if err != nil {
 			return nil, err
 		}
 	}
 	return out, nil
 }
-func type_2584899110032584934_FromNu(v nu.Value) (out *int, err error) {
+func type_8971279483973357571_FromNu(v nu.Value) (out *events.EventTransparency, err error) {
 	defer func() {
 		if err != nil {
-			err = fmt.Errorf("*int: %w", err)
+			err = fmt.Errorf("*events.EventTransparency: %w", err)
 		}
 	}()
 	if v.Value == nil {
 		return nil, nil
 	}
-	res, err := type_10890016574791629639_FromNu(v)
+	res, err := type_7057708295081751301_FromNu(v)
 	if err != nil {
 		return nil, err
 	}
 	return &res, nil
 }
-func type_15560982419391353847_FromNu(v nu.Value) (out events.EventTriggerRelative, err error) {
+func type_15613163272824911089_FromNu(v nu.Value) (out string, err error) {
 	defer func() {
 		if err != nil {
-			err = fmt.Errorf("events.EventTriggerRelative: %w", err)
+			err = fmt.Errorf("string: %w", err)
 		}
 	}()
-	casted, ok := v.Value.(int64)
-	converted := events.EventTriggerRelative(casted)
+	casted, ok := v.Value.(string)
+	converted := string(casted)
 	if !ok {
-		return converted, fmt.Errorf("expected int64 got %v", v.Value)
+		return converted, fmt.Errorf("expected string got %v", v.Value)
 	}
 	return converted, nil
 }
-func type_2040221911794545828_FromNu(v nu.Value) (out nutypes.PropValueReplica, err error) {
+func type_17862013815172309399_FromNu(v nu.Value) (out *string, err error) {
 	defer func() {
 		if err != nil {
-			err = fmt.Errorf("nutypes.PropValueReplica: %w", err)
+			err = fmt.Errorf("*string: %w", err)
 		}
 	}()
-	record, ok := v.Value.(nu.Record)
+	if v.Value == nil {
+		return nil, nil
+	}
+	res, err := type_15613163272824911089_FromNu(v)
+	if err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+func type_11669970230249425419_FromNu(v nu.Value) (out []string, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("[]string: %w", err)
+		}
+	}()
+	if v.Value == nil {
+		return nil, nil
+	}
+	arr, ok := v.Value.([]nu.Value)
 	if !ok {
-		return out, fmt.Errorf("expected nu.Record got %T", v.Value)
+		return nil, fmt.Errorf("expected []nu.Value got %T", v.Value)
 	}
-	var val nu.Value
-	val, _ = record["value"]
-	out.Value, err = type_15613163272824911089_FromNu(val)
-	if err != nil {
-		return out, err
+	out = make([]string, len(arr))
+	for i, e := range arr {
+		out[i], err = type_15613163272824911089_FromNu(e)
+		if err != nil {
+			return nil, err
+		}
 	}
-	val, _ = record["params"]
-	out.Params, err = type_14293658896741725053_FromNu(val)
-	if err != nil {
-		return out, err
+	return out, nil
+}
+func type_2493169154543297135_FromNu(v nu.Value) (out events.EventClass, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("events.EventClass: %w", err)
+		}
+	}()
+	casted, ok := v.Value.(string)
+	converted := events.EventClass(casted)
+	if !ok {
+		return converted, fmt.Errorf("expected string got %v", v.Value)
+	}
+	return converted, nil
+}
+func type_15678305217965743770_FromNu(v nu.Value) (out []nutypes.PropValueReplica, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("[]nutypes.PropValueReplica: %w", err)
+		}
+	}()
+	if v.Value == nil {
+		return nil, nil
+	}
+	arr, ok := v.Value.([]nu.Value)
+	if !ok {
+		return nil, fmt.Errorf("expected []nu.Value got %T", v.Value)
+	}
+	out = make([]nutypes.PropValueReplica, len(arr))
+	for i, e := range arr {
+		out[i], err = type_2040221911794545828_FromNu(e)
+		if err != nil {
+			return nil, err
+		}
 	}
 	return out, nil
 }
@@ -563,18 +548,30 @@ func type_4505817543918974569_FromNu(v nu.Value) (out nutypes.EventReplica, err 
 	}
 	return out, nil
 }
-func type_15613163272824911089_FromNu(v nu.Value) (out string, err error) {
+func type_15139881813094606131_FromNu(v nu.Value) (out int64, err error) {
 	defer func() {
 		if err != nil {
-			err = fmt.Errorf("string: %w", err)
+			err = fmt.Errorf("int64: %w", err)
 		}
 	}()
-	casted, ok := v.Value.(string)
-	converted := string(casted)
+	casted, ok := v.Value.(int64)
+	converted := int64(casted)
 	if !ok {
-		return converted, fmt.Errorf("expected string got %v", v.Value)
+		return converted, fmt.Errorf("expected int64 got %v", v.Value)
 	}
 	return converted, nil
+}
+func type_8047992331715851194_FromNu(v nu.Value) (out time.Time, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("time.Time: %w", err)
+		}
+	}()
+	out, ok := v.Value.(time.Time)
+	if !ok {
+		return out, fmt.Errorf("expected time.Time got %T", v.Value)
+	}
+	return
 }
 func type_5454485661162817076_FromNu(v nu.Value) (out events.Datetime, err error) {
 	defer func() {
@@ -612,142 +609,6 @@ func type_5454485661162817076_FromNu(v nu.Value) (out events.Datetime, err error
 	}
 	return out, nil
 }
-func type_16589689216511618220_FromNu(v nu.Value) (out time.Duration, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("time.Duration: %w", err)
-		}
-	}()
-	out, ok := v.Value.(time.Duration)
-	if !ok {
-		return out, fmt.Errorf("expected time.Duration got %T", v.Value)
-	}
-	return
-}
-func type_14293658896741725053_FromNu(v nu.Value) (out map[string][]string, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("map[string][]string: %w", err)
-		}
-	}()
-	dict, ok := v.Value.(nu.Record)
-	if !ok {
-		return nil, fmt.Errorf("expected nu.Record got %T", v.Value)
-	}
-	out = make(map[string][]string, len(dict))
-	for k, v := range dict {
-		out[k], err = type_11669970230249425419_FromNu(v)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return out, nil
-}
-func type_15050730807189225719_FromNu(v nu.Value) (out *time.Time, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("*time.Time: %w", err)
-		}
-	}()
-	if v.Value == nil {
-		return nil, nil
-	}
-	res, err := type_8047992331715851194_FromNu(v)
-	if err != nil {
-		return nil, err
-	}
-	return &res, nil
-}
-func type_2493169154543297135_FromNu(v nu.Value) (out events.EventClass, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("events.EventClass: %w", err)
-		}
-	}()
-	casted, ok := v.Value.(string)
-	converted := events.EventClass(casted)
-	if !ok {
-		return converted, fmt.Errorf("expected string got %v", v.Value)
-	}
-	return converted, nil
-}
-func type_8971279483973357571_FromNu(v nu.Value) (out *events.EventTransparency, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("*events.EventTransparency: %w", err)
-		}
-	}()
-	if v.Value == nil {
-		return nil, nil
-	}
-	res, err := type_7057708295081751301_FromNu(v)
-	if err != nil {
-		return nil, err
-	}
-	return &res, nil
-}
-func type_5863190983406162214_FromNu(v nu.Value) (out *time.Duration, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("*time.Duration: %w", err)
-		}
-	}()
-	if v.Value == nil {
-		return nil, nil
-	}
-	res, err := type_16589689216511618220_FromNu(v)
-	if err != nil {
-		return nil, err
-	}
-	return &res, nil
-}
-func type_6714134590091148549_FromNu(v nu.Value) (out []nutypes.EventReplica, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("[]nutypes.EventReplica: %w", err)
-		}
-	}()
-	if v.Value == nil {
-		return nil, nil
-	}
-	arr, ok := v.Value.([]nu.Value)
-	if !ok {
-		return nil, fmt.Errorf("expected []nu.Value got %T", v.Value)
-	}
-	out = make([]nutypes.EventReplica, len(arr))
-	for i, e := range arr {
-		out[i], err = type_4505817543918974569_FromNu(e)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return out, nil
-}
-func type_15139881813094606131_FromNu(v nu.Value) (out int64, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("int64: %w", err)
-		}
-	}()
-	casted, ok := v.Value.(int64)
-	converted := int64(casted)
-	if !ok {
-		return converted, fmt.Errorf("expected int64 got %v", v.Value)
-	}
-	return converted, nil
-}
-func type_8047992331715851194_FromNu(v nu.Value) (out time.Time, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("time.Time: %w", err)
-		}
-	}()
-	out, ok := v.Value.(time.Time)
-	if !ok {
-		return out, fmt.Errorf("expected time.Time got %T", v.Value)
-	}
-	return
-}
 func type_7163250051298988498_FromNu(v nu.Value) (out *events.EventGeo, err error) {
 	defer func() {
 		if err != nil {
@@ -762,122 +623,6 @@ func type_7163250051298988498_FromNu(v nu.Value) (out *events.EventGeo, err erro
 		return nil, err
 	}
 	return &res, nil
-}
-func type_7057708295081751301_FromNu(v nu.Value) (out events.EventTransparency, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("events.EventTransparency: %w", err)
-		}
-	}()
-	casted, ok := v.Value.(string)
-	converted := events.EventTransparency(casted)
-	if !ok {
-		return converted, fmt.Errorf("expected string got %v", v.Value)
-	}
-	return converted, nil
-}
-func type_15678305217965743770_FromNu(v nu.Value) (out []nutypes.PropValueReplica, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("[]nutypes.PropValueReplica: %w", err)
-		}
-	}()
-	if v.Value == nil {
-		return nil, nil
-	}
-	arr, ok := v.Value.([]nu.Value)
-	if !ok {
-		return nil, fmt.Errorf("expected []nu.Value got %T", v.Value)
-	}
-	out = make([]nutypes.PropValueReplica, len(arr))
-	for i, e := range arr {
-		out[i], err = type_2040221911794545828_FromNu(e)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return out, nil
-}
-func type_581713733206709016_FromNu(v nu.Value) (out nutypes.EventObjectReplica, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("nutypes.EventObjectReplica: %w", err)
-		}
-	}()
-	record, ok := v.Value.(nu.Record)
-	if !ok {
-		return out, fmt.Errorf("expected nu.Record got %T", v.Value)
-	}
-	var val nu.Value
-	val, _ = record["object_path"]
-	out.ObjectPath, err = type_17862013815172309399_FromNu(val)
-	if err != nil {
-		return out, err
-	}
-	val, _ = record["main"]
-	out.Main, err = type_4505817543918974569_FromNu(val)
-	if err != nil {
-		return out, err
-	}
-	val, _ = record["overrides"]
-	out.Overrides, err = type_6714134590091148549_FromNu(val)
-	if err != nil {
-		return out, err
-	}
-	return out, nil
-}
-func type_9664538759823739797_FromNu(v nu.Value) (out *events.EventClass, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("*events.EventClass: %w", err)
-		}
-	}()
-	if v.Value == nil {
-		return nil, nil
-	}
-	res, err := type_2493169154543297135_FromNu(v)
-	if err != nil {
-		return nil, err
-	}
-	return &res, nil
-}
-func type_7161572108068222122_FromNu(v nu.Value) (out events.EventGeo, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("events.EventGeo: %w", err)
-		}
-	}()
-	record, ok := v.Value.(nu.Record)
-	if !ok {
-		return out, fmt.Errorf("expected nu.Record got %T", v.Value)
-	}
-	var val nu.Value
-	val, _ = record["latitude"]
-	out.Latitude, err = type_17860233973098560385_FromNu(val)
-	if err != nil {
-		return out, err
-	}
-	val, _ = record["longitude"]
-	out.Longitude, err = type_17860233973098560385_FromNu(val)
-	if err != nil {
-		return out, err
-	}
-	return out, nil
-}
-func type_5363327835607766502_FromNu(v nu.Value) (out *url.URL, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("*url.URL: %w", err)
-		}
-	}()
-	if v.Value == nil {
-		return nil, nil
-	}
-	parsed, err := url.Parse(v.Value.(string))
-	if err != nil {
-		return nil, err
-	}
-	return parsed, nil
 }
 func type_13545470577293064413_FromNu(v nu.Value) (out events.EventTrigger, err error) {
 	defer func() {
@@ -913,6 +658,9 @@ func type_8207267565485682006_FromNu(v nu.Value) (out map[string][]nutypes.PropV
 			err = fmt.Errorf("map[string][]nutypes.PropValueReplica: %w", err)
 		}
 	}()
+	if v.Value == nil {
+		return nil, nil
+	}
 	dict, ok := v.Value.(nu.Record)
 	if !ok {
 		return nil, fmt.Errorf("expected nu.Record got %T", v.Value)
@@ -920,6 +668,115 @@ func type_8207267565485682006_FromNu(v nu.Value) (out map[string][]nutypes.PropV
 	out = make(map[string][]nutypes.PropValueReplica, len(dict))
 	for k, v := range dict {
 		out[k], err = type_15678305217965743770_FromNu(v)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return out, nil
+}
+func type_4572434499988200822_FromNu(v nu.Value) (out nutypes.CalendarList, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("nutypes.CalendarList: %w", err)
+		}
+	}()
+	if v.Value == nil {
+		return nil, nil
+	}
+	arr, ok := v.Value.([]nu.Value)
+	if !ok {
+		return nil, fmt.Errorf("expected []nu.Value got %T", v.Value)
+	}
+	out = make(nutypes.CalendarList, len(arr))
+	for i, e := range arr {
+		out[i], err = type_18369289839240265122_FromNu(e)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return out, nil
+}
+func type_12480522309550428545_FromNu(v nu.Value) (out *events.Datetime, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("*events.Datetime: %w", err)
+		}
+	}()
+	if v.Value == nil {
+		return nil, nil
+	}
+	res, err := type_5454485661162817076_FromNu(v)
+	if err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+func type_7057708295081751301_FromNu(v nu.Value) (out events.EventTransparency, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("events.EventTransparency: %w", err)
+		}
+	}()
+	casted, ok := v.Value.(string)
+	converted := events.EventTransparency(casted)
+	if !ok {
+		return converted, fmt.Errorf("expected string got %v", v.Value)
+	}
+	return converted, nil
+}
+func type_18334623996676649874_FromNu(v nu.Value) (out *rrule.RRule, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("*rrule.RRule: %w", err)
+		}
+	}()
+	if v.Value == nil {
+		return nil, nil
+	}
+	parsed, err := rrule.StrToRRule(v.Value.(string))
+	if err != nil {
+		return nil, err
+	}
+	return parsed, nil
+}
+func type_3931126380996215332_FromNu(v nu.Value) (out []events.Datetime, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("[]events.Datetime: %w", err)
+		}
+	}()
+	if v.Value == nil {
+		return nil, nil
+	}
+	arr, ok := v.Value.([]nu.Value)
+	if !ok {
+		return nil, fmt.Errorf("expected []nu.Value got %T", v.Value)
+	}
+	out = make([]events.Datetime, len(arr))
+	for i, e := range arr {
+		out[i], err = type_5454485661162817076_FromNu(e)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return out, nil
+}
+func type_6714134590091148549_FromNu(v nu.Value) (out []nutypes.EventReplica, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("[]nutypes.EventReplica: %w", err)
+		}
+	}()
+	if v.Value == nil {
+		return nil, nil
+	}
+	arr, ok := v.Value.([]nu.Value)
+	if !ok {
+		return nil, fmt.Errorf("expected []nu.Value got %T", v.Value)
+	}
+	out = make([]nutypes.EventReplica, len(arr))
+	for i, e := range arr {
+		out[i], err = type_4505817543918974569_FromNu(e)
 		if err != nil {
 			return nil, err
 		}
@@ -948,143 +805,169 @@ func type_2392839876798024645_FromNu(v nu.Value) (out nutypes.EventObjectReplica
 	}
 	return out, nil
 }
-func type_17862013815172309399_FromNu(v nu.Value) (out *string, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("*string: %w", err)
-		}
-	}()
-	if v.Value == nil {
-		return nil, nil
-	}
-	res, err := type_15613163272824911089_FromNu(v)
-	if err != nil {
-		return nil, err
-	}
-	return &res, nil
-}
-func type_729807561129781588_ToNu(v bool) (out nu.Value, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("bool: %w", err)
-		}
-	}()
-	return nu.ToValue(v), nil
-}
-func type_2493169154543297135_ToNu(v events.EventClass) (out nu.Value, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("events.EventClass: %w", err)
-		}
-	}()
-	return nu.ToValue(v), nil
-}
-func type_5363327835607766502_ToNu(v *url.URL) (out nu.Value, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("*url.URL: %w", err)
-		}
-	}()
-	if v == nil {
-		return nu.Value{Value: nil}, nil
-	}
-	return nu.ToValue(v.String()), nil
-}
-func type_13545470577293064413_ToNu(v events.EventTrigger) (out nu.Value, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("events.EventTrigger: %w", err)
-		}
-	}()
-	rec := nu.Record{}
-	rec["relative"], err = type_5863190983406162214_ToNu(v.Relative)
-	if err != nil {
-		return nu.Value{}, err
-	}
-	rec["relative_to"], err = type_15560982419391353847_ToNu(v.RelativeTo)
-	if err != nil {
-		return nu.Value{}, err
-	}
-	rec["absolute"], err = type_15050730807189225719_ToNu(v.Absolute)
-	if err != nil {
-		return nu.Value{}, err
-	}
-	return nu.Value{Value: rec}, nil
-}
-func type_14293658896741725053_ToNu(v map[string][]string) (out nu.Value, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("map[string][]string: %w", err)
-		}
-	}()
-	dict := make(nu.Record, len(v))
-	for k, v := range v {
-		dict[k], err = type_11669970230249425419_ToNu(v)
-		if err != nil {
-			return nu.Value{}, err
-		}
-	}
-	return nu.Value{Value: dict}, nil
-}
-func type_11669970230249425419_ToNu(v []string) (out nu.Value, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("[]string: %w", err)
-		}
-	}()
-	list := make([]nu.Value, len(v))
-	for i, e := range v {
-		list[i], err = type_15613163272824911089_ToNu(e)
-		if err != nil {
-			return nu.Value{}, err
-		}
-	}
-	return nu.Value{Value: list}, nil
-}
-func type_12480522309550428545_ToNu(v *events.Datetime) (out nu.Value, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("*events.Datetime: %w", err)
-		}
-	}()
-	if v == nil {
-		return nu.Value{}, nil
-	}
-	return type_5454485661162817076_ToNu(*v)
-}
-func type_9664538759823739797_ToNu(v *events.EventClass) (out nu.Value, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("*events.EventClass: %w", err)
-		}
-	}()
-	if v == nil {
-		return nu.Value{}, nil
-	}
-	return type_2493169154543297135_ToNu(*v)
-}
-func type_17860233973098560385_ToNu(v float64) (out nu.Value, err error) {
+func type_17860233973098560385_FromNu(v nu.Value) (out float64, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("float64: %w", err)
 		}
 	}()
-	return nu.ToValue(v), nil
+	casted, ok := v.Value.(float64)
+	converted := float64(casted)
+	if !ok {
+		return converted, fmt.Errorf("expected float64 got %v", v.Value)
+	}
+	return converted, nil
 }
-func type_3931126380996215332_ToNu(v []events.Datetime) (out nu.Value, err error) {
+func type_10890016574791629639_FromNu(v nu.Value) (out int, err error) {
 	defer func() {
 		if err != nil {
-			err = fmt.Errorf("[]events.Datetime: %w", err)
+			err = fmt.Errorf("int: %w", err)
 		}
 	}()
-	list := make([]nu.Value, len(v))
-	for i, e := range v {
-		list[i], err = type_5454485661162817076_ToNu(e)
+	casted, ok := v.Value.(int64)
+	converted := int(casted)
+	if !ok {
+		return converted, fmt.Errorf("expected int64 got %v", v.Value)
+	}
+	return converted, nil
+}
+func type_15050730807189225719_FromNu(v nu.Value) (out *time.Time, err error) {
+	defer func() {
 		if err != nil {
-			return nu.Value{}, err
+			err = fmt.Errorf("*time.Time: %w", err)
+		}
+	}()
+	if v.Value == nil {
+		return nil, nil
+	}
+	res, err := type_8047992331715851194_FromNu(v)
+	if err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+func type_9520111014888170891_FromNu(v nu.Value) (out *events.EventTrigger, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("*events.EventTrigger: %w", err)
+		}
+	}()
+	if v.Value == nil {
+		return nil, nil
+	}
+	res, err := type_13545470577293064413_FromNu(v)
+	if err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+func type_5363327835607766502_FromNu(v nu.Value) (out *url.URL, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("*url.URL: %w", err)
+		}
+	}()
+	if v.Value == nil {
+		return nil, nil
+	}
+	parsed, err := url.Parse(v.Value.(string))
+	if err != nil {
+		return nil, err
+	}
+	return parsed, nil
+}
+func type_14293658896741725053_FromNu(v nu.Value) (out map[string][]string, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("map[string][]string: %w", err)
+		}
+	}()
+	if v.Value == nil {
+		return nil, nil
+	}
+	dict, ok := v.Value.(nu.Record)
+	if !ok {
+		return nil, fmt.Errorf("expected nu.Record got %T", v.Value)
+	}
+	out = make(map[string][]string, len(dict))
+	for k, v := range dict {
+		out[k], err = type_11669970230249425419_FromNu(v)
+		if err != nil {
+			return nil, err
 		}
 	}
-	return nu.Value{Value: list}, nil
+	return out, nil
+}
+func type_581713733206709016_FromNu(v nu.Value) (out nutypes.EventObjectReplica, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("nutypes.EventObjectReplica: %w", err)
+		}
+	}()
+	record, ok := v.Value.(nu.Record)
+	if !ok {
+		return out, fmt.Errorf("expected nu.Record got %T", v.Value)
+	}
+	var val nu.Value
+	val, _ = record["object_path"]
+	out.ObjectPath, err = type_17862013815172309399_FromNu(val)
+	if err != nil {
+		return out, err
+	}
+	val, _ = record["main"]
+	out.Main, err = type_4505817543918974569_FromNu(val)
+	if err != nil {
+		return out, err
+	}
+	val, _ = record["overrides"]
+	out.Overrides, err = type_6714134590091148549_FromNu(val)
+	if err != nil {
+		return out, err
+	}
+	return out, nil
+}
+func type_4202073097562803312_FromNu(v nu.Value) (out nutypes.TimeSegment, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("nutypes.TimeSegment: %w", err)
+		}
+	}()
+	record, ok := v.Value.(nu.Record)
+	if !ok {
+		return out, fmt.Errorf("expected nu.Record got %T", v.Value)
+	}
+	var val nu.Value
+	val, _ = record["now"]
+	out.Now, err = type_8047992331715851194_FromNu(val)
+	if err != nil {
+		return out, err
+	}
+	val, _ = record["duration"]
+	out.Duration, err = type_16589689216511618220_FromNu(val)
+	if err != nil {
+		return out, err
+	}
+	val, _ = record["active_events"]
+	out.ActiveEvents, err = type_6714134590091148549_FromNu(val)
+	if err != nil {
+		return out, err
+	}
+	return out, nil
+}
+func type_2584899110032584934_FromNu(v nu.Value) (out *int, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("*int: %w", err)
+		}
+	}()
+	if v.Value == nil {
+		return nil, nil
+	}
+	res, err := type_10890016574791629639_FromNu(v)
+	if err != nil {
+		return nil, err
+	}
+	return &res, nil
 }
 func type_9520111014888170891_ToNu(v *events.EventTrigger) (out nu.Value, err error) {
 	defer func() {
@@ -1097,269 +980,6 @@ func type_9520111014888170891_ToNu(v *events.EventTrigger) (out nu.Value, err er
 	}
 	return type_13545470577293064413_ToNu(*v)
 }
-func type_4202073097562803312_ToNu(v nutypes.TimeSegment) (out nu.Value, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("nutypes.TimeSegment: %w", err)
-		}
-	}()
-	rec := nu.Record{}
-	rec["now"], err = type_8047992331715851194_ToNu(v.Now)
-	if err != nil {
-		return nu.Value{}, err
-	}
-	rec["duration"], err = type_16589689216511618220_ToNu(v.Duration)
-	if err != nil {
-		return nu.Value{}, err
-	}
-	rec["active_events"], err = type_6714134590091148549_ToNu(v.ActiveEvents)
-	if err != nil {
-		return nu.Value{}, err
-	}
-	return nu.Value{Value: rec}, nil
-}
-func type_14900610606431710770_ToNu(v nutypes.Timeline) (out nu.Value, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("nutypes.Timeline: %w", err)
-		}
-	}()
-	list := make([]nu.Value, len(v))
-	for i, e := range v {
-		list[i], err = type_4202073097562803312_ToNu(e)
-		if err != nil {
-			return nu.Value{}, err
-		}
-	}
-	return nu.Value{Value: list}, nil
-}
-func type_7161572108068222122_ToNu(v events.EventGeo) (out nu.Value, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("events.EventGeo: %w", err)
-		}
-	}()
-	rec := nu.Record{}
-	rec["latitude"], err = type_17860233973098560385_ToNu(v.Latitude)
-	if err != nil {
-		return nu.Value{}, err
-	}
-	rec["longitude"], err = type_17860233973098560385_ToNu(v.Longitude)
-	if err != nil {
-		return nu.Value{}, err
-	}
-	return nu.Value{Value: rec}, nil
-}
-func type_2584899110032584934_ToNu(v *int) (out nu.Value, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("*int: %w", err)
-		}
-	}()
-	if v == nil {
-		return nu.Value{}, nil
-	}
-	return type_10890016574791629639_ToNu(*v)
-}
-func type_8971279483973357571_ToNu(v *events.EventTransparency) (out nu.Value, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("*events.EventTransparency: %w", err)
-		}
-	}()
-	if v == nil {
-		return nu.Value{}, nil
-	}
-	return type_7057708295081751301_ToNu(*v)
-}
-func type_18334623996676649874_ToNu(v *rrule.RRule) (out nu.Value, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("*rrule.RRule: %w", err)
-		}
-	}()
-	if v == nil {
-		return nu.Value{Value: nil}, nil
-	}
-	return nu.ToValue(v.String()), nil
-}
-func type_6714134590091148549_ToNu(v []nutypes.EventReplica) (out nu.Value, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("[]nutypes.EventReplica: %w", err)
-		}
-	}()
-	list := make([]nu.Value, len(v))
-	for i, e := range v {
-		list[i], err = type_4505817543918974569_ToNu(e)
-		if err != nil {
-			return nu.Value{}, err
-		}
-	}
-	return nu.Value{Value: list}, nil
-}
-func type_15139881813094606131_ToNu(v int64) (out nu.Value, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("int64: %w", err)
-		}
-	}()
-	return nu.ToValue(v), nil
-}
-func type_18369289839240265122_ToNu(v caldav.Calendar) (out nu.Value, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("caldav.Calendar: %w", err)
-		}
-	}()
-	rec := nu.Record{}
-	rec["path"], err = type_15613163272824911089_ToNu(v.Path)
-	if err != nil {
-		return nu.Value{}, err
-	}
-	rec["name"], err = type_15613163272824911089_ToNu(v.Name)
-	if err != nil {
-		return nu.Value{}, err
-	}
-	rec["description"], err = type_15613163272824911089_ToNu(v.Description)
-	if err != nil {
-		return nu.Value{}, err
-	}
-	rec["max_resource_size"], err = type_15139881813094606131_ToNu(v.MaxResourceSize)
-	if err != nil {
-		return nu.Value{}, err
-	}
-	rec["supported_component_set"], err = type_11669970230249425419_ToNu(v.SupportedComponentSet)
-	if err != nil {
-		return nu.Value{}, err
-	}
-	return nu.Value{Value: rec}, nil
-}
-func type_10890016574791629639_ToNu(v int) (out nu.Value, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("int: %w", err)
-		}
-	}()
-	return nu.ToValue(v), nil
-}
-func type_5863190983406162214_ToNu(v *time.Duration) (out nu.Value, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("*time.Duration: %w", err)
-		}
-	}()
-	if v == nil {
-		return nu.Value{}, nil
-	}
-	return type_16589689216511618220_ToNu(*v)
-}
-func type_15560982419391353847_ToNu(v events.EventTriggerRelative) (out nu.Value, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("events.EventTriggerRelative: %w", err)
-		}
-	}()
-	return nu.ToValue(v), nil
-}
-func type_2040221911794545828_ToNu(v nutypes.PropValueReplica) (out nu.Value, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("nutypes.PropValueReplica: %w", err)
-		}
-	}()
-	rec := nu.Record{}
-	rec["value"], err = type_15613163272824911089_ToNu(v.Value)
-	if err != nil {
-		return nu.Value{}, err
-	}
-	rec["params"], err = type_14293658896741725053_ToNu(v.Params)
-	if err != nil {
-		return nu.Value{}, err
-	}
-	return nu.Value{Value: rec}, nil
-}
-func type_581713733206709016_ToNu(v nutypes.EventObjectReplica) (out nu.Value, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("nutypes.EventObjectReplica: %w", err)
-		}
-	}()
-	rec := nu.Record{}
-	rec["object_path"], err = type_17862013815172309399_ToNu(v.ObjectPath)
-	if err != nil {
-		return nu.Value{}, err
-	}
-	rec["main"], err = type_4505817543918974569_ToNu(v.Main)
-	if err != nil {
-		return nu.Value{}, err
-	}
-	rec["overrides"], err = type_6714134590091148549_ToNu(v.Overrides)
-	if err != nil {
-		return nu.Value{}, err
-	}
-	return nu.Value{Value: rec}, nil
-}
-func type_2392839876798024645_ToNu(v nutypes.EventObjectReplicaList) (out nu.Value, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("nutypes.EventObjectReplicaList: %w", err)
-		}
-	}()
-	list := make([]nu.Value, len(v))
-	for i, e := range v {
-		list[i], err = type_581713733206709016_ToNu(e)
-		if err != nil {
-			return nu.Value{}, err
-		}
-	}
-	return nu.Value{Value: list}, nil
-}
-func type_17862013815172309399_ToNu(v *string) (out nu.Value, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("*string: %w", err)
-		}
-	}()
-	if v == nil {
-		return nu.Value{}, nil
-	}
-	return type_15613163272824911089_ToNu(*v)
-}
-func type_15050730807189225719_ToNu(v *time.Time) (out nu.Value, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("*time.Time: %w", err)
-		}
-	}()
-	if v == nil {
-		return nu.Value{}, nil
-	}
-	return type_8047992331715851194_ToNu(*v)
-}
-func type_15678305217965743770_ToNu(v []nutypes.PropValueReplica) (out nu.Value, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("[]nutypes.PropValueReplica: %w", err)
-		}
-	}()
-	list := make([]nu.Value, len(v))
-	for i, e := range v {
-		list[i], err = type_2040221911794545828_ToNu(e)
-		if err != nil {
-			return nu.Value{}, err
-		}
-	}
-	return nu.Value{Value: list}, nil
-}
-func type_8047992331715851194_ToNu(v time.Time) (out nu.Value, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("time.Time: %w", err)
-		}
-	}()
-	return nu.ToValue(v), nil
-}
 func type_7163250051298988498_ToNu(v *events.EventGeo) (out nu.Value, err error) {
 	defer func() {
 		if err != nil {
@@ -1371,47 +991,16 @@ func type_7163250051298988498_ToNu(v *events.EventGeo) (out nu.Value, err error)
 	}
 	return type_7161572108068222122_ToNu(*v)
 }
-func type_784588192188755836_ToNu(v *events.EventStatus) (out nu.Value, err error) {
+func type_5363327835607766502_ToNu(v *url.URL) (out nu.Value, err error) {
 	defer func() {
 		if err != nil {
-			err = fmt.Errorf("*events.EventStatus: %w", err)
+			err = fmt.Errorf("*url.URL: %w", err)
 		}
 	}()
 	if v == nil {
-		return nu.Value{}, nil
+		return nu.Value{Value: nil}, nil
 	}
-	return type_15385297846572725340_ToNu(*v)
-}
-func type_7057708295081751301_ToNu(v events.EventTransparency) (out nu.Value, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("events.EventTransparency: %w", err)
-		}
-	}()
-	return nu.ToValue(v), nil
-}
-func type_16589689216511618220_ToNu(v time.Duration) (out nu.Value, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("time.Duration: %w", err)
-		}
-	}()
-	return nu.ToValue(v), nil
-}
-func type_8207267565485682006_ToNu(v map[string][]nutypes.PropValueReplica) (out nu.Value, err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("map[string][]nutypes.PropValueReplica: %w", err)
-		}
-	}()
-	dict := make(nu.Record, len(v))
-	for k, v := range v {
-		dict[k], err = type_15678305217965743770_ToNu(v)
-		if err != nil {
-			return nu.Value{}, err
-		}
-	}
-	return nu.Value{Value: dict}, nil
+	return nu.ToValue(v.String()), nil
 }
 func type_4505817543918974569_ToNu(v nutypes.EventReplica) (out nu.Value, err error) {
 	defer func() {
@@ -1530,10 +1119,191 @@ func type_4505817543918974569_ToNu(v nutypes.EventReplica) (out nu.Value, err er
 	}
 	return nu.Value{Value: rec}, nil
 }
+func type_2392839876798024645_ToNu(v nutypes.EventObjectReplicaList) (out nu.Value, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("nutypes.EventObjectReplicaList: %w", err)
+		}
+	}()
+	list := make([]nu.Value, len(v))
+	for i, e := range v {
+		list[i], err = type_581713733206709016_ToNu(e)
+		if err != nil {
+			return nu.Value{}, err
+		}
+	}
+	return nu.Value{Value: list}, nil
+}
+func type_18369289839240265122_ToNu(v caldav.Calendar) (out nu.Value, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("caldav.Calendar: %w", err)
+		}
+	}()
+	rec := nu.Record{}
+	rec["path"], err = type_15613163272824911089_ToNu(v.Path)
+	if err != nil {
+		return nu.Value{}, err
+	}
+	rec["name"], err = type_15613163272824911089_ToNu(v.Name)
+	if err != nil {
+		return nu.Value{}, err
+	}
+	rec["description"], err = type_15613163272824911089_ToNu(v.Description)
+	if err != nil {
+		return nu.Value{}, err
+	}
+	rec["max_resource_size"], err = type_15139881813094606131_ToNu(v.MaxResourceSize)
+	if err != nil {
+		return nu.Value{}, err
+	}
+	rec["supported_component_set"], err = type_11669970230249425419_ToNu(v.SupportedComponentSet)
+	if err != nil {
+		return nu.Value{}, err
+	}
+	return nu.Value{Value: rec}, nil
+}
+func type_17862013815172309399_ToNu(v *string) (out nu.Value, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("*string: %w", err)
+		}
+	}()
+	if v == nil {
+		return nu.Value{}, nil
+	}
+	return type_15613163272824911089_ToNu(*v)
+}
+func type_11669970230249425419_ToNu(v []string) (out nu.Value, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("[]string: %w", err)
+		}
+	}()
+	list := make([]nu.Value, len(v))
+	for i, e := range v {
+		list[i], err = type_15613163272824911089_ToNu(e)
+		if err != nil {
+			return nu.Value{}, err
+		}
+	}
+	return nu.Value{Value: list}, nil
+}
+func type_18334623996676649874_ToNu(v *rrule.RRule) (out nu.Value, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("*rrule.RRule: %w", err)
+		}
+	}()
+	if v == nil {
+		return nu.Value{Value: nil}, nil
+	}
+	return nu.ToValue(v.String()), nil
+}
+func type_14293658896741725053_ToNu(v map[string][]string) (out nu.Value, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("map[string][]string: %w", err)
+		}
+	}()
+	dict := make(nu.Record, len(v))
+	for k, v := range v {
+		dict[k], err = type_11669970230249425419_ToNu(v)
+		if err != nil {
+			return nu.Value{}, err
+		}
+	}
+	return nu.Value{Value: dict}, nil
+}
+func type_4202073097562803312_ToNu(v nutypes.TimeSegment) (out nu.Value, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("nutypes.TimeSegment: %w", err)
+		}
+	}()
+	rec := nu.Record{}
+	rec["now"], err = type_8047992331715851194_ToNu(v.Now)
+	if err != nil {
+		return nu.Value{}, err
+	}
+	rec["duration"], err = type_16589689216511618220_ToNu(v.Duration)
+	if err != nil {
+		return nu.Value{}, err
+	}
+	rec["active_events"], err = type_6714134590091148549_ToNu(v.ActiveEvents)
+	if err != nil {
+		return nu.Value{}, err
+	}
+	return nu.Value{Value: rec}, nil
+}
 func type_15613163272824911089_ToNu(v string) (out nu.Value, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("string: %w", err)
+		}
+	}()
+	return nu.ToValue(v), nil
+}
+func type_729807561129781588_ToNu(v bool) (out nu.Value, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("bool: %w", err)
+		}
+	}()
+	return nu.ToValue(v), nil
+}
+func type_2493169154543297135_ToNu(v events.EventClass) (out nu.Value, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("events.EventClass: %w", err)
+		}
+	}()
+	return nu.ToValue(v), nil
+}
+func type_2584899110032584934_ToNu(v *int) (out nu.Value, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("*int: %w", err)
+		}
+	}()
+	if v == nil {
+		return nu.Value{}, nil
+	}
+	return type_10890016574791629639_ToNu(*v)
+}
+func type_581713733206709016_ToNu(v nutypes.EventObjectReplica) (out nu.Value, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("nutypes.EventObjectReplica: %w", err)
+		}
+	}()
+	rec := nu.Record{}
+	rec["object_path"], err = type_17862013815172309399_ToNu(v.ObjectPath)
+	if err != nil {
+		return nu.Value{}, err
+	}
+	rec["main"], err = type_4505817543918974569_ToNu(v.Main)
+	if err != nil {
+		return nu.Value{}, err
+	}
+	rec["overrides"], err = type_6714134590091148549_ToNu(v.Overrides)
+	if err != nil {
+		return nu.Value{}, err
+	}
+	return nu.Value{Value: rec}, nil
+}
+func type_15139881813094606131_ToNu(v int64) (out nu.Value, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("int64: %w", err)
+		}
+	}()
+	return nu.ToValue(v), nil
+}
+func type_8047992331715851194_ToNu(v time.Time) (out nu.Value, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("time.Time: %w", err)
 		}
 	}()
 	return nu.ToValue(v), nil
@@ -1559,13 +1329,35 @@ func type_5454485661162817076_ToNu(v events.Datetime) (out nu.Value, err error) 
 	}
 	return nu.Value{Value: rec}, nil
 }
-func type_15385297846572725340_ToNu(v events.EventStatus) (out nu.Value, err error) {
+func type_12480522309550428545_ToNu(v *events.Datetime) (out nu.Value, err error) {
 	defer func() {
 		if err != nil {
-			err = fmt.Errorf("events.EventStatus: %w", err)
+			err = fmt.Errorf("*events.Datetime: %w", err)
+		}
+	}()
+	if v == nil {
+		return nu.Value{}, nil
+	}
+	return type_5454485661162817076_ToNu(*v)
+}
+func type_16589689216511618220_ToNu(v time.Duration) (out nu.Value, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("time.Duration: %w", err)
 		}
 	}()
 	return nu.ToValue(v), nil
+}
+func type_15050730807189225719_ToNu(v *time.Time) (out nu.Value, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("*time.Time: %w", err)
+		}
+	}()
+	if v == nil {
+		return nu.Value{}, nil
+	}
+	return type_8047992331715851194_ToNu(*v)
 }
 func type_4572434499988200822_ToNu(v nutypes.CalendarList) (out nu.Value, err error) {
 	defer func() {
@@ -1581,6 +1373,220 @@ func type_4572434499988200822_ToNu(v nutypes.CalendarList) (out nu.Value, err er
 		}
 	}
 	return nu.Value{Value: list}, nil
+}
+func type_9664538759823739797_ToNu(v *events.EventClass) (out nu.Value, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("*events.EventClass: %w", err)
+		}
+	}()
+	if v == nil {
+		return nu.Value{}, nil
+	}
+	return type_2493169154543297135_ToNu(*v)
+}
+func type_784588192188755836_ToNu(v *events.EventStatus) (out nu.Value, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("*events.EventStatus: %w", err)
+		}
+	}()
+	if v == nil {
+		return nu.Value{}, nil
+	}
+	return type_15385297846572725340_ToNu(*v)
+}
+func type_2040221911794545828_ToNu(v nutypes.PropValueReplica) (out nu.Value, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("nutypes.PropValueReplica: %w", err)
+		}
+	}()
+	rec := nu.Record{}
+	rec["value"], err = type_15613163272824911089_ToNu(v.Value)
+	if err != nil {
+		return nu.Value{}, err
+	}
+	rec["params"], err = type_14293658896741725053_ToNu(v.Params)
+	if err != nil {
+		return nu.Value{}, err
+	}
+	return nu.Value{Value: rec}, nil
+}
+func type_8207267565485682006_ToNu(v map[string][]nutypes.PropValueReplica) (out nu.Value, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("map[string][]nutypes.PropValueReplica: %w", err)
+		}
+	}()
+	dict := make(nu.Record, len(v))
+	for k, v := range v {
+		dict[k], err = type_15678305217965743770_ToNu(v)
+		if err != nil {
+			return nu.Value{}, err
+		}
+	}
+	return nu.Value{Value: dict}, nil
+}
+func type_15385297846572725340_ToNu(v events.EventStatus) (out nu.Value, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("events.EventStatus: %w", err)
+		}
+	}()
+	return nu.ToValue(v), nil
+}
+func type_15560982419391353847_ToNu(v events.EventTriggerRelative) (out nu.Value, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("events.EventTriggerRelative: %w", err)
+		}
+	}()
+	return nu.ToValue(v), nil
+}
+func type_6714134590091148549_ToNu(v []nutypes.EventReplica) (out nu.Value, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("[]nutypes.EventReplica: %w", err)
+		}
+	}()
+	list := make([]nu.Value, len(v))
+	for i, e := range v {
+		list[i], err = type_4505817543918974569_ToNu(e)
+		if err != nil {
+			return nu.Value{}, err
+		}
+	}
+	return nu.Value{Value: list}, nil
+}
+func type_7161572108068222122_ToNu(v events.EventGeo) (out nu.Value, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("events.EventGeo: %w", err)
+		}
+	}()
+	rec := nu.Record{}
+	rec["latitude"], err = type_17860233973098560385_ToNu(v.Latitude)
+	if err != nil {
+		return nu.Value{}, err
+	}
+	rec["longitude"], err = type_17860233973098560385_ToNu(v.Longitude)
+	if err != nil {
+		return nu.Value{}, err
+	}
+	return nu.Value{Value: rec}, nil
+}
+func type_3931126380996215332_ToNu(v []events.Datetime) (out nu.Value, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("[]events.Datetime: %w", err)
+		}
+	}()
+	list := make([]nu.Value, len(v))
+	for i, e := range v {
+		list[i], err = type_5454485661162817076_ToNu(e)
+		if err != nil {
+			return nu.Value{}, err
+		}
+	}
+	return nu.Value{Value: list}, nil
+}
+func type_5863190983406162214_ToNu(v *time.Duration) (out nu.Value, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("*time.Duration: %w", err)
+		}
+	}()
+	if v == nil {
+		return nu.Value{}, nil
+	}
+	return type_16589689216511618220_ToNu(*v)
+}
+func type_13545470577293064413_ToNu(v events.EventTrigger) (out nu.Value, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("events.EventTrigger: %w", err)
+		}
+	}()
+	rec := nu.Record{}
+	rec["relative"], err = type_5863190983406162214_ToNu(v.Relative)
+	if err != nil {
+		return nu.Value{}, err
+	}
+	rec["relative_to"], err = type_15560982419391353847_ToNu(v.RelativeTo)
+	if err != nil {
+		return nu.Value{}, err
+	}
+	rec["absolute"], err = type_15050730807189225719_ToNu(v.Absolute)
+	if err != nil {
+		return nu.Value{}, err
+	}
+	return nu.Value{Value: rec}, nil
+}
+func type_15678305217965743770_ToNu(v []nutypes.PropValueReplica) (out nu.Value, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("[]nutypes.PropValueReplica: %w", err)
+		}
+	}()
+	list := make([]nu.Value, len(v))
+	for i, e := range v {
+		list[i], err = type_2040221911794545828_ToNu(e)
+		if err != nil {
+			return nu.Value{}, err
+		}
+	}
+	return nu.Value{Value: list}, nil
+}
+func type_14900610606431710770_ToNu(v nutypes.Timeline) (out nu.Value, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("nutypes.Timeline: %w", err)
+		}
+	}()
+	list := make([]nu.Value, len(v))
+	for i, e := range v {
+		list[i], err = type_4202073097562803312_ToNu(e)
+		if err != nil {
+			return nu.Value{}, err
+		}
+	}
+	return nu.Value{Value: list}, nil
+}
+func type_17860233973098560385_ToNu(v float64) (out nu.Value, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("float64: %w", err)
+		}
+	}()
+	return nu.ToValue(v), nil
+}
+func type_10890016574791629639_ToNu(v int) (out nu.Value, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("int: %w", err)
+		}
+	}()
+	return nu.ToValue(v), nil
+}
+func type_7057708295081751301_ToNu(v events.EventTransparency) (out nu.Value, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("events.EventTransparency: %w", err)
+		}
+	}()
+	return nu.ToValue(v), nil
+}
+func type_8971279483973357571_ToNu(v *events.EventTransparency) (out nu.Value, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("*events.EventTransparency: %w", err)
+		}
+	}()
+	if v == nil {
+		return nu.Value{}, nil
+	}
+	return type_7057708295081751301_ToNu(*v)
 }
 
 var EventReplicaType = type_4505817543918974569
