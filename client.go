@@ -88,3 +88,59 @@ func getClient(ctx context.Context, call *nu.ExecCommand) (client *caldav.Client
 	return
 }
 
+type job interface {
+	Do(ctx context.Context) error
+}
+
+func worker(ctx context.Context, jobs chan job, status chan error) {
+	for j := range jobs {
+		if j == nil {
+			continue
+		}
+		status <- j.Do(ctx)
+	}
+}
+
+func parallelizeJobs(ctx context.Context, jobs []job, parallel int) (err error) {
+	if len(jobs) == 0 {
+		return
+	}
+
+	jobsChan := make(chan job)
+	status := make(chan error)
+	defer close(jobsChan)
+	defer close(status)
+
+	for range parallel {
+		go worker(ctx, jobsChan, status)
+	}
+
+	current := jobs[0]
+	currentIdx := 0
+	finished := 0
+	for {
+		select {
+		case <-ctx.Done():
+			err = fmt.Errorf("context canceled")
+			return
+		case err = <-status:
+			if err != nil {
+				return
+			}
+			finished++
+			if finished >= len(jobs) {
+				return
+			}
+		case jobsChan <- current:
+			if currentIdx >= len(jobs) {
+				continue
+			}
+			currentIdx++
+			if currentIdx >= len(jobs) {
+				current = nil
+				continue
+			}
+			current = jobs[currentIdx]
+		}
+	}
+}

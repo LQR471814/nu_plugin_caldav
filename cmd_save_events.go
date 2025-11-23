@@ -125,61 +125,21 @@ func makeUpdatedObjects(
 	return
 }
 
-func putEventObjectWorker(
-	ctx saveEventCtx,
-	objects chan events.EventObject,
-	status chan error,
-) {
-	for obj := range objects {
-		objpath := obj.ObjectPath
-		if objpath == "" {
-			uid, _ := obj.Main.GetUID()
-			objpath = path.Join(ctx.calendarPath, uid)
-		}
-		_, err := ctx.client.PutCalendarObject(ctx.ctx, objpath, obj.ToCalendar())
-		status <- err
-	}
+type putEventObjectJob struct {
+	calpath string
+	client  *caldav.Client
+	obj     events.EventObject
 }
 
-func multiPutObjects(
-	ctx saveEventCtx,
-	objects []events.EventObject,
-	parallel int,
-) (err error) {
-	objectChan := make(chan events.EventObject)
-	status := make(chan error)
-	defer close(objectChan)
-	defer close(status)
-
-	for range parallel {
-		go putEventObjectWorker(ctx, objectChan, status)
+func (j putEventObjectJob) Do(ctx context.Context) (err error) {
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+	objpath := j.obj.ObjectPath
+	if objpath == "" {
+		uid, _ := j.obj.Main.GetUID()
+		objpath = path.Join(j.calpath, uid)
 	}
-	finished := 0
-	for _, obj := range objects {
-		select {
-		case <-ctx.ctx.Done():
-			err = fmt.Errorf("context canceled")
-			return
-		case objectChan <- obj:
-		case err = <-status:
-			if err != nil {
-				return
-			}
-			finished++
-		}
-	}
-	for finished < len(objects) {
-		select {
-		case <-ctx.ctx.Done():
-			err = fmt.Errorf("context canceled")
-			return
-		case err = <-status:
-			if err != nil {
-				return
-			}
-			finished++
-		}
-	}
+	_, err = j.client.PutCalendarObject(ctx, objpath, j.obj.ToCalendar())
 	return
 }
 
@@ -315,8 +275,15 @@ func saveEventsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
 		}
 	}
 
-	// start workers & send jobs
-	err = multiPutObjects(subctx, putObjects, parallel)
+	jobs := make([]job, len(putObjects))
+	for i, obj := range putObjects {
+		jobs[i] = putEventObjectJob{
+			calpath: calendarPath,
+			client:  client,
+			obj:     obj,
+		}
+	}
+	err = parallelizeJobs(ctx, jobs, parallel)
 	if err != nil {
 		return
 	}
