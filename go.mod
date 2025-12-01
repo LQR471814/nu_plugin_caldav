@@ -19,3 +19,5 @@ require (
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	golang.org/x/sys v0.38.0 // indirect
 )
+
+replace github.com/ainvaltin/nu-plugin v0.0.0-20250907111918-1d43779b9a0f => github.com/LQR471814/nu-plugin v0.0.0-20251201205325-e39ccb204351
