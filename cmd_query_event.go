@@ -16,6 +16,7 @@ import (
 
 var default_start_time = nu.ToValue(time.Time{})
 var default_end_time = nu.ToValue(events.MAX_TIME)
+var default_text_match = nu.ToValue("")
 var default_text_match_negate = nu.ToValue(false)
 
 var queryEventsCmd = &nu.Command{
@@ -44,7 +45,7 @@ var queryEventsCmd = &nu.Command{
 				Short:   't',
 				Desc:    "Filter for events that contain (or do not contain, if --text-match-negate is set) a particular string.",
 				Shape:   syntaxshape.String(),
-				Default: &default_end_time,
+				Default: &default_text_match,
 			},
 			{
 				Long:    "text-match-negate",
