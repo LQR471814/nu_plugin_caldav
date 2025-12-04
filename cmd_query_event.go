@@ -43,7 +43,7 @@ var queryEventsCmd = &nu.Command{
 				Long:    "text-match",
 				Short:   't',
 				Desc:    "Filter for events that contain (or do not contain, if --text-match-negate is set) a particular string.",
-				Shape:   syntaxshape.DateTime(),
+				Shape:   syntaxshape.String(),
 				Default: &default_end_time,
 			},
 			{
