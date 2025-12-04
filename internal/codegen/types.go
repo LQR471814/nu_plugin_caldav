@@ -106,7 +106,18 @@ func builtinToDecl(cache map[uint64]ToDecl, t reflect.Type) (out ToDecl) {
 // pointer types
 
 func pointerTypeDecl(cache map[uint64]TypeDecl, t reflect.Type) (out TypeDecl) {
-	return typeDecl(cache, t.Elem())
+	out.TypeId = typeId(t)
+	if existing, ok := cache[out.TypeId]; ok {
+		return existing
+	}
+	defer func() { cache[out.TypeId] = out }()
+
+	inner := typeDecl(cache, t.Elem())
+
+	return TypeDecl{
+		TypeId: typeId(t),
+		Value:  fmt.Sprintf("types.OneOf(%s, types.Nothing())", TypeDeclId(inner.TypeId)),
+	}
 }
 
 func pointerFromDecl(cache map[uint64]FromDecl, t reflect.Type) (out FromDecl) {
@@ -232,6 +243,7 @@ func mapTypeDecl(cache map[uint64]TypeDecl, t reflect.Type) (out TypeDecl) {
 	return TypeDecl{
 		TypeId: typeId(t),
 		// TODO: looks like nushell's type system isn't expressive enough yet
+		// to express a generic map
 		Value: "types.Any()",
 	}
 }
@@ -456,7 +468,7 @@ type toDeclFn = func(cache map[uint64]ToDecl, t reflect.Type) (out ToDecl)
 
 var customTypes []func(t reflect.Type) (typefn typeDeclFn, fromfn fromDeclFn, tofn toDeclFn)
 
-func typeDecl(cache map[uint64]TypeDecl, t reflect.Type) TypeDecl {
+func typeDecl(cache map[uint64]TypeDecl, t reflect.Type) (out TypeDecl) {
 	for _, custom := range customTypes {
 		fn, _, _ := custom(t)
 		if fn != nil {
@@ -466,16 +478,19 @@ func typeDecl(cache map[uint64]TypeDecl, t reflect.Type) TypeDecl {
 
 	switch t.Kind() {
 	case reflect.Struct:
-		return structTypeDecl(cache, t)
+		out = structTypeDecl(cache, t)
 	case reflect.Map:
-		return mapTypeDecl(cache, t)
+		out = mapTypeDecl(cache, t)
 	case reflect.Slice:
-		return sliceTypeDecl(cache, t)
+		out = sliceTypeDecl(cache, t)
 	case reflect.Pointer:
-		return pointerTypeDecl(cache, t)
+		out = pointerTypeDecl(cache, t)
 	default:
-		return builtinTypeDecl(cache, t)
+		out = builtinTypeDecl(cache, t)
 	}
+
+	cache[out.TypeId] = out
+	return
 }
 
 func fromDecl(cache map[uint64]FromDecl, t reflect.Type) FromDecl {

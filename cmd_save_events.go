@@ -51,10 +51,7 @@ var saveEventsCmd = &nu.Command{
 		},
 		InputOutputTypes: []nu.InOutTypes{
 			{
-				// TODO: fix typing later
-				// since some fields may be omitted and nushell does not yet
-				// support optional typing
-				In:  types.Any(),
+				In:  conversions.EventObjectReplicaListType,
 				Out: types.Nothing(),
 			},
 		},
