@@ -16,6 +16,7 @@ import (
 
 var default_start_time = nu.ToValue(time.Time{})
 var default_end_time = nu.ToValue(events.MAX_TIME)
+var default_text_match_negate = nu.ToValue(false)
 
 var queryEventsCmd = &nu.Command{
 	Signature: nu.PluginSignature{
@@ -37,6 +38,20 @@ var queryEventsCmd = &nu.Command{
 				Desc:    "Filter for all events before this end time.",
 				Shape:   syntaxshape.DateTime(),
 				Default: &default_end_time,
+			},
+			{
+				Long:    "text-match",
+				Short:   't',
+				Desc:    "Filter for events that contain (or do not contain, if --text-match-negate is set) a particular string.",
+				Shape:   syntaxshape.DateTime(),
+				Default: &default_end_time,
+			},
+			{
+				Long:    "text-match-negate",
+				Short:   'n',
+				Desc:    "Flip the condition text-match.",
+				Shape:   syntaxshape.Boolean(),
+				Default: &default_text_match_negate,
 			},
 		},
 		RequiredPositional: []nu.PositionalArg{
@@ -80,10 +95,30 @@ func queryEventsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
 	if ok {
 		end = v.Value.(time.Time)
 	}
+	textMatch := ""
+	v, ok = call.FlagValue("text-match")
+	if ok {
+		textMatch = v.Value.(string)
+	}
+	textMatchNegate := false
+	v, ok = call.FlagValue("text-match-negate")
+	if ok {
+		textMatchNegate = v.Value.(bool)
+	}
+	var propFilters []caldav.PropFilter
+	if textMatch != "" {
+		propFilters = append(propFilters, caldav.PropFilter{
+			TextMatch: &caldav.TextMatch{
+				Text:            textMatch,
+				NegateCondition: textMatchNegate,
+			},
+		})
+	}
 
 	objects, err := client.QueryCalendar(ctx, calendarPath, &caldav.CalendarQuery{
 		CompFilter: caldav.CompFilter{
-			Name: ical.CompCalendar,
+			Name:  ical.CompCalendar,
+			Props: propFilters,
 			Comps: []caldav.CompFilter{{
 				Name:  ical.CompEvent,
 				Start: start,

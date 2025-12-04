@@ -4,14 +4,14 @@
 
 ## Commands
 
-| Command                                                              | Description                                                                               |
-|----------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| `caldav query principal`                                             | Get the principal user path for the current configured user.                              |
-| `caldav query homeset [principal]`                                   | Find a homeset (collection of calendars) from CalDAV (optionally given a principal path). |
-| `caldav query calendars <homeset>`                                   | Reads the list calendars of calendars under a homeset from the CalDAV server.             |
-| `caldav query events <calendar_path> [--start] [--end]`              | Reads events from a given calendar.                                                       |
-| `<calendar_events> \| caldav save events <calendar_path> [--update]` | Creates (optionally updates if already existing) events from the given input.             |
-| `<calendar_events> \| caldav timeline [--start] [--end]`             | Orders events chronologically.                                                            |
+| Command                                                                                      | Description                                                                               |
+|----------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| `caldav query principal`                                                                     | Get the principal user path for the current configured user.                              |
+| `caldav query homeset [principal]`                                                           | Find a homeset (collection of calendars) from CalDAV (optionally given a principal path). |
+| `caldav query calendars <homeset>`                                                           | Reads the list calendars of calendars under a homeset from the CalDAV server.             |
+| `caldav query events <calendar_path> [--start] [--end] [--text-match] [--text-match-negate]` | Reads events from a given calendar.                                                       |
+| `<calendar_events> \| caldav save events <calendar_path> [--update]`                         | Creates (optionally updates if already existing) events from the given input.             |
+| `<calendar_events> \| caldav timeline [--start] [--end]`                                     | Orders events chronologically.                                                            |
 
 ## Configuration
 
