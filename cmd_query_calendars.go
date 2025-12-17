@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 
-	"github.com/LQR471814/nu_plugin_caldav/internal/nutypes/conversions"
+	"github.com/LQR471814/nu_plugin_caldav/internal/nuconv"
 	"github.com/ainvaltin/nu-plugin"
 	"github.com/ainvaltin/nu-plugin/syntaxshape"
 	"github.com/ainvaltin/nu-plugin/types"
@@ -25,7 +25,7 @@ var queryCalendarsCmd = &nu.Command{
 		InputOutputTypes: []nu.InOutTypes{
 			{
 				In:  types.Nothing(),
-				Out: conversions.CalendarListType,
+				Out: nuconv.CalendarListType,
 			},
 		},
 	},
@@ -49,7 +49,7 @@ func queryCalendarsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error
 	if err != nil {
 		return
 	}
-	out, err := conversions.CalendarListToNu(calendars)
+	out, err := nuconv.CalendarListToNu(calendars)
 	if err != nil {
 		return
 	}

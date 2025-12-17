@@ -280,7 +280,6 @@ func (s structBridge) TypeExpr() string {
 		}
 		child := s.router.Lookup(f.Type)
 		syntaxID := TypeDeclSyntaxID(child.GoType())
-		fmt.Printf("%s %T\n", f.Name, child)
 		if _, ok := child.(structBridge); ok {
 			syntaxID = fmt.Sprintf("types.Record(%s)", syntaxID)
 		}

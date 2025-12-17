@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/LQR471814/nu_plugin_caldav/events"
-	"github.com/LQR471814/nu_plugin_caldav/internal/nutypes"
-	"github.com/LQR471814/nu_plugin_caldav/internal/nutypes/conversions"
+	"github.com/LQR471814/nu_plugin_caldav/internal/dto"
+	"github.com/LQR471814/nu_plugin_caldav/internal/nuconv"
 	"github.com/ainvaltin/nu-plugin"
 	"github.com/ainvaltin/nu-plugin/syntaxshape"
 	"github.com/ainvaltin/nu-plugin/types"
@@ -75,7 +75,7 @@ type saveEventCtx struct {
 // returns full event object(s) with updates applied
 func makeUpdatedObjects(
 	ctx saveEventCtx,
-	objectReplicas []nutypes.EventObjectReplica,
+	objectReplicas []dto.EventObject,
 ) (out []events.EventObject, err error) {
 	if len(objectReplicas) == 0 {
 		return
@@ -222,7 +222,7 @@ func saveEventsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
 
 	// process input events
 	var putObjects []events.EventObject
-	inputObjectReplicas, err := recvListInput(call, conversions.EventObjectReplicaFromNu)
+	inputObjectReplicas, err := recvListInput(call, nuconv.EventObjectFromNu)
 	if err != nil {
 		return
 	}
@@ -234,7 +234,7 @@ func saveEventsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
 			}
 		}
 	} else {
-		var updateObjectReplicas []nutypes.EventObjectReplica
+		var updateObjectReplicas []dto.EventObject
 		for _, replica := range inputObjectReplicas {
 			if replica.ObjectPath != nil && *replica.ObjectPath == "" {
 				continue

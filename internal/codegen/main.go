@@ -8,7 +8,7 @@ import (
 	"os"
 	"reflect"
 
-	"github.com/LQR471814/nu_plugin_caldav/internal/nutypes"
+	"github.com/LQR471814/nu_plugin_caldav/internal/dto"
 )
 
 func code() *Code {
@@ -19,14 +19,14 @@ func code() *Code {
 	c.AddImport("github.com/ainvaltin/nu-plugin")
 	c.AddImport("github.com/ainvaltin/nu-plugin/types")
 	c.AddImport("github.com/LQR471814/nu_plugin_caldav/events")
-	c.AddImport("github.com/LQR471814/nu_plugin_caldav/internal/nutypes")
+	c.AddImport("github.com/LQR471814/nu_plugin_caldav/internal/dto")
 	c.AddImport("github.com/teambition/rrule-go")
 	c.AddImport("github.com/emersion/go-webdav/caldav")
-	c.Use("EventObjectReplicaList", reflect.TypeOf(nutypes.EventObjectReplicaList{}))
-	c.Use("EventObjectReplica", reflect.TypeOf(nutypes.EventObjectReplica{}))
-	c.Use("EventReplica", reflect.TypeOf(nutypes.EventReplica{}))
-	c.Use("Timeline", reflect.TypeOf(nutypes.Timeline{}))
-	c.Use("CalendarList", reflect.TypeOf(nutypes.CalendarList{}))
+	c.Use("EventObjectList", reflect.TypeOf(dto.EventObjectList{}))
+	c.Use("EventObject", reflect.TypeOf(dto.EventObject{}))
+	c.Use("Event", reflect.TypeOf(dto.Event{}))
+	c.Use("Timeline", reflect.TypeOf(dto.Timeline{}))
+	c.Use("CalendarList", reflect.TypeOf(dto.CalendarList{}))
 	return c
 }
 

@@ -1,4 +1,4 @@
-package nutypes
+package dto
 
 import (
 	"fmt"
@@ -11,12 +11,12 @@ import (
 	"github.com/teambition/rrule-go"
 )
 
-type PropValueReplica struct {
+type PropValueDto struct {
 	Value  string
 	Params map[string][]string
 }
 
-type EventReplica struct {
+type Event struct {
 	Uid           *string
 	Summary       *string
 	Location      *string
@@ -45,10 +45,10 @@ type EventReplica struct {
 	RecurrenceExceptionDates []events.Datetime
 	RecurrenceInstance       *events.Datetime
 	Trigger                  *events.EventTrigger
-	Other                    map[string][]PropValueReplica
+	Other                    map[string][]PropValueDto
 }
 
-func (e EventReplica) String() string {
+func (e Event) String() string {
 	var sb strings.Builder
 	sb.WriteString("{")
 
@@ -198,7 +198,7 @@ func (e EventReplica) String() string {
 	return sb.String()
 }
 
-func NewEventReplica(e events.Event) (out EventReplica) {
+func NewEvent(e events.Event) (out Event) {
 	uid, ok := e.GetUID()
 	if !ok {
 		panic("UID not defined in event")
@@ -288,11 +288,11 @@ func NewEventReplica(e events.Event) (out EventReplica) {
 		out.Trigger = &res
 	}
 
-	out.Other = make(map[string][]PropValueReplica)
+	out.Other = make(map[string][]PropValueDto)
 	for _, p := range e.GetOtherProps() {
-		values := make([]PropValueReplica, len(p.Values))
+		values := make([]PropValueDto, len(p.Values))
 		for i, v := range p.Values {
-			values[i] = PropValueReplica{Value: v.Value, Params: v.Params}
+			values[i] = PropValueDto{Value: v.Value, Params: v.Params}
 		}
 		out.Other[p.Key] = values
 	}
@@ -300,7 +300,7 @@ func NewEventReplica(e events.Event) (out EventReplica) {
 	return
 }
 
-func (o EventReplica) Apply(e events.Event) {
+func (o Event) Apply(e events.Event) {
 	if o.Uid != nil {
 		e.SetUID(*o.Uid)
 	}
@@ -391,18 +391,18 @@ func (o EventReplica) Apply(e events.Event) {
 	}
 }
 
-// EventObjectReplica contains a VEVENT and fields related to it.
-type EventObjectReplica struct {
+// EventObject contains a VEVENT and fields related to it.
+type EventObject struct {
 	// ObjectPath is the event's calendar object path.
 	ObjectPath *string
 	// Main contains the main event for which the Overrides override.
-	Main EventReplica
+	Main Event
 	// Overrides contains all the recurrence overrides of the recurring event,
 	// if the event is not recurring or there are no overrides, this list will
 	// be empty/nil.
-	Overrides []EventReplica
+	Overrides []Event
 }
 
-type EventObjectReplicaList []EventObjectReplica
+type EventObjectList []EventObject
 
 type CalendarList []caldav.Calendar

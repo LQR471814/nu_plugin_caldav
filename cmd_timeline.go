@@ -7,8 +7,8 @@ import (
 	"slices"
 	"time"
 
-	"github.com/LQR471814/nu_plugin_caldav/internal/nutypes"
-	"github.com/LQR471814/nu_plugin_caldav/internal/nutypes/conversions"
+	"github.com/LQR471814/nu_plugin_caldav/internal/dto"
+	"github.com/LQR471814/nu_plugin_caldav/internal/nuconv"
 	"github.com/ainvaltin/nu-plugin"
 	"github.com/ainvaltin/nu-plugin/syntaxshape"
 	"github.com/ainvaltin/nu-plugin/types"
@@ -41,7 +41,7 @@ var timelineCmd = &nu.Command{
 				// since some fields may be omitted and nushell does not yet
 				// support optional typing
 				In:  types.Any(),
-				Out: conversions.TimelineType,
+				Out: nuconv.TimelineType,
 			},
 		},
 	},
@@ -52,7 +52,7 @@ func init() {
 	commands = append(commands, timelineCmd)
 }
 
-func expandEvents(out *[]nutypes.EventReplica, object nutypes.EventObjectReplica, start, end time.Time) {
+func expandEvents(out *[]dto.Event, object dto.EventObject, start, end time.Time) {
 	set := &rrule.Set{}
 
 	if object.Main.RecurrenceRule != nil {
@@ -107,7 +107,7 @@ func expandEvents(out *[]nutypes.EventReplica, object nutypes.EventObjectReplica
 	}
 }
 
-func convertToTimeline(eventList []nutypes.EventReplica, start, end time.Time) (out []nutypes.TimeSegment) {
+func convertToTimeline(eventList []dto.Event, start, end time.Time) (out []dto.TimeSegment) {
 	// pre-conditions
 	if end.Before(start) {
 		panic("timeline END cannot be before START")
@@ -124,7 +124,7 @@ func convertToTimeline(eventList []nutypes.EventReplica, start, end time.Time) (
 	if len(eventList) == 0 {
 		return nil
 	}
-	slices.SortFunc(eventList, func(a, b nutypes.EventReplica) int {
+	slices.SortFunc(eventList, func(a, b dto.Event) int {
 		if a.Start.Stamp.Before(b.Start.Stamp) {
 			return -1
 		}
@@ -139,13 +139,13 @@ func convertToTimeline(eventList []nutypes.EventReplica, start, end time.Time) (
 	// nextEventCursor points to the next event whose start_time > t (may be undefined)
 	nextEventCursor := 0
 	// active keeps track of the events whose start_time < t && end_time > t (may be empty)
-	var active []nutypes.EventReplica
+	var active []dto.Event
 
 	for !t.Equal(end) && !t.After(end) {
 		// --- collect active events
 
 		// remove inactive events
-		var newActive []nutypes.EventReplica
+		var newActive []dto.Event
 		for _, activeEvent := range active {
 			if activeEvent.End.Stamp.After(t) {
 				newActive = append(newActive, activeEvent)
@@ -192,7 +192,7 @@ func convertToTimeline(eventList []nutypes.EventReplica, start, end time.Time) (
 			minNextDur = end.Sub(t)
 		}
 
-		out = append(out, nutypes.TimeSegment{
+		out = append(out, dto.TimeSegment{
 			Now:          t,
 			Duration:     minNextDur,
 			ActiveEvents: active,
@@ -248,18 +248,18 @@ func timelineCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
 		return
 	}
 
-	objects, err := recvListInput(call, conversions.EventObjectReplicaFromNu)
+	objects, err := recvListInput(call, nuconv.EventObjectFromNu)
 	if err != nil {
 		return
 	}
 
-	var eventList []nutypes.EventReplica
+	var eventList []dto.Event
 	for _, obj := range objects {
 		expandEvents(&eventList, obj, start, end)
 	}
 	timeline := convertToTimeline(eventList, start, end)
 
-	out, err := conversions.TimelineToNu(timeline)
+	out, err := nuconv.TimelineToNu(timeline)
 	if err != nil {
 		return
 	}

@@ -1,4 +1,4 @@
-package nutypes
+package dto
 
 import (
 	"time"
@@ -7,7 +7,7 @@ import (
 type TimeSegment struct {
 	Now          time.Time
 	Duration     time.Duration
-	ActiveEvents []EventReplica
+	ActiveEvents []Event
 }
 
 type Timeline []TimeSegment

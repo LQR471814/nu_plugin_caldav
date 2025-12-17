@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/LQR471814/nu_plugin_caldav/events"
-	"github.com/LQR471814/nu_plugin_caldav/internal/nutypes"
+	"github.com/LQR471814/nu_plugin_caldav/internal/dto"
 )
 
 func abs[T int64 | int32 | int16 | int8](v T) T {
@@ -44,12 +44,12 @@ func FuzzConvertToTimeline(f *testing.F) {
 		overallStart := time.Unix(abs(overallStartSec), 0)
 		overallEnd := overallStart.Add(time.Second * time.Duration(abs(overallDuration)))
 
-		eventList := make([]nutypes.EventReplica, eventLength)
+		eventList := make([]dto.Event, eventLength)
 		for i := range eventLength {
 			offset := time.Duration(abs(r.Int31())) * time.Second
 			dur := time.Duration(abs(r.Int31())) * time.Second
 			start := overallStart.Add(offset)
-			eventList[i] = nutypes.EventReplica{
+			eventList[i] = dto.Event{
 				Start: events.Datetime{
 					Stamp: start,
 				},
