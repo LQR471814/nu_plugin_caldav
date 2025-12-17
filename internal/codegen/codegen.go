@@ -7,126 +7,101 @@ import (
 	"strings"
 )
 
-// Type declarations
-
-type TypeDecl struct {
-	TypeId uint64
-	Value  string
-}
-
-func TypeDeclId(typeId uint64) string {
-	return fmt.Sprintf("type_%d", typeId)
-}
-
-func (d TypeDecl) String() string {
-	return fmt.Sprintf("var %s = %s", TypeDeclId(d.TypeId), d.Value)
-}
-
-// From nu value declarations
-
-type FromDecl struct {
-	TypeId  uint64
-	TypeStr string
-	Body    string
-}
-
-func (f *FromDecl) SetTypeStr(s string) {
-	if s == "" {
-		panic("expect non-empty string for TypeStr")
-	}
-	f.TypeStr = s
-}
-
-func FromDeclId(typeId uint64) string {
-	return fmt.Sprintf("type_%d_FromNu", typeId)
-}
-
-func (d FromDecl) String() string {
-	var sb strings.Builder
-	fmt.Fprintf(&sb, "func %s(v nu.Value) (out %s, err error) {\n", FromDeclId(d.TypeId), d.TypeStr)
-	fmt.Fprintf(&sb, "defer func() { if err != nil { err = fmt.Errorf(\"%s: %%w\", err) } }()\n", d.TypeStr)
-	sb.WriteString(d.Body)
-	fmt.Fprint(&sb, "}")
-	return sb.String()
-}
-
-// To nu value declarations
-
-type ToDecl struct {
-	TypeId  uint64
-	TypeStr string
-	Body    string
-}
-
-func (f *ToDecl) SetTypeStr(s string) {
-	if s == "" {
-		panic("expect non-empty string for TypeStr")
-	}
-	f.TypeStr = s
-}
-
-func ToDeclId(typeId uint64) string {
-	return fmt.Sprintf("type_%d_ToNu", typeId)
-}
-
-func (d ToDecl) String() string {
-	var sb strings.Builder
-	fmt.Fprintf(&sb, "func %s(v %s) (out nu.Value, err error) {\n", ToDeclId(d.TypeId), d.TypeStr)
-	fmt.Fprintf(&sb, "defer func() { if err != nil { err = fmt.Errorf(\"%s: %%w\", err) } }()\n", d.TypeStr)
-	sb.WriteString(d.Body)
-	fmt.Fprint(&sb, "}")
-	return sb.String()
-}
-
 // All declarations
 
 type Code struct {
 	Imports []string
-	Aliases map[string]uint64
-	Types   map[uint64]TypeDecl
-	Froms   map[uint64]FromDecl
-	Tos     map[uint64]ToDecl
+	Aliases map[string]reflect.Type
+	Router  *BridgeTypeRouter
 }
 
 func NewCode() *Code {
 	return &Code{
-		Aliases: make(map[string]uint64),
-		Types:   make(map[uint64]TypeDecl),
-		Froms:   make(map[uint64]FromDecl),
-		Tos:     make(map[uint64]ToDecl),
+		Aliases: make(map[string]reflect.Type),
+		Router: &BridgeTypeRouter{
+			Routes: []BridgeTypeRoute{
+				// custom types
+				rruleRoute,
+				urlRoute,
+				timestampRoute,
+				durationRoute,
+
+				// primitive types
+				structRoute,
+				mapRoute,
+				sliceRoute,
+				pointerRoute,
+				primitiveRoute,
+			},
+			KnownTypes: make(map[string]CachedBridgeType),
+		},
 	}
 }
 
-func (d *Code) AddImport(imp string) {
-	d.Imports = append(d.Imports, imp)
+// User-facing fucntions
+
+func (c *Code) AddImport(imp string) {
+	c.Imports = append(c.Imports, imp)
 }
 
-func (d *Code) Use(typename string, t reflect.Type) {
-	typeDecl(d.Types, t)
-	fromDecl(d.Froms, t)
-	toDecl(d.Tos, t)
-	d.Aliases[typename] = typeId(t)
+func (c *Code) Use(typename string, t reflect.Type) {
+	c.Router.Lookup(t)
+	c.Aliases[typename] = t
 }
 
 // Rendering / generating functions
 
-func (d Code) Render(out io.Writer, pkg string) {
+func (*Code) fmtTypeDecl(out io.Writer, t reflect.Type, expr string) {
+	fmt.Fprintf(out, "var %s = %s\n", TypeDeclSyntaxID(t), expr)
+}
+
+func (*Code) fmtFromDecl(out io.Writer, t reflect.Type, body string) {
+	returnType := t.String()
+	fmt.Fprintf(out, "func %s(v nu.Value) (out %s, err error) {\n", FromDeclSyntaxID(t), returnType)
+	fmt.Fprintf(out, "defer func() { if err != nil { err = fmt.Errorf(\"%s: %%w\", err) } }()\n", returnType)
+	out.Write([]byte(body))
+	fmt.Fprintln(out, "}")
+}
+
+func (*Code) fmtToDecl(out io.Writer, t reflect.Type, body string) {
+	paramType := t.String()
+	fmt.Fprintf(out, "func %s(v %s) (out nu.Value, err error) {\n", ToDeclSyntaxID(t), paramType)
+	fmt.Fprintf(out, "defer func() { if err != nil { err = fmt.Errorf(\"%s: %%w\", err) } }()\n", paramType)
+	out.Write([]byte(body))
+	fmt.Fprintln(out, "}")
+}
+
+func (c *Code) Render(out io.Writer, pkg string) {
 	fmt.Fprintf(out, "package %s\n", pkg)
-	for _, imp := range d.Imports {
+	for _, imp := range c.Imports {
 		fmt.Fprintf(out, "import \"%s\"\n", imp)
 	}
-	for _, t := range d.Types {
-		fmt.Fprintln(out, t.String())
+
+	for _, bt := range c.Router.KnownTypes {
+		c.fmtTypeDecl(out, bt.GoType(), bt.TypeExpr())
+		c.fmtFromDecl(out, bt.GoType(), bt.FromBody())
+		c.fmtToDecl(out, bt.GoType(), bt.ToBody())
 	}
-	for _, f := range d.Froms {
-		fmt.Fprintln(out, f.String())
+	for alias, typ := range c.Aliases {
+		fmt.Fprintf(out, "var %sType = %s\n", alias, TypeDeclSyntaxID(typ))
+		fmt.Fprintf(out, "var %sFromNu = %s\n", alias, FromDeclSyntaxID(typ))
+		fmt.Fprintf(out, "var %sToNu = %s\n", alias, ToDeclSyntaxID(typ))
 	}
-	for _, t := range d.Tos {
-		fmt.Fprintln(out, t.String())
+}
+
+// convenience functions
+
+func pascalToSnakeCase(pascalcase string) string {
+	var result strings.Builder
+	for i, c := range pascalcase {
+		if c >= 'A' && c <= 'Z' {
+			if i > 0 {
+				result.WriteString("_")
+			}
+			result.WriteRune(c + ('a' - 'A'))
+			continue
+		}
+		result.WriteRune(c)
 	}
-	for alias, id := range d.Aliases {
-		fmt.Fprintf(out, "var %sType = %s\n", alias, TypeDeclId(id))
-		fmt.Fprintf(out, "var %sFromNu = %s\n", alias, FromDeclId(id))
-		fmt.Fprintf(out, "var %sToNu = %s\n", alias, ToDeclId(id))
-	}
+	return result.String()
 }

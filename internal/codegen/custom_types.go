@@ -1,10 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"net/url"
 	"reflect"
-	"strings"
 	"time"
 
 	"github.com/teambition/rrule-go"
@@ -15,190 +13,126 @@ var durType = reflect.TypeOf(time.Duration(0)).String()
 var urlType = reflect.TypeOf(&url.URL{}).String()
 var rruleType = reflect.TypeOf(&rrule.RRule{}).String()
 
-func init() {
-	// time.Time support
-	customTypes = append(customTypes, func(t reflect.Type) (typefn typeDeclFn, fromfn fromDeclFn, tofn toDeclFn) {
-		if t.String() != timeType {
-			return
-		}
-		typefn = func(cache map[uint64]TypeDecl, t reflect.Type) (out TypeDecl) {
-			out.TypeId = typeId(t)
-			if existing, ok := cache[out.TypeId]; ok {
-				return existing
-			}
-			defer func() { cache[out.TypeId] = out }()
+// time.Time support
+type timestampBridge struct {
+	t reflect.Type
+}
 
-			out.Value = "types.Date()"
-			return
-		}
-		fromfn = func(cache map[uint64]FromDecl, t reflect.Type) (out FromDecl) {
-			out.TypeId = typeId(t)
-			if existing, ok := cache[out.TypeId]; ok {
-				return existing
-			}
-			defer func() { cache[out.TypeId] = out }()
+func timestampRoute(router *BridgeTypeRouter, t reflect.Type) GoNuBridgeType {
+	if t.String() != timeType {
+		return nil
+	}
+	return timestampBridge{t: t}
+}
 
-			(&out).SetTypeStr("time.Time")
+func (t timestampBridge) GoType() reflect.Type {
+	return t.t
+}
 
-			var sb strings.Builder
-			fmt.Fprintln(&sb, "out, ok := v.Value.(time.Time)")
-			fmt.Fprintf(&sb, "if !ok { return out, fmt.Errorf(\"expected time.Time got %%T\", v.Value) }\n")
-			fmt.Fprintln(&sb, "return")
-			out.Body = sb.String()
-			return
-		}
-		tofn = func(cache map[uint64]ToDecl, t reflect.Type) (out ToDecl) {
-			out.TypeId = typeId(t)
-			if existing, ok := cache[out.TypeId]; ok {
-				return existing
-			}
-			defer func() { cache[out.TypeId] = out }()
+func (t timestampBridge) TypeExpr() string {
+	return "types.Date()"
+}
 
-			(&out).SetTypeStr("time.Time")
-			out.Body = "return nu.ToValue(v), nil"
-			return
-		}
-		return
-	})
+func (t timestampBridge) FromBody() string {
+	return `out, ok := v.Value.(time.Time)
+if !ok { return out, fmt.Errorf("expected time.Time got %T", v.Value) }
+return`
+}
 
-	// time.Duration support
-	customTypes = append(customTypes, func(t reflect.Type) (typefn typeDeclFn, fromfn fromDeclFn, tofn toDeclFn) {
-		if t.String() != durType {
-			return
-		}
-		typefn = func(cache map[uint64]TypeDecl, t reflect.Type) (out TypeDecl) {
-			out.TypeId = typeId(t)
-			if existing, ok := cache[out.TypeId]; ok {
-				return existing
-			}
-			defer func() { cache[out.TypeId] = out }()
+func (t timestampBridge) ToBody() string {
+	return "return nu.ToValue(v), nil"
+}
 
-			out.Value = "types.Duration()"
-			return
-		}
-		fromfn = func(cache map[uint64]FromDecl, t reflect.Type) (out FromDecl) {
-			out.TypeId = typeId(t)
-			if existing, ok := cache[out.TypeId]; ok {
-				return existing
-			}
-			defer func() { cache[out.TypeId] = out }()
+// time.Duration support
+type durationBridge struct {
+	t reflect.Type
+}
 
-			(&out).SetTypeStr("time.Duration")
+func durationRoute(router *BridgeTypeRouter, t reflect.Type) GoNuBridgeType {
+	if t.String() != durType {
+		return nil
+	}
+	return durationBridge{t: t}
+}
 
-			var sb strings.Builder
-			fmt.Fprintln(&sb, "out, ok := v.Value.(time.Duration)")
-			fmt.Fprintf(&sb, "if !ok { return out, fmt.Errorf(\"expected time.Duration got %%T\", v.Value) }\n")
-			fmt.Fprintln(&sb, "return")
-			out.Body = sb.String()
-			return
-		}
-		tofn = func(cache map[uint64]ToDecl, t reflect.Type) (out ToDecl) {
-			out.TypeId = typeId(t)
-			if existing, ok := cache[out.TypeId]; ok {
-				return existing
-			}
-			defer func() { cache[out.TypeId] = out }()
+func (t durationBridge) GoType() reflect.Type {
+	return t.t
+}
 
-			(&out).SetTypeStr("time.Duration")
-			out.Body = "return nu.ToValue(v), nil"
-			return
-		}
-		return
-	})
+func (t durationBridge) TypeExpr() string {
+	return "types.Duration()"
+}
 
-	// *url.URL support
-	customTypes = append(customTypes, func(t reflect.Type) (typefn typeDeclFn, fromfn fromDeclFn, tofn toDeclFn) {
-		if t.String() != urlType {
-			return
-		}
-		typefn = func(cache map[uint64]TypeDecl, t reflect.Type) (out TypeDecl) {
-			out.TypeId = typeId(t)
-			if existing, ok := cache[out.TypeId]; ok {
-				return existing
-			}
-			defer func() { cache[out.TypeId] = out }()
+func (t durationBridge) FromBody() string {
+	return `out, ok := v.Value.(time.Duration)
+if !ok { return out, fmt.Errorf("expected time.Duration got %T", v.Value) }
+return`
+}
 
-			out.Value = "types.String()"
-			return
-		}
-		fromfn = func(cache map[uint64]FromDecl, t reflect.Type) (out FromDecl) {
-			out.TypeId = typeId(t)
-			if existing, ok := cache[out.TypeId]; ok {
-				return existing
-			}
-			defer func() { cache[out.TypeId] = out }()
+func (t durationBridge) ToBody() string {
+	return "return nu.ToValue(v), nil"
+}
 
-			(&out).SetTypeStr("*url.URL")
-			var sb strings.Builder
-			fmt.Fprintln(&sb, "if v.Value == nil { return nil, nil }")
-			fmt.Fprintln(&sb, "parsed, err := url.Parse(v.Value.(string))")
-			fmt.Fprintln(&sb, "if err != nil { return nil, err }")
-			fmt.Fprintln(&sb, "return parsed, nil")
-			out.Body = sb.String()
-			return
-		}
-		tofn = func(cache map[uint64]ToDecl, t reflect.Type) (out ToDecl) {
-			out.TypeId = typeId(t)
-			if existing, ok := cache[out.TypeId]; ok {
-				return existing
-			}
-			defer func() { cache[out.TypeId] = out }()
+// *url.URL support
+type urlBridge struct {
+	t reflect.Type
+}
 
-			(&out).SetTypeStr("*url.URL")
-			var sb strings.Builder
-			fmt.Fprintln(&sb, "if v == nil { return nu.Value{Value: nil}, nil }")
-			fmt.Fprintln(&sb, "return nu.ToValue(v.String()), nil")
-			out.Body = sb.String()
-			return
-		}
-		return
-	})
+func urlRoute(router *BridgeTypeRouter, t reflect.Type) GoNuBridgeType {
+	if t.String() != urlType {
+		return nil
+	}
+	return urlBridge{t: t}
+}
 
-	// *rrule.RRule support
-	customTypes = append(customTypes, func(t reflect.Type) (typefn typeDeclFn, fromfn fromDeclFn, tofn toDeclFn) {
-		if t.String() != rruleType {
-			return
-		}
-		typefn = func(cache map[uint64]TypeDecl, t reflect.Type) (out TypeDecl) {
-			out.TypeId = typeId(t)
-			if existing, ok := cache[out.TypeId]; ok {
-				return existing
-			}
-			defer func() { cache[out.TypeId] = out }()
+func (t urlBridge) GoType() reflect.Type {
+	return t.t
+}
 
-			out.Value = "types.String()"
-			return
-		}
-		fromfn = func(cache map[uint64]FromDecl, t reflect.Type) (out FromDecl) {
-			out.TypeId = typeId(t)
-			if existing, ok := cache[out.TypeId]; ok {
-				return existing
-			}
-			defer func() { cache[out.TypeId] = out }()
+func (t urlBridge) TypeExpr() string {
+	return "types.String()"
+}
 
-			(&out).SetTypeStr("*rrule.RRule")
-			var sb strings.Builder
-			fmt.Fprintln(&sb, "if v.Value == nil { return nil, nil }")
-			fmt.Fprintln(&sb, "parsed, err := rrule.StrToRRule(v.Value.(string))")
-			fmt.Fprintln(&sb, "if err != nil { return nil, err }")
-			fmt.Fprintln(&sb, "return parsed, nil")
-			out.Body = sb.String()
-			return
-		}
-		tofn = func(cache map[uint64]ToDecl, t reflect.Type) (out ToDecl) {
-			out.TypeId = typeId(t)
-			if existing, ok := cache[out.TypeId]; ok {
-				return existing
-			}
-			defer func() { cache[out.TypeId] = out }()
+func (t urlBridge) FromBody() string {
+	return `if v.Value == nil { return nil, nil }
+parsed, err := url.Parse(v.Value.(string))
+if err != nil { return nil, err }
+return parsed, nil`
+}
 
-			(&out).SetTypeStr("*rrule.RRule")
-			var sb strings.Builder
-			fmt.Fprintln(&sb, "if v == nil { return nu.Value{Value: nil}, nil }")
-			fmt.Fprintln(&sb, "return nu.ToValue(v.String()), nil")
-			out.Body = sb.String()
-			return
-		}
-		return
-	})
+func (t urlBridge) ToBody() string {
+	return `if v == nil { return nu.Value{Value: nil}, nil }
+return nu.ToValue(v.String()), nil`
+}
+
+// *rrule.RRule support
+type rruleBridge struct {
+	t reflect.Type
+}
+
+func rruleRoute(router *BridgeTypeRouter, t reflect.Type) GoNuBridgeType {
+	if t.String() != rruleType {
+		return nil
+	}
+	return rruleBridge{t: t}
+}
+
+func (t rruleBridge) GoType() reflect.Type {
+	return t.t
+}
+
+func (t rruleBridge) TypeExpr() string {
+	return "types.String()"
+}
+
+func (t rruleBridge) FromBody() string {
+	return `if v.Value == nil { return nil, nil }
+parsed, err := rrule.StrToRRule(v.Value.(string))
+if err != nil { return nil, err }
+return parsed, nil`
+}
+
+func (t rruleBridge) ToBody() string {
+	return `if v == nil { return nu.Value{Value: nil}, nil }
+return nu.ToValue(v.String()), nil`
 }
