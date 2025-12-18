@@ -19,7 +19,8 @@
 The corresponding nushell record type for each Golang struct
 definition will have snake_case fields for public PascalCase
 fields on the Golang struct. Slices of structs will be treated as
-tables, rather than lists of records.
+tables, rather than lists of records. Pointers to values will be treated as
+nullable values (ie. `oneof<type, nothing>`).
 
 > ```go
 > type Foo struct {
