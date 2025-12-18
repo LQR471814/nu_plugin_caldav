@@ -18,7 +18,7 @@ func code() *Code {
 	c.AddImport("fmt")
 	c.AddImport("github.com/ainvaltin/nu-plugin")
 	c.AddImport("github.com/ainvaltin/nu-plugin/types")
-	c.AddImport("github.com/LQR471814/nu_plugin_caldav/events")
+	c.AddImport("github.com/LQR471814/nu_plugin_caldav/internal/events")
 	c.AddImport("github.com/LQR471814/nu_plugin_caldav/internal/dto")
 	c.AddImport("github.com/teambition/rrule-go")
 	c.AddImport("github.com/emersion/go-webdav/caldav")

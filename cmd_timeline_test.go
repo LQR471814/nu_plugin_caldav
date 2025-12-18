@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/LQR471814/nu_plugin_caldav/events"
+	"github.com/LQR471814/nu_plugin_caldav/internal/events"
 	"github.com/LQR471814/nu_plugin_caldav/internal/dto"
 )
 

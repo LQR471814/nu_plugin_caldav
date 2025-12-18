@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/LQR471814/nu_plugin_caldav/events"
+	"github.com/LQR471814/nu_plugin_caldav/internal/events"
 	"github.com/LQR471814/nu_plugin_caldav/internal/dto"
 	"github.com/LQR471814/nu_plugin_caldav/internal/nuconv"
 	"github.com/ainvaltin/nu-plugin"

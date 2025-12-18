@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/LQR471814/nu_plugin_caldav/events"
+	"github.com/LQR471814/nu_plugin_caldav/internal/events"
 	"github.com/emersion/go-ical"
 	"github.com/emersion/go-webdav/caldav"
 	"github.com/teambition/rrule-go"
