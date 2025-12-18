@@ -4,14 +4,38 @@
 
 ## Commands
 
-| Command                                                                                      | Description                                                                               |
-|----------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| `caldav query principal`                                                                     | Get the principal user path for the current configured user.                              |
-| `caldav query homeset [principal]`                                                           | Find a homeset (collection of calendars) from CalDAV (optionally given a principal path). |
-| `caldav query calendars <homeset>`                                                           | Reads the list calendars of calendars under a homeset from the CalDAV server.             |
-| `caldav query events <calendar_path> [--start] [--end] [--text-match] [--text-match-negate]` | Reads events from a given calendar.                                                       |
-| `<calendar_events> \| caldav save events <calendar_path> [--update]`                         | Creates (optionally updates if already existing) events from the given input.             |
-| `<calendar_events> \| caldav timeline [--start] [--end]`                                     | Orders events chronologically.                                                            |
+| Command                                                              | Input / Output                                   | Description                                                                               |
+|----------------------------------------------------------------------|--------------------------------------------------|-------------------------------------------------------------------------------------------|
+| `caldav query principal`                                             | `nothing -> string`                              | Get the principal user path for the current configured user.                              |
+| `caldav query homeset [principal]`                                   | `nothing -> string`                              | Find a homeset (collection of calendars) from CalDAV (optionally given a principal path). |
+| `caldav query calendars <homeset>`                                   | `nothing -> table<calendar>`                     | Reads the list calendars of calendars under a homeset from the CalDAV server.             |
+| `caldav query events <calendar_path>`                                | `nothing -> table<event_object>`                 | Reads events from a given calendar.                                                       |
+| `<calendar_events> \| caldav save events <calendar_path> [--update]` | `table<event_object> -> nothing`                 | Creates (optionally updates if already existing) events from the given input.             |
+| `<calendar_events> \| caldav timeline [--start] [--end]`             | `table<event_object> -> table<timeline_segment>` | Orders events chronologically.                                                            |
+| `caldav purge cache`                                                 | `nothing -> nothing`                             | Completely clears cached events, calendars, and plugin state.                             |
+
+## Type Definitions
+
+The corresponding nushell record type for each Golang struct
+definition will have snake_case fields for public PascalCase
+fields on the Golang struct. Slices of structs will be treated as
+tables, rather than lists of records.
+
+> [!EXAMPLE]
+> ```go
+> type Foo struct {
+>   Path string
+>   MaxResourceSize int64
+> }
+> ```
+>
+> ```nu
+> record<path: string, max_resource_size: int>
+> ```
+
+- `calendar`: [Definition](https://pkg.go.dev/github.com/emersion/go-webdav/caldav#Calendar)
+- `event_object`: [Definition](https://github.com/LQR471814/nu_plugin_caldav/blob/main/internal/dto/events.go#L413-L423)
+- `timeline_segment`: [Definition](https://github.com/LQR471814/nu_plugin_caldav/blob/main/internal/dto/timeline.go#L7-L11)
 
 ## Configuration
 
