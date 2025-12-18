@@ -54,16 +54,23 @@ Server configuration is done through environment variables:
 
 https://github.com/LQR471814/nu_plugin_caldav/blob/3fb5759ae5033a7cc5db553f61e0c8614b148e4d/example.nu#L1-L46
 
-## Limitations
+## Design decisions & limitations
 
-- Server-side event filtering is currently limited to just start
-  and end.
+- Server-side filtering is not planned to be implemented as:
+    - `caldav query events` syncs events automatically and caches
+      them locally, allowing you to call it as many times as you
+      want.
+    - `caldav timeline` automatically accounts for recurring
+      events and overlapping events, allowing you to easily work
+      with events chronologically.
+    - Any other filtering you want done can be done with a nushell
+      `where` command.
+- Incomplete implementation of CalDAV specification:
+    - `VEVENT`
+        - [ ] Binary attachments
+        - [ ] Event scheduling / RSVP
+    - [ ] `VTODO`
+    - [ ] `VJOURNAL`
 - Static validation of event type is currently not possible due to
   nushell's lack of optional types.
-- Various fields in event are currently not implemented:
-    - Binary attachment
-    - Event scheduling fields / management of RSVP
-- Calendar creation/deletion/rename is currently not implemented.
-- Support for VTODO, VJOURNAL, etc... is currently not
-  implemented.
 
