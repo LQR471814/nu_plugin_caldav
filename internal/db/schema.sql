@@ -18,6 +18,6 @@ create table event_object (
 create table calendar (
 	path text primary key,
 	sync_token text,
-	dto blob
+	homeset text
 );
 

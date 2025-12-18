@@ -11,15 +11,37 @@ import (
 	"strings"
 )
 
-const deleteEvents = `-- name: DeleteEvents :exec
+const deleteAllInPrincipalExcept = `-- name: DeleteAllInPrincipalExcept :exec
+delete from calendar
+where homeset = ? and path not in (/*SLICE:paths*/?)
+`
 
+type DeleteAllInPrincipalExceptParams struct {
+	Homeset sql.NullString
+	Paths   []string
+}
+
+func (q *Queries) DeleteAllInPrincipalExcept(ctx context.Context, arg DeleteAllInPrincipalExceptParams) error {
+	query := deleteAllInPrincipalExcept
+	var queryParams []interface{}
+	queryParams = append(queryParams, arg.Homeset)
+	if len(arg.Paths) > 0 {
+		for _, v := range arg.Paths {
+			queryParams = append(queryParams, v)
+		}
+		query = strings.Replace(query, "/*SLICE:paths*/?", strings.Repeat(",?", len(arg.Paths))[1:], 1)
+	} else {
+		query = strings.Replace(query, "/*SLICE:paths*/?", "NULL", 1)
+	}
+	_, err := q.db.ExecContext(ctx, query, queryParams...)
+	return err
+}
+
+const deleteEvents = `-- name: DeleteEvents :exec
 delete from event_object
 where path in (/*SLICE:paths*/?)
 `
 
-// implemented manually for perf reasons
-// -- name: ReadEvents :many
-// select path, dto from event_object where calendar_path = ?;
 func (q *Queries) DeleteEvents(ctx context.Context, paths []string) error {
 	query := deleteEvents
 	var queryParams []interface{}
@@ -36,21 +58,21 @@ func (q *Queries) DeleteEvents(ctx context.Context, paths []string) error {
 }
 
 const putCalendar = `-- name: PutCalendar :exec
-insert into calendar (path, dto, sync_token)
+insert into calendar (path, sync_token, homeset)
 values (?, ?, ?)
 on conflict (path) do update set
-	dto = excluded.dto,
-	sync_token = excluded.sync_token
+	sync_token = excluded.sync_token,
+	homeset = excluded.homeset
 `
 
 type PutCalendarParams struct {
 	Path      string
-	Dto       []byte
 	SyncToken sql.NullString
+	Homeset   sql.NullString
 }
 
 func (q *Queries) PutCalendar(ctx context.Context, arg PutCalendarParams) error {
-	_, err := q.db.ExecContext(ctx, putCalendar, arg.Path, arg.Dto, arg.SyncToken)
+	_, err := q.db.ExecContext(ctx, putCalendar, arg.Path, arg.SyncToken, arg.Homeset)
 	return err
 }
 
@@ -85,53 +107,20 @@ func (q *Queries) PutMetadata(ctx context.Context, version int64) error {
 	return err
 }
 
-const readCalendarDto = `-- name: ReadCalendarDto :one
-select dto from calendar where path = ?
+const readCalendar = `-- name: ReadCalendar :one
+select sync_token, homeset from calendar where path = ?
 `
 
-func (q *Queries) ReadCalendarDto(ctx context.Context, path string) ([]byte, error) {
-	row := q.db.QueryRowContext(ctx, readCalendarDto, path)
-	var dto []byte
-	err := row.Scan(&dto)
-	return dto, err
+type ReadCalendarRow struct {
+	SyncToken sql.NullString
+	Homeset   sql.NullString
 }
 
-const readCalendarSyncToken = `-- name: ReadCalendarSyncToken :one
-select sync_token from calendar where path = ?
-`
-
-func (q *Queries) ReadCalendarSyncToken(ctx context.Context, path string) (sql.NullString, error) {
-	row := q.db.QueryRowContext(ctx, readCalendarSyncToken, path)
-	var sync_token sql.NullString
-	err := row.Scan(&sync_token)
-	return sync_token, err
-}
-
-const readCalendars = `-- name: ReadCalendars :many
-select path, sync_token, dto from calendar
-`
-
-func (q *Queries) ReadCalendars(ctx context.Context) ([]Calendar, error) {
-	rows, err := q.db.QueryContext(ctx, readCalendars)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Calendar
-	for rows.Next() {
-		var i Calendar
-		if err := rows.Scan(&i.Path, &i.SyncToken, &i.Dto); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
+func (q *Queries) ReadCalendar(ctx context.Context, path string) (ReadCalendarRow, error) {
+	row := q.db.QueryRowContext(ctx, readCalendar, path)
+	var i ReadCalendarRow
+	err := row.Scan(&i.SyncToken, &i.Homeset)
+	return i, err
 }
 
 const readMetadata = `-- name: ReadMetadata :one
@@ -144,21 +133,4 @@ func (q *Queries) ReadMetadata(ctx context.Context) (int64, error) {
 	var version int64
 	err := row.Scan(&version)
 	return version, err
-}
-
-const updateCalSyncToken = `-- name: UpdateCalSyncToken :exec
-insert into calendar (path, sync_token)
-values (?, ?)
-on conflict (path) do update set
-	sync_token = excluded.sync_token
-`
-
-type UpdateCalSyncTokenParams struct {
-	Path      string
-	SyncToken sql.NullString
-}
-
-func (q *Queries) UpdateCalSyncToken(ctx context.Context, arg UpdateCalSyncTokenParams) error {
-	_, err := q.db.ExecContext(ctx, updateCalSyncToken, arg.Path, arg.SyncToken)
-	return err
 }
