@@ -30,6 +30,6 @@ require (
 	modernc.org/memory v1.11.0 // indirect
 )
 
-replace github.com/ainvaltin/nu-plugin v0.0.0-20250907111918-1d43779b9a0f => github.com/LQR471814/nu-plugin v0.0.0-20251201205325-e39ccb204351
+replace github.com/ainvaltin/nu-plugin v0.0.0-20250907111918-1d43779b9a0f => github.com/LQR471814/nu-plugin v0.0.0-20251218180218-0f31d4ec9708
 
 replace github.com/emersion/go-webdav v0.7.0 => github.com/LQR471814/go-webdav v0.0.0-20251218033631-3be4a3e33dec

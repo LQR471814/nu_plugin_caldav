@@ -1,7 +1,7 @@
 github.com/LQR471814/go-webdav v0.0.0-20251218033631-3be4a3e33dec h1:BCd4GVDtoQqX2NOdnyUXIP4RsFDPVyvwYiJ+sIYiRzg=
 github.com/LQR471814/go-webdav v0.0.0-20251218033631-3be4a3e33dec/go.mod h1:mI8iBx3RAODwX7PJJ7qzsKAKs/vY429YfS2/9wKnDbQ=
-github.com/LQR471814/nu-plugin v0.0.0-20251201205325-e39ccb204351 h1:2OO5TYYp2jxtT5iNYDQ/p6BoClpiac/ydfCSi1d5og0=
-github.com/LQR471814/nu-plugin v0.0.0-20251201205325-e39ccb204351/go.mod h1:NEtYqVsWMTMGRsQRXlxnFtv+NEnA4ZiODGzwKS/D+lg=
+github.com/LQR471814/nu-plugin v0.0.0-20251218180218-0f31d4ec9708 h1:dY1Vcy7oy50epH3xPlsKNmulo36Jp5EFq7zC2a5KfVc=
+github.com/LQR471814/nu-plugin v0.0.0-20251218180218-0f31d4ec9708/go.mod h1:NEtYqVsWMTMGRsQRXlxnFtv+NEnA4ZiODGzwKS/D+lg=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dustin/go-humanize v1.0.1 h1:GzkhY7T5VNhEkwH0PVJgjz+fX1rhBrR7pRT3mDkpeCY=
