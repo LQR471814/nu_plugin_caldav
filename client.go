@@ -144,3 +144,7 @@ func parallelizeJobs(ctx context.Context, jobs []job, parallel int) (err error) 
 		}
 	}
 }
+
+func caldavKeywordsQuery(additional ...string) []string {
+	return append([]string{"caldav", "query", "search", "find", "pull", "filter"}, additional...)
+}

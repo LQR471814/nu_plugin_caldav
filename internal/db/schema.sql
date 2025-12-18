@@ -17,7 +17,6 @@ create table event_object (
 -- calendar stores a calendar resource
 create table calendar (
 	path text primary key,
-	sync_token text,
-	homeset text
+	sync_token text
 );
 

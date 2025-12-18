@@ -9,14 +9,13 @@ on conflict (id) do update set
 	version = excluded.version;
 
 -- name: ReadCalendar :one
-select sync_token, homeset from calendar where path = ?;
+select sync_token from calendar where path = ?;
 
 -- name: PutCalendar :exec
-insert into calendar (path, sync_token, homeset)
-values (?, ?, ?)
+insert into calendar (path, sync_token)
+values (?, ?)
 on conflict (path) do update set
-	sync_token = excluded.sync_token,
-	homeset = excluded.homeset;
+	sync_token = excluded.sync_token;
 
 -- name: PutEvent :exec
 insert into event_object (path, calendar_path, dto)
@@ -28,8 +27,4 @@ on conflict (path) do update set
 -- name: DeleteEvents :exec
 delete from event_object
 where path in (sqlc.slice('paths'));
-
--- name: DeleteAllInPrincipalExcept :exec
-delete from calendar
-where homeset = ? and path not in (sqlc.slice('paths'));
 

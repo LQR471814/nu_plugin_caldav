@@ -11,7 +11,6 @@ import (
 type Calendar struct {
 	Path      string
 	SyncToken sql.NullString
-	Homeset   sql.NullString
 }
 
 type EventObject struct {

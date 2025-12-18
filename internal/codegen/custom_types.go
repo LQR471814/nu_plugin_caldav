@@ -5,13 +5,13 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/teambition/rrule-go"
+	"github.com/LQR471814/nu_plugin_caldav/internal/dto"
 )
 
 var timeType = reflect.TypeOf(time.Time{}).String()
 var durType = reflect.TypeOf(time.Duration(0)).String()
 var urlType = reflect.TypeOf(&url.URL{}).String()
-var rruleType = reflect.TypeOf(&rrule.RRule{}).String()
+var rruleType = reflect.TypeOf(dto.RRule{}).String()
 
 // time.Time support
 type timestampBridge struct {
@@ -126,13 +126,13 @@ func (t rruleBridge) TypeExpr() string {
 }
 
 func (t rruleBridge) FromBody() string {
-	return `if v.Value == nil { return nil, nil }
+	return `if v.Value == nil { return dto.RRule{}, nil }
 parsed, err := rrule.StrToRRule(v.Value.(string))
-if err != nil { return nil, err }
-return parsed, nil`
+if err != nil { return dto.RRule{}, err }
+return dto.RRule{RRule: parsed}, nil`
 }
 
 func (t rruleBridge) ToBody() string {
-	return `if v == nil { return nu.Value{Value: nil}, nil }
+	return `if v.RRule == nil { return nu.Value{Value: nil}, nil }
 return nu.ToValue(v.String()), nil`
 }

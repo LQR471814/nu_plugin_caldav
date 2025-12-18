@@ -29,6 +29,14 @@ func setupDB(ctx context.Context, tx *sql.Tx, txqry *Queries) (err error) {
 	return
 }
 
+const state_file = "state.db"
+
+func Purge() (err error) {
+	dirs := configdir.New("LQR471814", "nu_plugin_caldav")
+	cache := dirs.QueryCacheFolder().Path
+	return os.Remove(filepath.Join(cache, state_file))
+}
+
 func Open(ctx context.Context) (driver *sql.DB, qry *Queries, err error) {
 	dirs := configdir.New("LQR471814", "nu_plugin_caldav")
 	cache := dirs.QueryCacheFolder().Path
@@ -42,7 +50,7 @@ func Open(ctx context.Context) (driver *sql.DB, qry *Queries, err error) {
 			"_journal_mode=WAL&"+
 			"_synchronous=NORMAL&"+
 			"_busy_timeout=10000",
-		filepath.Join(cache, "state.db"),
+		filepath.Join(cache, state_file),
 	))
 	if err != nil {
 		return

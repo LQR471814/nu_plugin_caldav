@@ -12,7 +12,7 @@ var queryPrincipal = &nu.Command{
 		Name:        "caldav query principal",
 		Category:    "Network",
 		Desc:        "Finds the principal associated with the current user.",
-		SearchTerms: []string{"caldav", "query", "principal"},
+		SearchTerms: caldavKeywordsQuery("calendar", "principal"),
 		InputOutputTypes: []nu.InOutTypes{
 			{
 				In:  types.Nothing(),

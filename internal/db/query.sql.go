@@ -11,32 +11,6 @@ import (
 	"strings"
 )
 
-const deleteAllInPrincipalExcept = `-- name: DeleteAllInPrincipalExcept :exec
-delete from calendar
-where homeset = ? and path not in (/*SLICE:paths*/?)
-`
-
-type DeleteAllInPrincipalExceptParams struct {
-	Homeset sql.NullString
-	Paths   []string
-}
-
-func (q *Queries) DeleteAllInPrincipalExcept(ctx context.Context, arg DeleteAllInPrincipalExceptParams) error {
-	query := deleteAllInPrincipalExcept
-	var queryParams []interface{}
-	queryParams = append(queryParams, arg.Homeset)
-	if len(arg.Paths) > 0 {
-		for _, v := range arg.Paths {
-			queryParams = append(queryParams, v)
-		}
-		query = strings.Replace(query, "/*SLICE:paths*/?", strings.Repeat(",?", len(arg.Paths))[1:], 1)
-	} else {
-		query = strings.Replace(query, "/*SLICE:paths*/?", "NULL", 1)
-	}
-	_, err := q.db.ExecContext(ctx, query, queryParams...)
-	return err
-}
-
 const deleteEvents = `-- name: DeleteEvents :exec
 delete from event_object
 where path in (/*SLICE:paths*/?)
@@ -58,21 +32,19 @@ func (q *Queries) DeleteEvents(ctx context.Context, paths []string) error {
 }
 
 const putCalendar = `-- name: PutCalendar :exec
-insert into calendar (path, sync_token, homeset)
-values (?, ?, ?)
+insert into calendar (path, sync_token)
+values (?, ?)
 on conflict (path) do update set
-	sync_token = excluded.sync_token,
-	homeset = excluded.homeset
+	sync_token = excluded.sync_token
 `
 
 type PutCalendarParams struct {
 	Path      string
 	SyncToken sql.NullString
-	Homeset   sql.NullString
 }
 
 func (q *Queries) PutCalendar(ctx context.Context, arg PutCalendarParams) error {
-	_, err := q.db.ExecContext(ctx, putCalendar, arg.Path, arg.SyncToken, arg.Homeset)
+	_, err := q.db.ExecContext(ctx, putCalendar, arg.Path, arg.SyncToken)
 	return err
 }
 
@@ -108,19 +80,14 @@ func (q *Queries) PutMetadata(ctx context.Context, version int64) error {
 }
 
 const readCalendar = `-- name: ReadCalendar :one
-select sync_token, homeset from calendar where path = ?
+select sync_token from calendar where path = ?
 `
 
-type ReadCalendarRow struct {
-	SyncToken sql.NullString
-	Homeset   sql.NullString
-}
-
-func (q *Queries) ReadCalendar(ctx context.Context, path string) (ReadCalendarRow, error) {
+func (q *Queries) ReadCalendar(ctx context.Context, path string) (sql.NullString, error) {
 	row := q.db.QueryRowContext(ctx, readCalendar, path)
-	var i ReadCalendarRow
-	err := row.Scan(&i.SyncToken, &i.Homeset)
-	return i, err
+	var sync_token sql.NullString
+	err := row.Scan(&sync_token)
+	return sync_token, err
 }
 
 const readMetadata = `-- name: ReadMetadata :one

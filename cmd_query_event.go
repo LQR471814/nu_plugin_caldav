@@ -26,7 +26,7 @@ var queryEventsCmd = &nu.Command{
 		Name:        "caldav query events",
 		Category:    "Network",
 		Desc:        "Reads raw events objects from a given calendar.",
-		SearchTerms: []string{"caldav", "query", "events"},
+		SearchTerms: caldavKeywordsQuery("events"),
 		Named: []nu.Flag{
 			{
 				Long:    "no-sync",
@@ -111,7 +111,7 @@ func queryEventsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
 	workerCount := runtime.NumCPU()
 
 	errs := make(chan error)
-	events := make(chan db.ReadEventsRow)
+	events := make(chan db.ReadEventsRow, runtime.NumCPU())
 	wg := sync.WaitGroup{}
 
 	for range workerCount {
@@ -249,7 +249,7 @@ func (m syncManager) sync() (err error) {
 	defer tx.Rollback()
 	txqry := m.qry.WithTx(tx)
 
-	syncToken, err := txqry.ReadCalendarSyncToken(m.ctx, m.calendarPath)
+	syncToken, err := txqry.ReadCalendar(m.ctx, m.calendarPath)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return
 	}
@@ -257,7 +257,7 @@ func (m syncManager) sync() (err error) {
 	if err != nil {
 		return
 	}
-	err = txqry.UpdateCalSyncToken(m.ctx, db.UpdateCalSyncTokenParams{
+	err = txqry.PutCalendar(m.ctx, db.PutCalendarParams{
 		Path: m.calendarPath,
 		SyncToken: sql.NullString{
 			String: nextSyncToken,
