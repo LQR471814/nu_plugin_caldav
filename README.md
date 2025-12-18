@@ -21,7 +21,6 @@ definition will have snake_case fields for public PascalCase
 fields on the Golang struct. Slices of structs will be treated as
 tables, rather than lists of records.
 
-> [!EXAMPLE]
 > ```go
 > type Foo struct {
 >   Path string
