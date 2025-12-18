@@ -6,8 +6,6 @@ import (
 	"github.com/emersion/go-ical"
 )
 
-var MAX_TIME = time.Date(2100, time.January, 1, 0, 0, 0, 0, time.UTC)
-
 // Datetime defines a DATE-TIME property.
 type Datetime struct {
 	Stamp    time.Time

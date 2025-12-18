@@ -8,9 +8,7 @@ import (
 	"errors"
 	"runtime"
 	"sync"
-	"time"
 
-	"github.com/LQR471814/nu_plugin_caldav/events"
 	"github.com/LQR471814/nu_plugin_caldav/internal/db"
 	"github.com/LQR471814/nu_plugin_caldav/internal/dto"
 	"github.com/LQR471814/nu_plugin_caldav/internal/nuconv"
@@ -21,8 +19,6 @@ import (
 	"github.com/emersion/go-webdav/caldav"
 )
 
-var default_start_time = nu.ToValue(time.Time{})
-var default_end_time = nu.ToValue(events.MAX_TIME)
 var default_nosync = nu.ToValue(false)
 
 var queryEventsCmd = &nu.Command{
@@ -32,20 +28,6 @@ var queryEventsCmd = &nu.Command{
 		Desc:        "Reads raw events objects from a given calendar.",
 		SearchTerms: []string{"caldav", "query", "events"},
 		Named: []nu.Flag{
-			{
-				Long:    "start",
-				Short:   's',
-				Desc:    "Filter for all events after this start time.",
-				Shape:   syntaxshape.DateTime(),
-				Default: &default_start_time,
-			},
-			{
-				Long:    "end",
-				Short:   'e',
-				Desc:    "Filter for all events before this end time.",
-				Shape:   syntaxshape.DateTime(),
-				Default: &default_end_time,
-			},
 			{
 				Long:    "no-sync",
 				Short:   'f',
@@ -81,18 +63,8 @@ func queryEventsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
 	if err != nil {
 		return
 	}
-	start := time.Time{}
-	v, ok := call.FlagValue("start")
-	if ok {
-		start = v.Value.(time.Time)
-	}
-	end := events.MAX_TIME
-	v, ok = call.FlagValue("end")
-	if ok {
-		end = v.Value.(time.Time)
-	}
 	nosync := false
-	v, ok = call.FlagValue("no-sync")
+	v, ok := call.FlagValue("no-sync")
 	if ok {
 		nosync = v.Value.(bool)
 	}
@@ -105,7 +77,7 @@ func queryEventsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
 
 	if nosync {
 		var out nu.Value
-		out, err = fetchNoSync(ctx, client, calendarPath, start, end)
+		out, err = fetchNoSync(ctx, client, calendarPath)
 		if err != nil {
 			return
 		}
@@ -123,8 +95,6 @@ func queryEventsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
 		client:       client,
 		driver:       driver,
 		qry:          qry,
-		start:        start,
-		end:          end,
 		calendarPath: calendarPath,
 	}
 	err = m.sync()
@@ -190,16 +160,8 @@ func queryEventsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
 	return
 }
 
-func fetchNoSync(ctx context.Context, client *caldav.Client, calendarPath string, start, end time.Time) (out nu.Value, err error) {
+func fetchNoSync(ctx context.Context, client *caldav.Client, calendarPath string) (out nu.Value, err error) {
 	objects, err := client.QueryCalendar(ctx, calendarPath, &caldav.CalendarQuery{
-		CompFilter: caldav.CompFilter{
-			Name: ical.CompCalendar,
-			Comps: []caldav.CompFilter{{
-				Name:  ical.CompEvent,
-				Start: start,
-				End:   end,
-			}},
-		},
 		CompRequest: caldav.CalendarCompRequest{
 			Name:     ical.CompEvent,
 			AllProps: true,
@@ -218,7 +180,6 @@ type syncManager struct {
 	client       *caldav.Client
 	driver       *sql.DB
 	qry          *db.Queries
-	start, end   time.Time
 	calendarPath string
 }
 
