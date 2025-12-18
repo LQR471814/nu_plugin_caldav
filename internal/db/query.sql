@@ -37,8 +37,9 @@ select sync_token from calendar where path = ?;
 -- name: ReadCalendarDto :one
 select dto from calendar where path = ?;
 
--- name: ReadEvents :many
-select path, dto from event_object where calendar_path = ?;
+-- implemented manually for perf reasons
+-- -- name: ReadEvents :many
+-- select path, dto from event_object where calendar_path = ?;
 
 -- name: DeleteEvents :exec
 delete from event_object

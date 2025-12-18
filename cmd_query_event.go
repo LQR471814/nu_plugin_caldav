@@ -6,6 +6,8 @@ import (
 	"database/sql"
 	"encoding/gob"
 	"errors"
+	"runtime"
+	"sync"
 	"time"
 
 	"github.com/LQR471814/nu_plugin_caldav/events"
@@ -129,22 +131,62 @@ func queryEventsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
 	if err != nil {
 		return
 	}
-	var objects dto.EventObjectList
-	events, err := qry.ReadEvents(ctx, calendarPath)
-	for _, e := range events {
-		var o dto.EventObject
-		decoder := gob.NewDecoder(bytes.NewBuffer(e.Dto))
-		err = decoder.Decode(&o)
-		if err != nil {
-			return
-		}
-		objects = append(objects, o)
-	}
-	out, err := nuconv.EventObjectListToNu(objects)
+
+	output, err := call.ReturnListStream(ctx)
 	if err != nil {
 		return
 	}
-	err = call.ReturnValue(ctx, out)
+	defer close(output)
+
+	workerCount := runtime.NumCPU()
+
+	errs := make(chan error)
+	events := make(chan db.ReadEventsRow)
+	wg := sync.WaitGroup{}
+
+	for range workerCount {
+		wg.Add(1)
+		go func() { // process events concurrently and send them to output stream
+			defer wg.Done()
+			for e := range events {
+				var obj dto.EventObject
+				decoder := gob.NewDecoder(bytes.NewBuffer(e.Dto))
+				err = decoder.Decode(&obj)
+				if err != nil {
+					errs <- err
+					continue
+				}
+				nuobj, err := nuconv.EventObjectToNu(obj)
+				if err != nil {
+					errs <- err
+					continue
+				}
+				output <- nuobj
+			}
+		}()
+	}
+
+	go func() { // pull events in from database and send them to be processed
+		err = qry.ReadEvents(ctx, calendarPath, events)
+		if err != nil {
+			errs <- err
+		}
+		close(events)
+	}()
+
+	go func() { // only close errors channel after confirming all workers have exited
+		wg.Wait()
+		close(errs)
+	}()
+
+	var errlist []error // collect errors, return at end
+	for e := range errs {
+		errlist = append(errlist, e)
+	}
+	if len(errlist) > 0 {
+		err = errors.Join(errlist...)
+		output <- nu.ToValue(err)
+	}
 	return
 }
 

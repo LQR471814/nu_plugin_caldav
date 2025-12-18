@@ -12,10 +12,14 @@ import (
 )
 
 const deleteEvents = `-- name: DeleteEvents :exec
+
 delete from event_object
 where path in (/*SLICE:paths*/?)
 `
 
+// implemented manually for perf reasons
+// -- name: ReadEvents :many
+// select path, dto from event_object where calendar_path = ?;
 func (q *Queries) DeleteEvents(ctx context.Context, paths []string) error {
 	query := deleteEvents
 	var queryParams []interface{}
@@ -117,38 +121,6 @@ func (q *Queries) ReadCalendars(ctx context.Context) ([]Calendar, error) {
 	for rows.Next() {
 		var i Calendar
 		if err := rows.Scan(&i.Path, &i.SyncToken, &i.Dto); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const readEvents = `-- name: ReadEvents :many
-select path, dto from event_object where calendar_path = ?
-`
-
-type ReadEventsRow struct {
-	Path string
-	Dto  []byte
-}
-
-func (q *Queries) ReadEvents(ctx context.Context, calendarPath string) ([]ReadEventsRow, error) {
-	rows, err := q.db.QueryContext(ctx, readEvents, calendarPath)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []ReadEventsRow
-	for rows.Next() {
-		var i ReadEventsRow
-		if err := rows.Scan(&i.Path, &i.Dto); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
