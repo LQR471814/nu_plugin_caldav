@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/LQR471814/nu_plugin_caldav/events"
 	"github.com/emersion/go-ical"
@@ -403,6 +404,39 @@ type EventObject struct {
 	Overrides []Event
 }
 
+func NewEventObject(obj caldav.CalendarObject) EventObject {
+	dtoObj := EventObject{ObjectPath: &obj.Path}
+	for _, component := range obj.Data.Children {
+		if component.Name != ical.CompEvent {
+			continue
+		}
+		event := events.Event{
+			Event:    ical.Event{Component: component},
+			Timezone: time.Local,
+		}
+		prop := component.Props.Get(ical.PropRecurrenceID)
+		if prop != nil {
+			dtoObj.Overrides = append(dtoObj.Overrides, NewEvent(event))
+			continue
+		}
+		dtoObj.Main = NewEvent(event)
+	}
+	return dtoObj
+}
+
 type EventObjectList []EventObject
+
+func NewEventObjectList(objects []caldav.CalendarObject) EventObjectList {
+	dtoObjects := make([]EventObject, len(objects))
+	// each calendar object only ever stores one unique VEVENT object.
+	//
+	// exception:
+	// if the VEVENT has recurrence overrides, the recurrence overrides will
+	// come with the original VEVENT as separate VEVENT components.
+	for i, obj := range objects {
+		dtoObjects[i] = NewEventObject(obj)
+	}
+	return dtoObjects
+}
 
 type CalendarList []caldav.Calendar

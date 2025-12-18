@@ -1,5 +1,6 @@
 codegen:
 	go run ./internal/codegen \
-		-pkg conversions \
-		-out ./internal/nutypes/conversions/conversions.go
+		-pkg nuconv \
+		-out ./internal/nuconv/nuconv.go
+	sqlc generate
 
