@@ -12,6 +12,24 @@ import (
 	"github.com/teambition/rrule-go"
 )
 
+// rrule.RRule but with gob encoding support
+type RRule struct {
+	*rrule.RRule
+}
+
+func (r RRule) GobEncode() ([]byte, error) {
+	return []byte(r.String()), nil
+}
+
+func (r *RRule) GobDecode(s []byte) error {
+	rule, err := rrule.StrToRRule(string(s))
+	if err != nil {
+		return err
+	}
+	*r = RRule{RRule: rule}
+	return nil
+}
+
 type PropValueDto struct {
 	Value  string
 	Params map[string][]string
@@ -41,7 +59,7 @@ type Event struct {
 	Start     events.Datetime
 	End       events.Datetime
 	// TODO: implement duration
-	RecurrenceRule           *rrule.RRule
+	RecurrenceRule           RRule
 	RecurrenceDates          []events.Datetime
 	RecurrenceExceptionDates []events.Datetime
 	RecurrenceInstance       *events.Datetime
@@ -164,10 +182,10 @@ func (e Event) String() string {
 		sb.WriteString("Organizer:")
 		fmt.Fprint(&sb, *e.Organizer)
 	}
-	if e.RecurrenceRule != nil {
+	if e.RecurrenceRule.RRule != nil {
 		sb.WriteString(" ")
 		sb.WriteString("RecurrenceRule:")
-		fmt.Fprint(&sb, *e.RecurrenceRule)
+		fmt.Fprint(&sb, *e.RecurrenceRule.RRule)
 	}
 	if e.RecurrenceDates != nil {
 		sb.WriteString(" ")
@@ -274,7 +292,7 @@ func NewEvent(e events.Event) (out Event) {
 	out.End = end
 
 	if res, ok := e.GetRecurrenceRule(); ok {
-		out.RecurrenceRule = res
+		out.RecurrenceRule.RRule = res
 	}
 	if res, ok := e.GetRecurrenceDates(); ok {
 		out.RecurrenceDates = res
@@ -361,8 +379,8 @@ func (o Event) Apply(e events.Event) {
 	}
 	e.SetStart(o.Start)
 	e.SetEnd(o.End)
-	if o.RecurrenceRule != nil {
-		e.SetRecurrenceRule(o.RecurrenceRule)
+	if o.RecurrenceRule.RRule != nil {
+		e.SetRecurrenceRule(o.RecurrenceRule.RRule)
 	}
 	if o.RecurrenceDates != nil {
 		e.SetRecurrenceDates(o.RecurrenceDates)

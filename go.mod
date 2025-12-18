@@ -32,4 +32,6 @@ require (
 
 replace github.com/ainvaltin/nu-plugin v0.0.0-20250907111918-1d43779b9a0f => github.com/LQR471814/nu-plugin v0.0.0-20251201205325-e39ccb204351
 
-replace github.com/emersion/go-webdav v0.7.0 => github.com/LQR471814/go-webdav v0.0.0-20251217203741-3ac090f4f011
+// replace github.com/emersion/go-webdav v0.7.0 => github.com/LQR471814/go-webdav v0.0.0-20251217203741-3ac090f4f011
+
+replace github.com/emersion/go-webdav v0.7.0 => ../go-webdav

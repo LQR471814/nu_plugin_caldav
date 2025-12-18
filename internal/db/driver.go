@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -19,12 +20,12 @@ var schema string
 
 const db_version = 1
 
-func setupDB(ctx context.Context, tx *sql.Tx, qry *Queries) (err error) {
-	err = qry.PutMetadata(ctx, db_version)
+func setupDB(ctx context.Context, tx *sql.Tx, txqry *Queries) (err error) {
+	_, err = tx.ExecContext(ctx, schema)
 	if err != nil {
 		return
 	}
-	_, err = tx.ExecContext(ctx, schema)
+	err = txqry.PutMetadata(ctx, db_version)
 	return
 }
 
@@ -32,20 +33,25 @@ func Open(ctx context.Context) (driver *sql.DB, qry *Queries, err error) {
 	dirs := configdir.New("LQR471814", "nu_plugin_caldav")
 	cache := dirs.QueryCacheFolder().Path
 
+	err = os.MkdirAll(cache, 0777)
+	if err != nil {
+		return
+	}
 	driver, err = sql.Open("sqlite", fmt.Sprintf(
 		"file:%s?"+
-			"cache=shared&"+
 			"_journal_mode=WAL&"+
 			"_synchronous=NORMAL&"+
-			"_busy_timeout=10000&"+
-			"_foreign_keys=1&"+
-			"_pragma=temp_store(MEMORY)&"+
-			"_pragma=cache_size(-20000)",
+			"_busy_timeout=10000",
 		filepath.Join(cache, "state.db"),
 	))
 	if err != nil {
 		return
 	}
+	err = driver.PingContext(ctx)
+	if err != nil {
+		return
+	}
+
 	qry = New(driver)
 
 	tx, err := driver.BeginTx(ctx, nil)
@@ -66,7 +72,7 @@ func Open(ctx context.Context) (driver *sql.DB, qry *Queries, err error) {
 	if strings.Contains(err.Error(), "no such table") ||
 		errors.Is(err, sql.ErrNoRows) ||
 		version != db_version {
-		err = setupDB(ctx, tx, qry)
+		err = setupDB(ctx, tx, txqry)
 		if err != nil {
 			return
 		}

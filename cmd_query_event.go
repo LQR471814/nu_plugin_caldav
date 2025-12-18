@@ -118,6 +118,7 @@ func queryEventsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
 	defer driver.Close()
 	m := syncManager{
 		ctx:          ctx,
+		client:       client,
 		driver:       driver,
 		qry:          qry,
 		start:        start,

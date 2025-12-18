@@ -55,8 +55,8 @@ func init() {
 func expandEvents(out *[]dto.Event, object dto.EventObject, start, end time.Time) {
 	set := &rrule.Set{}
 
-	if object.Main.RecurrenceRule != nil {
-		set.RRule(object.Main.RecurrenceRule)
+	if object.Main.RecurrenceRule.RRule != nil {
+		set.RRule(object.Main.RecurrenceRule.RRule)
 	} else {
 		// single recurrence rule
 		rule, err := rrule.NewRRule(rrule.ROption{
