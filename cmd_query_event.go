@@ -207,12 +207,16 @@ func (m syncManager) performSync(txqry *db.Queries, syncToken string) (nextSyncT
 	}
 
 	// sync puts
-	var updatePaths []string
+	var updatedPaths []string
 	for _, u := range resp.Updated {
-		updatePaths = append(updatePaths, u.Path)
+		updatedPaths = append(updatedPaths, u.Path)
 	}
-	updateObjects, err := m.client.MultiGetCalendar(m.ctx, m.calendarPath, &caldav.CalendarMultiGet{
-		Paths: updatePaths,
+	if len(updatedPaths) == 0 {
+		return
+	}
+
+	updatedObjects, err := m.client.MultiGetCalendar(m.ctx, m.calendarPath, &caldav.CalendarMultiGet{
+		Paths: updatedPaths,
 		CompRequest: caldav.CalendarCompRequest{
 			Name:     ical.CompEvent,
 			AllProps: true,
@@ -221,7 +225,7 @@ func (m syncManager) performSync(txqry *db.Queries, syncToken string) (nextSyncT
 	if err != nil {
 		return
 	}
-	for _, obj := range updateObjects {
+	for _, obj := range updatedObjects {
 		buf := bytes.NewBuffer(nil)
 		encoder := gob.NewEncoder(buf)
 		err = encoder.Encode(dto.NewEventObject(obj))
@@ -237,7 +241,6 @@ func (m syncManager) performSync(txqry *db.Queries, syncToken string) (nextSyncT
 			return
 		}
 	}
-
 	return
 }
 
