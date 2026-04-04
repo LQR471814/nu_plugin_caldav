@@ -54,7 +54,7 @@ Server configuration is done through environment variables:
 
 https://github.com/LQR471814/nu_plugin_caldav/blob/3fb5759ae5033a7cc5db553f61e0c8614b148e4d/example.nu#L1-L46
 
-## Design decisions & limitations
+## Design Decisions & Limitations
 
 - Server-side filtering is not planned to be implemented as:
     - `caldav query events` syncs events automatically and caches
