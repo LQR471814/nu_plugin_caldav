@@ -65,9 +65,11 @@ func getClient(ctx context.Context, call *nu.ExecCommand) (client *caldav.Client
 	if err != nil {
 		return
 	}
-	insecure, err := getEnvBool(ctx, call, "NU_PLUGIN_CALDAV_INSECURE")
-	if err != nil {
-		return
+	insecure := false
+	insecureVar, err := call.GetEnvVar(ctx, "NU_PLUGIN_CALDAV_INSECURE")
+	if insecureVar != nil {
+		s := insecureVar.Value.(string)
+		insecure = s == "1" || s == "true"
 	}
 
 	transport := &http.Transport{
