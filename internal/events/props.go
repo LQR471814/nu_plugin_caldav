@@ -2,6 +2,7 @@ package events
 
 import (
 	"fmt"
+	"log/slog"
 	"net/url"
 	"strconv"
 	"strings"
@@ -140,17 +141,20 @@ func (e Event) GetGeo() (EventGeo, bool) {
 	if !ok {
 		return EventGeo{}, false
 	}
-	segments := strings.Split(str, ";")
+	segments := strings.Split(str, "\\;")
 	if len(segments) != 2 {
-		panic("invalid GEO property format")
+		slog.Error("invalid GEO property format", "got", str, "err", "not exactly 2 segments separated by '\\;'")
+		return EventGeo{}, false
 	}
 	lat, err := strconv.ParseFloat(segments[0], 64)
 	if err != nil {
-		panic(err)
+		slog.Error("invalid GEO property format", "got", str, "err", err)
+		return EventGeo{}, false
 	}
 	long, err := strconv.ParseFloat(segments[1], 64)
 	if err != nil {
-		panic(err)
+		slog.Error("invalid GEO property format", "got", str, "err", err)
+		return EventGeo{}, false
 	}
 	return EventGeo{
 		Latitude:  lat,
