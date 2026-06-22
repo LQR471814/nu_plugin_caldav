@@ -5,27 +5,27 @@ import "time"
 import "fmt"
 import "github.com/ainvaltin/nu-plugin"
 import "github.com/ainvaltin/nu-plugin/types"
-import "github.com/LQR471814/nu_plugin_caldav/internal/events"
+import "github.com/LQR471814/nu_plugin_caldav/internal/eventparser"
 import "github.com/LQR471814/nu_plugin_caldav/internal/dto"
 import "github.com/teambition/rrule-go"
 import "github.com/emersion/go-webdav/caldav"
 
 var type_15560982419391353847 = types.Int()
 
-func type_15560982419391353847_FromNu(v nu.Value) (out events.EventTriggerRelative, err error) {
+func type_15560982419391353847_FromNu(v nu.Value) (out eventparser.EventTriggerRelative, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("events.EventTriggerRelative: %w", err)
 		}
 	}()
 	casted, ok := v.Value.(int64)
-	converted := events.EventTriggerRelative(casted)
+	converted := eventparser.EventTriggerRelative(casted)
 	if !ok {
 		return converted, fmt.Errorf("expected int64 got %v", v.Value)
 	}
 	return converted, nil
 }
-func type_15560982419391353847_ToNu(v events.EventTriggerRelative) (out nu.Value, err error) {
+func type_15560982419391353847_ToNu(v eventparser.EventTriggerRelative) (out nu.Value, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("events.EventTriggerRelative: %w", err)
@@ -122,7 +122,7 @@ func type_14293658896741725053_ToNu(v map[string][]string) (out nu.Value, err er
 
 var type_8971279483973357571 = type_7057708295081751301
 
-func type_8971279483973357571_FromNu(v nu.Value) (out *events.EventTransparency, err error) {
+func type_8971279483973357571_FromNu(v nu.Value) (out *eventparser.EventTransparency, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("*events.EventTransparency: %w", err)
@@ -137,7 +137,7 @@ func type_8971279483973357571_FromNu(v nu.Value) (out *events.EventTransparency,
 	}
 	return &res, nil
 }
-func type_8971279483973357571_ToNu(v *events.EventTransparency) (out nu.Value, err error) {
+func type_8971279483973357571_ToNu(v *eventparser.EventTransparency) (out nu.Value, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("*events.EventTransparency: %w", err)
@@ -447,7 +447,7 @@ func type_8814170927480347350_ToNu(v dto.Event) (out nu.Value, err error) {
 
 var type_12480522309550428545 = types.Record(type_5454485661162817076)
 
-func type_12480522309550428545_FromNu(v nu.Value) (out *events.Datetime, err error) {
+func type_12480522309550428545_FromNu(v nu.Value) (out *eventparser.Datetime, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("*events.Datetime: %w", err)
@@ -462,7 +462,7 @@ func type_12480522309550428545_FromNu(v nu.Value) (out *events.Datetime, err err
 	}
 	return &res, nil
 }
-func type_12480522309550428545_ToNu(v *events.Datetime) (out nu.Value, err error) {
+func type_12480522309550428545_ToNu(v *eventparser.Datetime) (out nu.Value, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("*events.Datetime: %w", err)
@@ -476,20 +476,20 @@ func type_12480522309550428545_ToNu(v *events.Datetime) (out nu.Value, err error
 
 var type_2493169154543297135 = types.String()
 
-func type_2493169154543297135_FromNu(v nu.Value) (out events.EventClass, err error) {
+func type_2493169154543297135_FromNu(v nu.Value) (out eventparser.EventClass, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("events.EventClass: %w", err)
 		}
 	}()
 	casted, ok := v.Value.(string)
-	converted := events.EventClass(casted)
+	converted := eventparser.EventClass(casted)
 	if !ok {
 		return converted, fmt.Errorf("expected string got %v", v.Value)
 	}
 	return converted, nil
 }
-func type_2493169154543297135_ToNu(v events.EventClass) (out nu.Value, err error) {
+func type_2493169154543297135_ToNu(v eventparser.EventClass) (out nu.Value, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("events.EventClass: %w", err)
@@ -503,7 +503,7 @@ var type_7161572108068222122 = types.RecordDef{
 	"longitude": type_17860233973098560385,
 }
 
-func type_7161572108068222122_FromNu(v nu.Value) (out events.EventGeo, err error) {
+func type_7161572108068222122_FromNu(v nu.Value) (out eventparser.EventGeo, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("events.EventGeo: %w", err)
@@ -526,7 +526,7 @@ func type_7161572108068222122_FromNu(v nu.Value) (out events.EventGeo, err error
 	}
 	return out, nil
 }
-func type_7161572108068222122_ToNu(v events.EventGeo) (out nu.Value, err error) {
+func type_7161572108068222122_ToNu(v eventparser.EventGeo) (out nu.Value, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("events.EventGeo: %w", err)
@@ -799,7 +799,7 @@ func type_11923325321682739420_ToNu(v dto.Timeline) (out nu.Value, err error) {
 
 var type_3931126380996215332 = types.Table(type_5454485661162817076)
 
-func type_3931126380996215332_FromNu(v nu.Value) (out []events.Datetime, err error) {
+func type_3931126380996215332_FromNu(v nu.Value) (out []eventparser.Datetime, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("[]events.Datetime: %w", err)
@@ -812,7 +812,7 @@ func type_3931126380996215332_FromNu(v nu.Value) (out []events.Datetime, err err
 	if !ok {
 		return nil, fmt.Errorf("expected []nu.Value got %T", v.Value)
 	}
-	out = make([]events.Datetime, len(arr))
+	out = make([]eventparser.Datetime, len(arr))
 	for i, e := range arr {
 		out[i], err = type_5454485661162817076_FromNu(e)
 		if err != nil {
@@ -821,7 +821,7 @@ func type_3931126380996215332_FromNu(v nu.Value) (out []events.Datetime, err err
 	}
 	return out, nil
 }
-func type_3931126380996215332_ToNu(v []events.Datetime) (out nu.Value, err error) {
+func type_3931126380996215332_ToNu(v []eventparser.Datetime) (out nu.Value, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("[]events.Datetime: %w", err)
@@ -980,20 +980,20 @@ func type_17860233973098560385_ToNu(v float64) (out nu.Value, err error) {
 
 var type_7057708295081751301 = types.String()
 
-func type_7057708295081751301_FromNu(v nu.Value) (out events.EventTransparency, err error) {
+func type_7057708295081751301_FromNu(v nu.Value) (out eventparser.EventTransparency, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("events.EventTransparency: %w", err)
 		}
 	}()
 	casted, ok := v.Value.(string)
-	converted := events.EventTransparency(casted)
+	converted := eventparser.EventTransparency(casted)
 	if !ok {
 		return converted, fmt.Errorf("expected string got %v", v.Value)
 	}
 	return converted, nil
 }
-func type_7057708295081751301_ToNu(v events.EventTransparency) (out nu.Value, err error) {
+func type_7057708295081751301_ToNu(v eventparser.EventTransparency) (out nu.Value, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("events.EventTransparency: %w", err)
@@ -1037,7 +1037,7 @@ var type_13545470577293064413 = types.RecordDef{
 	"absolute":    type_15050730807189225719,
 }
 
-func type_13545470577293064413_FromNu(v nu.Value) (out events.EventTrigger, err error) {
+func type_13545470577293064413_FromNu(v nu.Value) (out eventparser.EventTrigger, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("events.EventTrigger: %w", err)
@@ -1065,7 +1065,7 @@ func type_13545470577293064413_FromNu(v nu.Value) (out events.EventTrigger, err 
 	}
 	return out, nil
 }
-func type_13545470577293064413_ToNu(v events.EventTrigger) (out nu.Value, err error) {
+func type_13545470577293064413_ToNu(v eventparser.EventTrigger) (out nu.Value, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("events.EventTrigger: %w", err)
@@ -1152,7 +1152,7 @@ func type_8047992331715851194_ToNu(v time.Time) (out nu.Value, err error) {
 
 var type_9664538759823739797 = type_2493169154543297135
 
-func type_9664538759823739797_FromNu(v nu.Value) (out *events.EventClass, err error) {
+func type_9664538759823739797_FromNu(v nu.Value) (out *eventparser.EventClass, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("*events.EventClass: %w", err)
@@ -1167,7 +1167,7 @@ func type_9664538759823739797_FromNu(v nu.Value) (out *events.EventClass, err er
 	}
 	return &res, nil
 }
-func type_9664538759823739797_ToNu(v *events.EventClass) (out nu.Value, err error) {
+func type_9664538759823739797_ToNu(v *eventparser.EventClass) (out nu.Value, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("*events.EventClass: %w", err)
@@ -1181,7 +1181,7 @@ func type_9664538759823739797_ToNu(v *events.EventClass) (out nu.Value, err erro
 
 var type_7163250051298988498 = types.Record(type_7161572108068222122)
 
-func type_7163250051298988498_FromNu(v nu.Value) (out *events.EventGeo, err error) {
+func type_7163250051298988498_FromNu(v nu.Value) (out *eventparser.EventGeo, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("*events.EventGeo: %w", err)
@@ -1196,7 +1196,7 @@ func type_7163250051298988498_FromNu(v nu.Value) (out *events.EventGeo, err erro
 	}
 	return &res, nil
 }
-func type_7163250051298988498_ToNu(v *events.EventGeo) (out nu.Value, err error) {
+func type_7163250051298988498_ToNu(v *eventparser.EventGeo) (out nu.Value, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("*events.EventGeo: %w", err)
@@ -1239,7 +1239,7 @@ func type_2584899110032584934_ToNu(v *int) (out nu.Value, err error) {
 
 var type_784588192188755836 = type_15385297846572725340
 
-func type_784588192188755836_FromNu(v nu.Value) (out *events.EventStatus, err error) {
+func type_784588192188755836_FromNu(v nu.Value) (out *eventparser.EventStatus, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("*events.EventStatus: %w", err)
@@ -1254,7 +1254,7 @@ func type_784588192188755836_FromNu(v nu.Value) (out *events.EventStatus, err er
 	}
 	return &res, nil
 }
-func type_784588192188755836_ToNu(v *events.EventStatus) (out nu.Value, err error) {
+func type_784588192188755836_ToNu(v *eventparser.EventStatus) (out nu.Value, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("*events.EventStatus: %w", err)
@@ -1268,7 +1268,7 @@ func type_784588192188755836_ToNu(v *events.EventStatus) (out nu.Value, err erro
 
 var type_9520111014888170891 = types.Record(type_13545470577293064413)
 
-func type_9520111014888170891_FromNu(v nu.Value) (out *events.EventTrigger, err error) {
+func type_9520111014888170891_FromNu(v nu.Value) (out *eventparser.EventTrigger, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("*events.EventTrigger: %w", err)
@@ -1283,7 +1283,7 @@ func type_9520111014888170891_FromNu(v nu.Value) (out *events.EventTrigger, err 
 	}
 	return &res, nil
 }
-func type_9520111014888170891_ToNu(v *events.EventTrigger) (out nu.Value, err error) {
+func type_9520111014888170891_ToNu(v *eventparser.EventTrigger) (out nu.Value, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("*events.EventTrigger: %w", err)
@@ -1325,7 +1325,7 @@ var type_5454485661162817076 = types.RecordDef{
 	"floating": type_729807561129781588,
 }
 
-func type_5454485661162817076_FromNu(v nu.Value) (out events.Datetime, err error) {
+func type_5454485661162817076_FromNu(v nu.Value) (out eventparser.Datetime, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("events.Datetime: %w", err)
@@ -1361,7 +1361,7 @@ func type_5454485661162817076_FromNu(v nu.Value) (out events.Datetime, err error
 	}
 	return out, nil
 }
-func type_5454485661162817076_ToNu(v events.Datetime) (out nu.Value, err error) {
+func type_5454485661162817076_ToNu(v eventparser.Datetime) (out nu.Value, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("events.Datetime: %w", err)
@@ -1409,20 +1409,20 @@ func type_10890016574791629639_ToNu(v int) (out nu.Value, err error) {
 
 var type_15385297846572725340 = types.String()
 
-func type_15385297846572725340_FromNu(v nu.Value) (out events.EventStatus, err error) {
+func type_15385297846572725340_FromNu(v nu.Value) (out eventparser.EventStatus, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("events.EventStatus: %w", err)
 		}
 	}()
 	casted, ok := v.Value.(string)
-	converted := events.EventStatus(casted)
+	converted := eventparser.EventStatus(casted)
 	if !ok {
 		return converted, fmt.Errorf("expected string got %v", v.Value)
 	}
 	return converted, nil
 }
-func type_15385297846572725340_ToNu(v events.EventStatus) (out nu.Value, err error) {
+func type_15385297846572725340_ToNu(v eventparser.EventStatus) (out nu.Value, err error) {
 	defer func() {
 		if err != nil {
 			err = fmt.Errorf("events.EventStatus: %w", err)

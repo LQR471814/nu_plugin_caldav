@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/LQR471814/nu_plugin_caldav/internal/events"
+	"github.com/LQR471814/nu_plugin_caldav/internal/eventparser"
 	"github.com/emersion/go-ical"
 	"github.com/emersion/go-webdav/caldav"
 	"github.com/teambition/rrule-go"
@@ -41,29 +41,29 @@ type Event struct {
 	Location      *string
 	Description   *string
 	Categories    []string
-	DatetimeStamp *events.Datetime
-	Created       *events.Datetime
-	LastModified  *events.Datetime
-	Class         *events.EventClass
-	Geo           *events.EventGeo
+	DatetimeStamp *eventparser.Datetime
+	Created       *eventparser.Datetime
+	LastModified  *eventparser.Datetime
+	Class         *eventparser.EventClass
+	Geo           *eventparser.EventGeo
 	Priority      *int
 	Sequence      *int
-	Status        *events.EventStatus
-	Transparency  *events.EventTransparency
+	Status        *eventparser.EventStatus
+	Transparency  *eventparser.EventTransparency
 	URL           *url.URL `name:"url"`
 	Comment       *string
 	Attach        *url.URL
 	// TODO: implement attendees
 	Contact   *string
 	Organizer *url.URL
-	Start     events.Datetime
-	End       events.Datetime
+	Start     eventparser.Datetime
+	End       eventparser.Datetime
 	// TODO: implement duration
 	RecurrenceRule           RRule
-	RecurrenceDates          []events.Datetime
-	RecurrenceExceptionDates []events.Datetime
-	RecurrenceInstance       *events.Datetime
-	Trigger                  *events.EventTrigger
+	RecurrenceDates          []eventparser.Datetime
+	RecurrenceExceptionDates []eventparser.Datetime
+	RecurrenceInstance       *eventparser.Datetime
+	Trigger                  *eventparser.EventTrigger
 	Other                    map[string][]PropValueDto
 }
 
@@ -217,7 +217,7 @@ func (e Event) String() string {
 	return sb.String()
 }
 
-func NewEvent(e events.Event) (out Event) {
+func NewEvent(e eventparser.Event) (out Event) {
 	uid, ok := e.GetUID()
 	if !ok {
 		panic("UID not defined in event")
@@ -319,7 +319,7 @@ func NewEvent(e events.Event) (out Event) {
 	return
 }
 
-func (o Event) Apply(e events.Event) {
+func (o Event) Apply(e eventparser.Event) {
 	if o.Uid != nil {
 		e.SetUID(*o.Uid)
 	}
@@ -403,7 +403,7 @@ func (o Event) Apply(e events.Event) {
 				Params: v.Params,
 			}
 		}
-		e.AddOtherProp(events.KeyValues{
+		e.AddOtherProp(eventparser.KeyValues{
 			Key:    key,
 			Values: props,
 		})
@@ -428,7 +428,7 @@ func NewEventObject(obj caldav.CalendarObject) EventObject {
 		if component.Name != ical.CompEvent {
 			continue
 		}
-		event := events.Event{
+		event := eventparser.Event{
 			Event:    ical.Event{Component: component},
 			Timezone: time.Local,
 		}

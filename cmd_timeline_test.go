@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/LQR471814/nu_plugin_caldav/internal/events"
+	"github.com/LQR471814/nu_plugin_caldav/internal/eventparser"
 	"github.com/LQR471814/nu_plugin_caldav/internal/dto"
 )
 
@@ -50,10 +50,10 @@ func FuzzConvertToTimeline(f *testing.F) {
 			dur := time.Duration(abs(r.Int31())) * time.Second
 			start := overallStart.Add(offset)
 			eventList[i] = dto.Event{
-				Start: events.Datetime{
+				Start: eventparser.Datetime{
 					Stamp: start,
 				},
-				End: events.Datetime{
+				End: eventparser.Datetime{
 					Stamp: start.Add(dur),
 				},
 			}

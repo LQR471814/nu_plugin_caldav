@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/LQR471814/nu_plugin_caldav/internal/events"
+	"github.com/LQR471814/nu_plugin_caldav/internal/eventparser"
 	"github.com/LQR471814/nu_plugin_caldav/internal/dto"
 	"github.com/LQR471814/nu_plugin_caldav/internal/nuconv"
 	"github.com/ainvaltin/nu-plugin"
@@ -76,7 +76,7 @@ type saveEventCtx struct {
 func makeUpdatedObjects(
 	ctx saveEventCtx,
 	objectReplicas []dto.EventObject,
-) (out []events.EventObject, err error) {
+) (out []eventparser.EventObject, err error) {
 	if len(objectReplicas) == 0 {
 		return
 	}
@@ -103,14 +103,14 @@ func makeUpdatedObjects(
 		return
 	}
 
-	out = make([]events.EventObject, len(objects))
+	out = make([]eventparser.EventObject, len(objects))
 	for i, o := range objects {
-		out[i] = events.EventObject{
+		out[i] = eventparser.EventObject{
 			ObjectPath: o.Path,
 		}
 		for _, child := range o.Data.Children {
 			prop := child.Props.Get(ical.PropRecurrenceID)
-			ev := events.Event{
+			ev := eventparser.Event{
 				Event:    ical.Event{Component: child},
 				Timezone: time.Local,
 			}
@@ -128,7 +128,7 @@ func makeUpdatedObjects(
 type putEventObjectJob struct {
 	calpath string
 	client  *caldav.Client
-	obj     events.EventObject
+	obj     eventparser.EventObject
 }
 
 func (j putEventObjectJob) Do(ctx context.Context) (err error) {
@@ -144,7 +144,7 @@ func (j putEventObjectJob) Do(ctx context.Context) (err error) {
 }
 
 // apply default property updates to new/modified events
-func applyDefaultUpdates(event events.Event, objectPath string, dtstamp *ical.Prop, now events.Datetime) {
+func applyDefaultUpdates(event eventparser.Event, objectPath string, dtstamp *ical.Prop, now eventparser.Datetime) {
 	event.Props.Set(dtstamp)
 
 	// escape text
@@ -221,7 +221,7 @@ func saveEventsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
 	}
 
 	// process input events
-	var putObjects []events.EventObject
+	var putObjects []eventparser.EventObject
 	inputObjectReplicas, err := recvListInput(call, nuconv.EventObjectFromNu)
 	if err != nil {
 		return
@@ -253,11 +253,11 @@ func saveEventsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
 		if replica.ObjectPath != nil && *replica.ObjectPath != "" {
 			continue
 		}
-		obj := events.EventObject{}
-		obj.Main = events.Event{Timezone: time.Local, Event: *ical.NewEvent()}
+		obj := eventparser.EventObject{}
+		obj.Main = eventparser.Event{Timezone: time.Local, Event: *ical.NewEvent()}
 		replica.Main.Apply(obj.Main)
 		for _, override := range replica.Overrides {
-			ev := events.Event{Timezone: time.Local, Event: *ical.NewEvent()}
+			ev := eventparser.Event{Timezone: time.Local, Event: *ical.NewEvent()}
 			override.Apply(ev)
 			obj.Overrides = append(obj.Overrides, ev)
 		}
@@ -267,7 +267,7 @@ func saveEventsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
 	// apply default property updates to new/modified objects
 	dtstamp := ical.NewProp(ical.PropDateTimeStamp)
 	dtstamp.SetDateTime(currentTime)
-	now := events.Datetime{Stamp: currentTime}
+	now := eventparser.Datetime{Stamp: currentTime}
 	for _, obj := range putObjects {
 		applyDefaultUpdates(obj.Main, obj.ObjectPath, dtstamp, now)
 		for _, override := range obj.Overrides {
