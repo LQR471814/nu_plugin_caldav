@@ -34,8 +34,8 @@ nullable values (ie. `oneof<type, nothing>`).
 > ```
 
 - `calendar`: [Definition](https://pkg.go.dev/github.com/emersion/go-webdav/caldav#Calendar)
-- `event_object`: [Definition](https://github.com/LQR471814/nu_plugin_caldav/blob/main/internal/dto/events.go#L413-L423)
-- `timeline_segment`: [Definition](https://github.com/LQR471814/nu_plugin_caldav/blob/main/internal/dto/timeline.go#L7-L11)
+- `event_object`: [Definition](internal/enrich/object.go#L12-L20)
+- `timeline_segment`: [Definition](internal/enrich/dto/objects.go#L24-L28)
 
 ## Configuration
 
@@ -52,7 +52,7 @@ Server configuration is done through environment variables:
 
 ## Example Usage
 
-https://github.com/LQR471814/nu_plugin_caldav/blob/3fb5759ae5033a7cc5db553f61e0c8614b148e4d/example.nu#L1-L46
+[example.nu](example.nu)
 
 ## Design Decisions & Limitations
 
@@ -73,4 +73,3 @@ https://github.com/LQR471814/nu_plugin_caldav/blob/3fb5759ae5033a7cc5db553f61e0c
     - [ ] `VJOURNAL`
 - Static validation of event type is currently not possible due to
   nushell's lack of optional types.
-
