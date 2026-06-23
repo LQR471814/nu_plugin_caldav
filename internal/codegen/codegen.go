@@ -38,7 +38,7 @@ func NewCode() *Code {
 	}
 }
 
-// User-facing fucntions
+// User-facing functions
 
 func (c *Code) AddImport(imp string) {
 	c.Imports = append(c.Imports, imp)
