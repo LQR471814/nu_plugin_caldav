@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/LQR471814/nu_plugin_caldav/internal/eventparser"
 	"github.com/LQR471814/nu_plugin_caldav/internal/dto"
+	"github.com/LQR471814/nu_plugin_caldav/internal/eventparser"
 )
 
 func abs[T int64 | int32 | int16 | int8](v T) T {

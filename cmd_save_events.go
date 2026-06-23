@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/LQR471814/nu_plugin_caldav/internal/eventparser"
 	"github.com/LQR471814/nu_plugin_caldav/internal/dto"
+	"github.com/LQR471814/nu_plugin_caldav/internal/eventparser"
 	"github.com/LQR471814/nu_plugin_caldav/internal/nuconv"
 	"github.com/ainvaltin/nu-plugin"
 	"github.com/ainvaltin/nu-plugin/syntaxshape"
@@ -83,8 +83,9 @@ func makeUpdatedObjects(
 
 	for _, replica := range objectReplicas {
 		if replica.ObjectPath == nil || *replica.ObjectPath == "" {
-			// this is an assert, so it bypasses the regular error path
-			panic(fmt.Errorf("event object must have object_path defined for update: %v", replica))
+			// this is an assert, but we don't use panic since it is recoverable
+			err = fmt.Errorf("event object must have object_path defined for update: %v", replica)
+			return
 		}
 	}
 
@@ -144,35 +145,36 @@ func (j putEventObjectJob) Do(ctx context.Context) (err error) {
 }
 
 // apply default property updates to new/modified events
-func applyDefaultUpdates(event eventparser.Event, objectPath string, dtstamp *ical.Prop, now eventparser.Datetime) {
+func applyDefaultUpdates(event eventparser.Event, objectPath string, dtstamp *ical.Prop, now eventparser.Datetime) (err error) {
 	event.Props.Set(dtstamp)
 
 	// escape text
-	text, ok := event.GetLocation()
-	if ok {
+	text, err := event.GetLocation()
+	if err == nil {
 		text = strings.ReplaceAll(text, "\n", "\\n")
 		event.SetLocation(&text)
 	}
-	text, ok = event.GetComment()
-	if ok {
+	text, err = event.GetComment()
+	if err == nil {
 		text = strings.ReplaceAll(text, "\n", "\\n")
 		event.SetComment(&text)
 	}
-	text, ok = event.GetDescription()
-	if ok {
+	text, err = event.GetDescription()
+	if err == nil {
 		text = strings.ReplaceAll(text, "\n", "\\n")
 		event.SetDescription(&text)
 	}
-	text, ok = event.GetContact()
-	if ok {
+	text, err = event.GetContact()
+	if err == nil {
 		text = strings.ReplaceAll(text, "\n", "\\n")
 		event.SetContact(&text)
 	}
 
 	if uid, _ := event.GetUID(); uid == "" {
-		uid, err := uuid.NewRandom()
+		var uid uuid.UUID
+		uid, err = uuid.NewRandom()
 		if err != nil {
-			panic(err)
+			return
 		}
 		event.SetUID(uid.String())
 	}
@@ -182,6 +184,7 @@ func applyDefaultUpdates(event eventparser.Event, objectPath string, dtstamp *ic
 		return
 	}
 	event.SetCreated(&now)
+	return
 }
 
 func saveEventsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {

@@ -52,19 +52,20 @@ func init() {
 	commands = append(commands, timelineCmd)
 }
 
-func expandEvents(out *[]dto.Event, object dto.EventObject, start, end time.Time) {
+func expandEvents(out *[]dto.Event, object dto.EventObject, start, end time.Time) (err error) {
 	set := &rrule.Set{}
 
 	if object.Main.RecurrenceRule.RRule != nil {
 		set.RRule(object.Main.RecurrenceRule.RRule)
 	} else {
 		// single recurrence rule
-		rule, err := rrule.NewRRule(rrule.ROption{
+		var rule *rrule.RRule
+		rule, err = rrule.NewRRule(rrule.ROption{
 			Dtstart: object.Main.Start.Stamp,
 			Count:   1,
 		})
 		if err != nil {
-			panic(err)
+			return
 		}
 		set.RRule(rule)
 	}
@@ -92,38 +93,50 @@ func expandEvents(out *[]dto.Event, object dto.EventObject, start, end time.Time
 	set.SetExDates(exdates)
 
 	times := set.Between(start, end, true)
+
 	for _, startTime := range times {
 		if startTime.Before(start) {
-			panic(fmt.Errorf("recurrence start time should not be before overall start time: %v", startTime))
+			err = fmt.Errorf("recurrence start time cannot be < overall start time: %v", startTime)
+			return
 		}
+
 		if startTime.After(end) {
-			panic(fmt.Errorf("recurrence start time should not be after overall end time: %v", startTime))
+			err = fmt.Errorf("recurrence start time cannot be > overall end time: %v", startTime)
+			return
 		}
+
 		replica := object.Main
 		dur := replica.End.Stamp.Sub(replica.Start.Stamp)
 		replica.Start.Stamp = startTime
 		replica.End.Stamp = startTime.Add(dur)
 		*out = append(*out, replica)
 	}
+
+	return
 }
 
-func convertToTimeline(eventList []dto.Event, start, end time.Time) (out []dto.TimeSegment) {
+func convertToTimeline(eventList []dto.Event, start, end time.Time) (out []dto.TimeSegment, err error) {
 	// pre-conditions
 	if end.Before(start) {
-		panic("timeline END cannot be before START")
+		err = fmt.Errorf("timeline END cannot be before START")
+		return
 	}
+
 	for _, e := range eventList {
 		if e.End.Stamp.Before(e.Start.Stamp) {
-			panic(fmt.Errorf("event END cannot be before the event's START: %v", e))
+			err = fmt.Errorf("event END cannot be before the event's START: %v", e)
+			return
 		}
 		if e.Start.Stamp.Before(start) {
-			panic(fmt.Errorf("event START cannot be before timeline START: %v", e))
+			err = fmt.Errorf("event START cannot be before timeline START: %v", e)
+			return
 		}
 	}
 
 	if len(eventList) == 0 {
-		return nil
+		return
 	}
+
 	slices.SortFunc(eventList, func(a, b dto.Event) int {
 		if a.Start.Stamp.Before(b.Start.Stamp) {
 			return -1
@@ -242,6 +255,7 @@ func timelineCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
 		err = fmt.Errorf("must specify -start")
 		return
 	}
+
 	end, ok := call.Named["end"].Value.(time.Time)
 	if !ok {
 		err = fmt.Errorf("must specify -end")
@@ -250,6 +264,7 @@ func timelineCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
 
 	objects, err := recvListInput(call, nuconv.EventObjectFromNu)
 	if err != nil {
+		err = fmt.Errorf("recv list input: %w", err)
 		return
 	}
 
@@ -257,12 +272,22 @@ func timelineCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
 	for _, obj := range objects {
 		expandEvents(&eventList, obj, start, end)
 	}
-	timeline := convertToTimeline(eventList, start, end)
+	timeline, err := convertToTimeline(eventList, start, end)
+	if err != nil {
+		err = fmt.Errorf("convert to timeline: %w", err)
+		return
+	}
 
 	out, err := nuconv.TimelineToNu(timeline)
 	if err != nil {
+		err = fmt.Errorf("timeline to nu: %w", err)
 		return
 	}
+
 	err = call.ReturnValue(ctx, out)
+	if err != nil {
+		err = fmt.Errorf("return value: %w", err)
+		return
+	}
 	return
 }
