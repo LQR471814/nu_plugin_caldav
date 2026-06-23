@@ -7,47 +7,75 @@ import (
 	"go/format"
 	"os"
 	"reflect"
+	"runtime/debug"
+	"strings"
 
-	"github.com/LQR471814/nu_plugin_caldav/internal/dto"
+	"github.com/LQR471814/nu_plugin_caldav/internal/enrich"
+	"github.com/LQR471814/nu_plugin_caldav/internal/enrich/dto"
 )
 
-func code() *Code {
-	c := NewCode()
-	c.AddImport("net/url")
+func underlyingType(t reflect.Type) reflect.Type {
+	switch t.Kind() {
+	case reflect.Pointer, reflect.Slice, reflect.Array, reflect.Map:
+		return underlyingType(t.Elem())
+	}
+	return t
+}
+
+func newCode() (c *Code, err error) {
+	c = NewCode()
+
+	// c.AddImport("net/url")
 	c.AddImport("time")
 	c.AddImport("fmt")
 	c.AddImport("github.com/ainvaltin/nu-plugin")
 	c.AddImport("github.com/ainvaltin/nu-plugin/types")
-	c.AddImport("github.com/LQR471814/nu_plugin_caldav/internal/events")
-	c.AddImport("github.com/LQR471814/nu_plugin_caldav/internal/dto")
+	c.AddImport("github.com/LQR471814/nu_plugin_caldav/internal/enrich/props")
+	c.AddImport("github.com/LQR471814/nu_plugin_caldav/internal/enrich/dto")
 	c.AddImport("github.com/teambition/rrule-go")
 	c.AddImport("github.com/emersion/go-webdav/caldav")
-	c.Use("EventObjectList", reflect.TypeOf(dto.EventObjectList{}))
-	c.Use("EventObject", reflect.TypeOf(dto.EventObject{}))
-	c.Use("Event", reflect.TypeOf(dto.Event{}))
-	c.Use("Timeline", reflect.TypeOf(dto.Timeline{}))
-	c.Use("CalendarList", reflect.TypeOf(dto.CalendarList{}))
-	return c
+
+	for _, reg := range enrich.AllFields() {
+		typ := underlyingType(reflect.TypeOf(reg.Zero))
+		if !strings.HasSuffix(typ.PkgPath(), "enrich/props") {
+			continue
+		}
+		c.Use(typ.Name(), typ)
+	}
+
+	c.Use("PropValue", reflect.TypeFor[dto.PropValueList]())
+	c.Use("PropValueList", reflect.TypeFor[dto.PropValueList]())
+	c.Use("CalendarList", reflect.TypeFor[dto.CalendarList]())
+	c.Use("TimeSegment", reflect.TypeFor[dto.TimeSegment]())
+	c.Use("Timeline", reflect.TypeFor[dto.Timeline]())
+	c.Use("RRule", reflect.TypeFor[dto.RRule]())
+
+	return
 }
 
-func render(pkg string) []byte {
+func render(pkg string) (out []byte, err error) {
 	defer func() {
 		err := recover()
 		if err != nil {
-			fmt.Fprintln(os.Stderr, "Error: ", err)
+			fmt.Fprintln(os.Stderr, "Error: ", err, string(debug.Stack()))
 		}
 	}()
 
 	buf := bytes.NewBuffer(nil)
 
-	code().Render(buf, pkg)
+	code, err := newCode()
+	if err != nil {
+		return
+	}
+	code.Render(buf, pkg)
 
 	src, err := format.Source(buf.Bytes())
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "format failed: %v\n", err)
-		return buf.Bytes()
+		err = fmt.Errorf("format failed: %v\n%v", err, buf.String())
+		return
 	}
-	return src
+	out = src
+	return
 }
 
 func main() {
@@ -65,6 +93,12 @@ func main() {
 		fmt.Fprintln(os.Stderr, "Error: ", err)
 		os.Exit(1)
 	}
-	f.Write(render(*pkg))
-	f.Close()
+	defer f.Close()
+
+	contents, err := render(*pkg)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Error: ", err)
+		os.Exit(1)
+	}
+	f.Write(contents)
 }

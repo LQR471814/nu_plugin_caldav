@@ -1,4 +1,4 @@
-package eventparser
+package props
 
 import (
 	"time"

@@ -1,10 +1,6 @@
-package eventparser
+package props
 
-import (
-	"time"
-
-	"github.com/emersion/go-ical"
-)
+import "time"
 
 // Datetime defines a DATE-TIME property.
 type Datetime struct {
@@ -54,33 +50,3 @@ const (
 	EVENT_TRANSPARENCY_OPAQUE      EventTransparency = "OPAQUE"
 	EVENT_TRANSPARENCY_TRANSPARENT EventTransparency = "TRANSPARENT"
 )
-
-type Event struct {
-	Timezone *time.Location
-	ical.Event
-}
-
-// EventObject is like EventContainer, but for caldav-facing code.
-type EventObject struct {
-	ObjectPath string `default:"\"\""`
-	Main       Event
-	Overrides  []Event
-}
-
-func (obj EventObject) ToCalendar() *ical.Calendar {
-	cal := ical.NewCalendar()
-
-	version := ical.NewProp(ical.PropVersion)
-	version.Value = "2.0"
-	cal.Props.Set(version)
-
-	productId := ical.NewProp(ical.PropProductID)
-	productId.Value = "-//LQR471814//Nushell CalDav Plugin 0.1//EN"
-	cal.Props.Set(productId)
-
-	cal.Children = append(cal.Children, obj.Main.Component)
-	for _, ov := range obj.Overrides {
-		cal.Children = append(cal.Children, ov.Event.Component)
-	}
-	return cal
-}

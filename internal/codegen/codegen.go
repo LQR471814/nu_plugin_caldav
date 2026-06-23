@@ -71,6 +71,34 @@ func (*Code) fmtToDecl(out io.Writer, t reflect.Type, body string) {
 	fmt.Fprintln(out, "}")
 }
 
+func (c *Code) renderMarshal(out io.Writer) {
+	fmt.Fprintln(out, `func Marshal(v any) (out nu.Value, err error) {
+switch v := v.(type) {`)
+	for _, t := range c.Router.KnownTypes {
+		fmt.Fprintf(out, "case %s:\n", t.goType.String())
+		fmt.Fprintf(out, "out, err = %s(v)\n", ToDeclSyntaxID(t.goType))
+		fmt.Fprintln(out, "return")
+	}
+	fmt.Fprintln(out, "}")
+	fmt.Fprintf(out, "err = fmt.Errorf(`unsupported type: %%T`, v)\n")
+	fmt.Fprintln(out, "return")
+	fmt.Fprintln(out, "}")
+}
+
+func (c *Code) renderUnmarshal(out io.Writer) {
+	fmt.Fprintln(out, `func Unmarshal(v nu.Value, out any) (err error) {
+switch out := out.(type) {`)
+	for _, t := range c.Router.KnownTypes {
+		fmt.Fprintf(out, "case *%s:\n", t.goType.String())
+		fmt.Fprintf(out, "*out, err = %s(v)\n", FromDeclSyntaxID(t.goType))
+		fmt.Fprintln(out, "return")
+	}
+	fmt.Fprintln(out, "}")
+	fmt.Fprintf(out, "err = fmt.Errorf(`unsupported type: %%T`, out)\n")
+	fmt.Fprintln(out, "return")
+	fmt.Fprintln(out, "}")
+}
+
 func (c *Code) Render(out io.Writer, pkg string) {
 	fmt.Fprintf(out, "package %s\n", pkg)
 	for _, imp := range c.Imports {
@@ -87,6 +115,9 @@ func (c *Code) Render(out io.Writer, pkg string) {
 		fmt.Fprintf(out, "var %sFromNu = %s\n", alias, FromDeclSyntaxID(typ))
 		fmt.Fprintf(out, "var %sToNu = %s\n", alias, ToDeclSyntaxID(typ))
 	}
+
+	c.renderMarshal(out)
+	c.renderUnmarshal(out)
 }
 
 // convenience functions
