@@ -1,7 +1,5 @@
 github.com/LQR471814/go-webdav v0.0.0-20251218033631-3be4a3e33dec h1:BCd4GVDtoQqX2NOdnyUXIP4RsFDPVyvwYiJ+sIYiRzg=
 github.com/LQR471814/go-webdav v0.0.0-20251218033631-3be4a3e33dec/go.mod h1:mI8iBx3RAODwX7PJJ7qzsKAKs/vY429YfS2/9wKnDbQ=
-github.com/LQR471814/nu-plugin v0.0.0-20260422023302-598a9d2736a4 h1:XG2rNVb5EIbdvEmc1/lFKZ1KsZxL+eE8UXuDBAVJ7YI=
-github.com/LQR471814/nu-plugin v0.0.0-20260422023302-598a9d2736a4/go.mod h1:2bNUPzsdey5COkrObNGrf+d2DxLAIgCcxc2u2DjzWCA=
 github.com/ainvaltin/nu-plugin v0.0.0-20260530183442-019dd4784d2e h1:KR6W6Cuwo6KtADh2A3mVjZEODAoFIJws2R/jO7+FOis=
 github.com/ainvaltin/nu-plugin v0.0.0-20260530183442-019dd4784d2e/go.mod h1:NEtYqVsWMTMGRsQRXlxnFtv+NEnA4ZiODGzwKS/D+lg=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=

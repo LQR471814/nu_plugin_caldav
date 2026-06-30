@@ -22,11 +22,11 @@ func code() *Code {
 	c.AddImport("github.com/LQR471814/nu_plugin_caldav/internal/dto")
 	c.AddImport("github.com/teambition/rrule-go")
 	c.AddImport("github.com/emersion/go-webdav/caldav")
-	c.Use("EventObjectList", reflect.TypeOf(dto.EventObjectList{}))
-	c.Use("EventObject", reflect.TypeOf(dto.EventObject{}))
-	c.Use("Event", reflect.TypeOf(dto.Event{}))
-	c.Use("Timeline", reflect.TypeOf(dto.Timeline{}))
-	c.Use("CalendarList", reflect.TypeOf(dto.CalendarList{}))
+	c.Use("EventObjectList", reflect.TypeFor[dto.EventObjectList]())
+	c.Use("EventObject", reflect.TypeFor[dto.EventObject]())
+	c.Use("Event", reflect.TypeFor[dto.Event]())
+	c.Use("Timeline", reflect.TypeFor[dto.Timeline]())
+	c.Use("CalendarList", reflect.TypeFor[dto.CalendarList]())
 	return c
 }
 

@@ -18,7 +18,7 @@ func (p primitiveBridge) GoType() reflect.Type {
 	return p.t
 }
 
-var err_type = reflect.TypeOf((*error)(nil)).Elem()
+var err_type = reflect.TypeFor[error]()
 
 func (p primitiveBridge) TypeExpr() (out string) {
 	if p.t.Implements(err_type) {

@@ -1,6 +1,7 @@
 package events
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/emersion/go-ical"
@@ -25,6 +26,7 @@ func parseDateText(s string, tz *time.Location) (d Datetime, err error) {
 	}
 	d.Stamp, err = time.ParseInLocation(layout, s, tz)
 	if err != nil {
+		err = fmt.Errorf("parse location: %w", err)
 		return
 	}
 	return

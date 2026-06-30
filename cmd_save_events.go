@@ -2,14 +2,15 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"path"
 	"runtime/debug"
 	"strings"
 	"time"
 
-	"github.com/LQR471814/nu_plugin_caldav/internal/events"
 	"github.com/LQR471814/nu_plugin_caldav/internal/dto"
+	"github.com/LQR471814/nu_plugin_caldav/internal/events"
 	"github.com/LQR471814/nu_plugin_caldav/internal/nuconv"
 	"github.com/ainvaltin/nu-plugin"
 	"github.com/ainvaltin/nu-plugin/syntaxshape"
@@ -136,52 +137,67 @@ func (j putEventObjectJob) Do(ctx context.Context) (err error) {
 	defer cancel()
 	objpath := j.obj.ObjectPath
 	if objpath == "" {
-		uid, _ := j.obj.Main.GetUID()
+		uid, err := j.obj.Main.GetUID()
+		if err != nil {
+			return fmt.Errorf("get UID for calendar object path: %w", err)
+		}
 		objpath = path.Join(j.calpath, uid)
 	}
 	_, err = j.client.PutCalendarObject(ctx, objpath, j.obj.ToCalendar())
 	return
 }
 
+func escapeTextProperty(name string, get func() (string, error), set func(*string)) error {
+	text, err := get()
+	if errors.Is(err, events.ErrPropertyNotFound) {
+		return nil
+	}
+	if err != nil {
+		return fmt.Errorf("get %s: %w", name, err)
+	}
+	text = strings.ReplaceAll(text, "\n", "\\n")
+	set(&text)
+	return nil
+}
+
 // apply default property updates to new/modified events
-func applyDefaultUpdates(event events.Event, objectPath string, dtstamp *ical.Prop, now events.Datetime) {
+func applyDefaultUpdates(event events.Event, objectPath string, dtstamp *ical.Prop, now events.Datetime) error {
 	event.Props.Set(dtstamp)
 
 	// escape text
-	text, ok := event.GetLocation()
-	if ok {
-		text = strings.ReplaceAll(text, "\n", "\\n")
-		event.SetLocation(&text)
-	}
-	text, ok = event.GetComment()
-	if ok {
-		text = strings.ReplaceAll(text, "\n", "\\n")
-		event.SetComment(&text)
-	}
-	text, ok = event.GetDescription()
-	if ok {
-		text = strings.ReplaceAll(text, "\n", "\\n")
-		event.SetDescription(&text)
-	}
-	text, ok = event.GetContact()
-	if ok {
-		text = strings.ReplaceAll(text, "\n", "\\n")
-		event.SetContact(&text)
+	for _, prop := range []struct {
+		name string
+		get  func() (string, error)
+		set  func(*string)
+	}{
+		{name: ical.PropLocation, get: event.GetLocation, set: event.SetLocation},
+		{name: ical.PropComment, get: event.GetComment, set: event.SetComment},
+		{name: ical.PropDescription, get: event.GetDescription, set: event.SetDescription},
+		{name: ical.PropContact, get: event.GetContact, set: event.SetContact},
+	} {
+		if err := escapeTextProperty(prop.name, prop.get, prop.set); err != nil {
+			return err
+		}
 	}
 
-	if uid, _ := event.GetUID(); uid == "" {
+	uid, err := event.GetUID()
+	if err != nil && !errors.Is(err, events.ErrPropertyNotFound) {
+		return fmt.Errorf("get UID: %w", err)
+	}
+	if errors.Is(err, events.ErrPropertyNotFound) || uid == "" {
 		uid, err := uuid.NewRandom()
 		if err != nil {
-			panic(err)
+			return err
 		}
 		event.SetUID(uid.String())
 	}
 
 	if objectPath == "" {
 		event.SetLastModified(&now)
-		return
+		return nil
 	}
 	event.SetCreated(&now)
+	return nil
 }
 
 func saveEventsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
@@ -255,10 +271,16 @@ func saveEventsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
 		}
 		obj := events.EventObject{}
 		obj.Main = events.Event{Timezone: time.Local, Event: *ical.NewEvent()}
-		replica.Main.Apply(obj.Main)
+		err = replica.Main.Apply(obj.Main)
+		if err != nil {
+			return fmt.Errorf("apply main event: %w", err)
+		}
 		for _, override := range replica.Overrides {
 			ev := events.Event{Timezone: time.Local, Event: *ical.NewEvent()}
-			override.Apply(ev)
+			err = override.Apply(ev)
+			if err != nil {
+				return fmt.Errorf("apply override event: %w", err)
+			}
 			obj.Overrides = append(obj.Overrides, ev)
 		}
 		putObjects = append(putObjects, obj)
@@ -269,9 +291,15 @@ func saveEventsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
 	dtstamp.SetDateTime(currentTime)
 	now := events.Datetime{Stamp: currentTime}
 	for _, obj := range putObjects {
-		applyDefaultUpdates(obj.Main, obj.ObjectPath, dtstamp, now)
+		err = applyDefaultUpdates(obj.Main, obj.ObjectPath, dtstamp, now)
+		if err != nil {
+			return
+		}
 		for _, override := range obj.Overrides {
-			applyDefaultUpdates(override, obj.ObjectPath, dtstamp, now)
+			err = applyDefaultUpdates(override, obj.ObjectPath, dtstamp, now)
+			if err != nil {
+				return
+			}
 		}
 	}
 

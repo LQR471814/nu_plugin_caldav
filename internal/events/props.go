@@ -2,7 +2,6 @@ package events
 
 import (
 	"fmt"
-	"log/slog"
 	"net/url"
 	"strconv"
 	"strings"
@@ -15,7 +14,7 @@ import (
 // Uid is a globally unique identifier for this event.
 //
 // VEVENT Property: UID
-func (e Event) GetUID() (string, bool) {
+func (e Event) GetUID() (string, error) {
 	return e.getString(ical.PropUID)
 }
 func (e Event) SetUID(uid string) {
@@ -25,7 +24,7 @@ func (e Event) SetUID(uid string) {
 // Summary is the human-friendly title for this event.
 //
 // VEVENT Property: SUMMARY
-func (e Event) GetSummary() (string, bool) {
+func (e Event) GetSummary() (string, error) {
 	return e.getString(ical.PropSummary)
 }
 func (e Event) SetSummary(summary string) {
@@ -36,7 +35,7 @@ func (e Event) SetSummary(summary string) {
 // any format.
 //
 // VEVENT Property: LOCATION
-func (e Event) GetLocation() (string, bool) {
+func (e Event) GetLocation() (string, error) {
 	return e.getString(ical.PropLocation)
 }
 func (e Event) SetLocation(location *string) {
@@ -50,7 +49,7 @@ func (e Event) SetLocation(location *string) {
 // Description is a human-friendly description for this event.
 //
 // VEVENT Property: DESCRIPTION
-func (e Event) GetDescription() (string, bool) {
+func (e Event) GetDescription() (string, error) {
 	return e.getString(ical.PropDescription)
 }
 func (e Event) SetDescription(description *string) {
@@ -65,7 +64,7 @@ func (e Event) SetDescription(description *string) {
 // not need to be in any particular format.
 //
 // VEVENT Property: CATEGORIES
-func (e Event) GetCategories() ([]string, bool) {
+func (e Event) GetCategories() ([]string, error) {
 	return e.getStringList(ical.PropCategories)
 }
 func (e Event) SetCategories(categories []string) {
@@ -79,7 +78,7 @@ func (e Event) SetCategories(categories []string) {
 // but on the client).
 //
 // VEVENT Property: DTSTAMP
-func (e Event) GetDatetimeStamp() (Datetime, bool) {
+func (e Event) GetDatetimeStamp() (Datetime, error) {
 	return e.getDatetime(ical.PropDateTimeStamp)
 }
 func (e Event) SetDatetimeStamp(stamp *Datetime) {
@@ -93,7 +92,7 @@ func (e Event) SetDatetimeStamp(stamp *Datetime) {
 // Created defines when the event was created in the store.
 //
 // VEVENT Property: CREATED
-func (e Event) GetCreated() (Datetime, bool) {
+func (e Event) GetCreated() (Datetime, error) {
 	return e.getDatetime(ical.PropCreated)
 }
 func (e Event) SetCreated(createdAt *Datetime) {
@@ -107,7 +106,7 @@ func (e Event) SetCreated(createdAt *Datetime) {
 // LastModified defines when the event was last modified in the store.
 //
 // VEVENT Property: LAST-MOD
-func (e Event) GetLastModified() (Datetime, bool) {
+func (e Event) GetLastModified() (Datetime, error) {
 	return e.getDatetime(ical.PropLastModified)
 }
 func (e Event) SetLastModified(datetime *Datetime) {
@@ -121,9 +120,9 @@ func (e Event) SetLastModified(datetime *Datetime) {
 // Class is the classification of the event (default: PUBLIC)
 //
 // VEVENT Property: CLASS
-func (e Event) GetClass() (EventClass, bool) {
-	str, ok := e.getString(ical.PropClass)
-	return EventClass(str), ok
+func (e Event) GetClass() (EventClass, error) {
+	str, err := e.getString(ical.PropClass)
+	return EventClass(str), err
 }
 func (e Event) SetClass(class *EventClass) {
 	if class == nil {
@@ -136,30 +135,27 @@ func (e Event) SetClass(class *EventClass) {
 // Geo defines latitude and longitude for an event.
 //
 // VEVENT Property: GEO
-func (e Event) GetGeo() (EventGeo, bool) {
-	str, ok := e.getString(ical.PropGeo)
-	if !ok {
-		return EventGeo{}, false
+func (e Event) GetGeo() (EventGeo, error) {
+	str, err := e.getString(ical.PropGeo)
+	if err != nil {
+		return EventGeo{}, err
 	}
-	segments := strings.Split(str, "\\;")
+	segments := strings.Split(str, ";")
 	if len(segments) != 2 {
-		slog.Error("invalid GEO property format", "got", str, "err", "not exactly 2 segments separated by '\\;'")
-		return EventGeo{}, false
+		return EventGeo{}, fmt.Errorf("%s: expected latitude and longitude separated by ';', got %q", ical.PropGeo, str)
 	}
 	lat, err := strconv.ParseFloat(segments[0], 64)
 	if err != nil {
-		slog.Error("invalid GEO property format", "got", str, "err", err)
-		return EventGeo{}, false
+		return EventGeo{}, fmt.Errorf("%s: parse latitude %q: %w", ical.PropGeo, segments[0], err)
 	}
 	long, err := strconv.ParseFloat(segments[1], 64)
 	if err != nil {
-		slog.Error("invalid GEO property format", "got", str, "err", err)
-		return EventGeo{}, false
+		return EventGeo{}, fmt.Errorf("%s: parse longitude %q: %w", ical.PropGeo, segments[1], err)
 	}
 	return EventGeo{
 		Latitude:  lat,
 		Longitude: long,
-	}, ok
+	}, nil
 }
 func (e Event) SetGeo(geo *EventGeo) {
 	if geo == nil {
@@ -195,7 +191,7 @@ func (e Event) SetGeo(geo *EventGeo) {
 //   - C3 -> 9
 //
 // VEVENT Property: PRIORITY
-func (e Event) GetPriority() (int, bool) {
+func (e Event) GetPriority() (int, error) {
 	return e.getInt(ical.PropPriority)
 }
 func (e Event) SetPriority(priority *int) {
@@ -215,7 +211,7 @@ func (e Event) SetPriority(priority *int) {
 // the event they are okay with attending.
 //
 // VEVENT Property: SEQUENCE
-func (e Event) GetSequence() (int, bool) {
+func (e Event) GetSequence() (int, error) {
 	return e.getInt(ical.PropSequence)
 }
 func (e Event) SetSequence(sequence *int) {
@@ -229,9 +225,9 @@ func (e Event) SetSequence(sequence *int) {
 // Status defines the overall status or confirmation of the event.
 //
 // VEVENT Property: STATUS
-func (e Event) GetStatus() (EventStatus, bool) {
-	str, ok := e.getString(ical.PropStatus)
-	return EventStatus(str), ok
+func (e Event) GetStatus() (EventStatus, error) {
+	str, err := e.getString(ical.PropStatus)
+	return EventStatus(str), err
 }
 func (e Event) SetStatus(class *EventStatus) {
 	if class == nil {
@@ -245,9 +241,9 @@ func (e Event) SetStatus(class *EventStatus) {
 // searches.
 //
 // VEVENT Property: TRANSP
-func (e Event) GetTransparency() (EventTransparency, bool) {
-	str, ok := e.getString(ical.PropTransparency)
-	return EventTransparency(str), ok
+func (e Event) GetTransparency() (EventTransparency, error) {
+	str, err := e.getString(ical.PropTransparency)
+	return EventTransparency(str), err
 }
 func (e Event) SetTransparency(transparency *EventTransparency) {
 	if transparency == nil {
@@ -260,7 +256,7 @@ func (e Event) SetTransparency(transparency *EventTransparency) {
 // URL defines a URL associated with the event.
 //
 // VEVENT Property: URL
-func (e Event) GetURL() (*url.URL, bool) {
+func (e Event) GetURL() (*url.URL, error) {
 	return e.getURL(ical.PropURL)
 }
 func (e Event) SetURL(url *url.URL) {
@@ -274,7 +270,7 @@ func (e Event) SetURL(url *url.URL) {
 // Comment is a comment intended for the calendar user.
 //
 // VEVENT Property: COMMENT
-func (e Event) GetComment() (string, bool) {
+func (e Event) GetComment() (string, error) {
 	return e.getString(ical.PropComment)
 }
 func (e Event) SetComment(comment *string) {
@@ -290,7 +286,7 @@ func (e Event) SetComment(comment *string) {
 // It can also be binary, but that functionality is rarely implemented.
 //
 // VEVENT Property: ATTACH
-func (e Event) GetAttach() (*url.URL, bool) {
+func (e Event) GetAttach() (*url.URL, error) {
 	return e.getURL(ical.PropAttach)
 }
 func (e Event) SetAttach(attachment *url.URL) {
@@ -316,7 +312,7 @@ func (e Event) SetAttendees(attendees []*url.URL) {
 // Contact is some contact information associated with the event.
 //
 // VEVENT Property: CONTACT
-func (e Event) GetContact() (string, bool) {
+func (e Event) GetContact() (string, error) {
 	return e.getString(ical.PropContact)
 }
 func (e Event) SetContact(contact *string) {
@@ -330,7 +326,7 @@ func (e Event) SetContact(contact *string) {
 // Organizer is the organizer of the event, identified with a CAL-ADDRESS URL.
 //
 // VEVENT Property: ORGANIZER
-func (e Event) GetOrganizer() (*url.URL, bool) {
+func (e Event) GetOrganizer() (*url.URL, error) {
 	return e.getURL(ical.PropOrganizer)
 }
 func (e Event) SetOrganizer(organizer *url.URL) {
@@ -346,7 +342,7 @@ func (e Event) SetOrganizer(organizer *url.URL) {
 // resources
 
 // Start defines when the event begins.
-func (e Event) GetStart() (Datetime, bool) {
+func (e Event) GetStart() (Datetime, error) {
 	return e.getDatetime(ical.PropDateTimeStart)
 }
 func (e Event) SetStart(start Datetime) {
@@ -354,7 +350,7 @@ func (e Event) SetStart(start Datetime) {
 }
 
 // End defines when the event ends.
-func (e Event) GetEnd() (Datetime, bool) {
+func (e Event) GetEnd() (Datetime, error) {
 	return e.getDatetime(ical.PropDateTimeEnd)
 }
 func (e Event) SetEnd(start Datetime) {
@@ -362,42 +358,39 @@ func (e Event) SetEnd(start Datetime) {
 }
 
 // Duration defines the event's duration.
-func (e Event) GetDuration() (time.Duration, bool) {
-	// TODO: implement later
-	return 0, false
+func (e Event) GetDuration() (time.Duration, error) {
+	return e.getDuration(ical.PropDuration)
 }
 func (e Event) SetDuration(duration time.Duration) {
-	// TODO: implement later
+	e.setDuration(ical.PropDuration, duration)
 }
 
-func (e Event) GetRecurrenceRule() (out *rrule.RRule, ok bool) {
+func (e Event) GetRecurrenceRule() (*rrule.RRule, error) {
 	// parse RRULE (does not support tzid)
 	rruleProp := e.Props.Get(ical.PropRecurrenceRule)
 	if rruleProp == nil {
-		return
+		return nil, propertyNotFoundError(ical.PropRecurrenceRule)
 	}
-	var ropts *rrule.ROption
 	ropts, err := rrule.StrToROption(rruleProp.Value)
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("%s: parse recurrence rule %q: %w", ical.PropRecurrenceRule, rruleProp.Value, err)
 	}
 	if ropts == nil {
-		panic("ropts is nil")
+		return nil, fmt.Errorf("%s: recurrence rule parser returned nil options", ical.PropRecurrenceRule)
 	}
 	if ropts.Dtstart.Equal(time.Time{}) {
-		dt, ok := e.GetStart()
-		if !ok {
-			panic("start time not defined")
+		dt, err := e.GetStart()
+		if err != nil {
+			return nil, fmt.Errorf("%s: read DTSTART for default recurrence start: %w", ical.PropRecurrenceRule, err)
 		}
 		// set default dtstart to original event's starting time
 		ropts.Dtstart = dt.Stamp
 	}
-	var rule *rrule.RRule
-	rule, err = rrule.NewRRule(*ropts)
+	rule, err := rrule.NewRRule(*ropts)
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("%s: build recurrence rule: %w", ical.PropRecurrenceRule, err)
 	}
-	return rule, true
+	return rule, nil
 }
 func (e Event) SetRecurrenceRule(rule *rrule.RRule) {
 	if rule == nil {
@@ -409,7 +402,7 @@ func (e Event) SetRecurrenceRule(rule *rrule.RRule) {
 	e.Props.Set(prop)
 }
 
-func (e Event) GetRecurrenceDates() ([]Datetime, bool) {
+func (e Event) GetRecurrenceDates() ([]Datetime, error) {
 	return e.getDatetimeList(ical.PropRecurrenceDates)
 }
 func (e Event) SetRecurrenceDates(dates []Datetime) {
@@ -422,7 +415,7 @@ func (e Event) SetRecurrenceDates(dates []Datetime) {
 	}
 }
 
-func (e Event) GetRecurrenceExceptionDates() ([]Datetime, bool) {
+func (e Event) GetRecurrenceExceptionDates() ([]Datetime, error) {
 	return e.getDatetimeList(ical.PropExceptionDates)
 }
 
@@ -442,7 +435,7 @@ func (e Event) SetRecurrenceExceptionDates(exceptions []Datetime) {
 // The original event that it is being overriden is given by the event's uid.
 //
 // VEVENT Property: RECURID
-func (e Event) GetRecurrenceInstance() (Datetime, bool) {
+func (e Event) GetRecurrenceInstance() (Datetime, error) {
 	return e.getDatetime(ical.PropRecurrenceID)
 }
 func (e Event) SetRecurrenceInstance(instance *Datetime) {
@@ -456,9 +449,10 @@ func (e Event) SetRecurrenceInstance(instance *Datetime) {
 // Trigger defines the notification trigger time (if any) for the event.
 //
 // VEVENT -> VALARM Property: TRIGGER
-func (e Event) GetTrigger() (out EventTrigger, ok bool) {
+func (e Event) GetTrigger() (out EventTrigger, err error) {
 	prop := e.Props.Get(ical.PropTrigger)
 	if prop == nil {
+		err = propertyNotFoundError(ical.PropTrigger)
 		return
 	}
 	valueType := prop.Params.Get(ical.ParamValue)
@@ -466,7 +460,7 @@ func (e Event) GetTrigger() (out EventTrigger, ok bool) {
 	case "", "DURATION": // duration by default
 		dur, err := prop.Duration()
 		if err != nil {
-			panic(err)
+			return out, fmt.Errorf("%s: parse duration trigger %q: %w", ical.PropTrigger, prop.Value, err)
 		}
 		out.Relative = &dur
 		switch prop.Params.Get(ical.ParamRelated) {
@@ -474,15 +468,18 @@ func (e Event) GetTrigger() (out EventTrigger, ok bool) {
 			out.RelativeTo = EVENT_TRIGGER_REL_START
 		case "END":
 			out.RelativeTo = EVENT_TRIGGER_REL_END
+		default:
+			return out, fmt.Errorf("%s: unsupported RELATED parameter %q", ical.PropTrigger, prop.Params.Get(ical.ParamRelated))
 		}
 	case "DATE-TIME":
 		dt, err := prop.DateTime(e.Timezone)
 		if err != nil {
-			panic(err)
+			return out, fmt.Errorf("%s: parse date-time trigger %q: %w", ical.PropTrigger, prop.Value, err)
 		}
 		out.Absolute = &dt
+	default:
+		return out, fmt.Errorf("%s: unsupported VALUE parameter %q", ical.PropTrigger, valueType)
 	}
-	ok = true
 	return
 }
 func (e Event) SetTrigger(trigger *EventTrigger) {

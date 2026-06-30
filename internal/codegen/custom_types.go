@@ -8,10 +8,10 @@ import (
 	"github.com/LQR471814/nu_plugin_caldav/internal/dto"
 )
 
-var timeType = reflect.TypeOf(time.Time{}).String()
-var durType = reflect.TypeOf(time.Duration(0)).String()
-var urlType = reflect.TypeOf(&url.URL{}).String()
-var rruleType = reflect.TypeOf(dto.RRule{}).String()
+var timeType = reflect.TypeFor[time.Time]().String()
+var durType = reflect.TypeFor[time.Duration]().String()
+var urlType = reflect.TypeFor[*url.URL]().String()
+var rruleType = reflect.TypeFor[dto.RRule]().String()
 
 // time.Time support
 type timestampBridge struct {

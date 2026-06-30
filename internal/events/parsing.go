@@ -1,6 +1,7 @@
 package events
 
 import (
+	"errors"
 	"fmt"
 	"net/url"
 	"strings"
@@ -9,12 +10,18 @@ import (
 	"github.com/emersion/go-ical"
 )
 
-func (e Event) getString(name string) (string, bool) {
+var ErrPropertyNotFound = errors.New("event property not found")
+
+func propertyNotFoundError(name string) error {
+	return fmt.Errorf("%s: %w", name, ErrPropertyNotFound)
+}
+
+func (e Event) getString(name string) (string, error) {
 	prop := e.Props.Get(name)
 	if prop == nil {
-		return "", false
+		return "", propertyNotFoundError(name)
 	}
-	return prop.Value, true
+	return prop.Value, nil
 }
 func (e Event) setString(name, value string) {
 	prop := ical.NewProp(name)
@@ -22,16 +29,16 @@ func (e Event) setString(name, value string) {
 	e.Props.Set(prop)
 }
 
-func (e Event) getInt(name string) (int, bool) {
+func (e Event) getInt(name string) (int, error) {
 	prop := e.Props.Get(name)
 	if prop == nil {
-		return 0, false
+		return 0, propertyNotFoundError(name)
 	}
 	v, err := prop.Int()
 	if err != nil {
-		panic(err)
+		return 0, fmt.Errorf("%s: parse integer %q: %w", name, prop.Value, err)
 	}
-	return v, true
+	return v, nil
 }
 func (e Event) setInt(name string, value int) {
 	prop := ical.NewProp(name)
@@ -39,16 +46,16 @@ func (e Event) setInt(name string, value int) {
 	e.Props.Set(prop)
 }
 
-func (e Event) getURL(name string) (*url.URL, bool) {
+func (e Event) getURL(name string) (*url.URL, error) {
 	prop := e.Props.Get(name)
 	if prop == nil {
-		return nil, false
+		return nil, propertyNotFoundError(name)
 	}
 	u, err := url.Parse(prop.Value)
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("%s: parse URL %q: %w", name, prop.Value, err)
 	}
-	return u, true
+	return u, nil
 }
 func (e Event) setURL(name string, value *url.URL) {
 	prop := ical.NewProp(name)
@@ -56,16 +63,16 @@ func (e Event) setURL(name string, value *url.URL) {
 	e.Props.Set(prop)
 }
 
-func (e Event) getStringList(name string) ([]string, bool) {
+func (e Event) getStringList(name string) ([]string, error) {
 	prop := e.Props.Get(name)
 	if prop == nil {
-		return nil, false
+		return nil, propertyNotFoundError(name)
 	}
 	list, err := prop.TextList()
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("%s: parse text list %q: %w", name, prop.Value, err)
 	}
-	return list, true
+	return list, nil
 }
 func (e Event) setStringList(name string, value []string) {
 	prop := &ical.Prop{Name: name}
@@ -73,16 +80,16 @@ func (e Event) setStringList(name string, value []string) {
 	e.Props.Set(prop)
 }
 
-func (e Event) getDuration(name string) (time.Duration, bool) {
+func (e Event) getDuration(name string) (time.Duration, error) {
 	prop := e.Props.Get(name)
 	if prop == nil {
-		return time.Duration(0), false
+		return time.Duration(0), propertyNotFoundError(name)
 	}
 	dur, err := prop.Duration()
 	if err != nil {
-		panic(err)
+		return time.Duration(0), fmt.Errorf("%s: parse duration %q: %w", name, prop.Value, err)
 	}
-	return dur, true
+	return dur, nil
 }
 func (e Event) setDuration(name string, value time.Duration) {
 	prop := ical.NewProp(name)
@@ -96,20 +103,20 @@ const (
 	datetime_utc_format = "20060102T150405Z"
 )
 
-func (e Event) getDatetime(name string) (Datetime, bool) {
+func (e Event) getDatetime(name string) (Datetime, error) {
 	prop := e.Props.Get(name)
 	if prop == nil {
-		return Datetime{}, false
+		return Datetime{}, propertyNotFoundError(name)
 	}
 	tz, err := getTzidParam(prop, e.Timezone)
 	if err != nil {
-		panic(err)
+		return Datetime{}, fmt.Errorf("%s: load timezone: %w", name, err)
 	}
 	d, err := parseDateText(prop.Value, tz)
 	if err != nil {
-		panic(err)
+		return Datetime{}, fmt.Errorf("%s: parse datetime %q: %w", name, prop.Value, err)
 	}
-	return d, true
+	return d, nil
 }
 func (e Event) setDatetime(name string, datetime Datetime) {
 	prop := ical.NewProp(name)
@@ -120,14 +127,14 @@ func (e Event) setDatetime(name string, datetime Datetime) {
 	e.Props.Set(prop)
 }
 
-func (e Event) getDatetimeList(name string) ([]Datetime, bool) {
+func (e Event) getDatetimeList(name string) ([]Datetime, error) {
 	prop := e.Props.Get(name)
 	if prop == nil {
-		return nil, false
+		return nil, propertyNotFoundError(name)
 	}
 	tz, err := getTzidParam(prop, e.Timezone)
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("%s: load timezone: %w", name, err)
 	}
 
 	segments := strings.Split(prop.Value, ",")
@@ -136,14 +143,14 @@ func (e Event) getDatetimeList(name string) ([]Datetime, bool) {
 	for i, s := range segments {
 		parsed, err := parseDateText(s, tz)
 		if err != nil {
-			panic(err)
+			return nil, fmt.Errorf("%s: parse datetime item %d %q: %w", name, i, s, err)
 		}
 		if parsed.Floating && tz != nil {
 			parsed.Floating = false
 		}
 		dates[i] = parsed
 	}
-	return dates, true
+	return dates, nil
 }
 func (e Event) setDatetimeList(name string, datetimes []Datetime) {
 	prop := ical.NewProp(name)

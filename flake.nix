@@ -1,9 +1,14 @@
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nuconv.url = "github:LQR471814/nuconv";
   };
   outputs =
-    { self, nixpkgs }:
+    {
+      self,
+      nixpkgs,
+      nuconv,
+    }:
     let
       system = "x86_64-linux";
       pkgs = import nixpkgs { inherit system; };
@@ -23,6 +28,17 @@
       apps.${system}.default = {
         type = "app";
         program = "${self.packages.${system}.default}/bin/nu_plugin_caldav";
+      };
+
+      devShells.${system}.default = pkgs.mkShell {
+        name = "devenv";
+        nativeBuildInputs = [
+          nuconv.packages.${system}.default
+        ];
+
+        shellHook = ''
+          echo "Devshell activated."
+        '';
       };
     };
 }

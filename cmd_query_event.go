@@ -6,6 +6,8 @@ import (
 	"database/sql"
 	"encoding/gob"
 	"errors"
+	"fmt"
+	"log/slog"
 	"runtime"
 	"sync"
 
@@ -76,13 +78,7 @@ func queryEventsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
 	}
 
 	if nosync {
-		var out nu.Value
-		out, err = fetchNoSync(ctx, client, calendarPath)
-		if err != nil {
-			return
-		}
-		err = call.ReturnValue(ctx, out)
-		return
+		return fetchNoSync(ctx, call, client, calendarPath)
 	}
 
 	driver, qry, err := db.Open(ctx)
@@ -97,9 +93,13 @@ func queryEventsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
 		qry:          qry,
 		calendarPath: calendarPath,
 	}
-	err = m.sync()
+	var warnings []error
+	warnings, err = m.sync()
 	if err != nil {
 		return
+	}
+	for _, warning := range warnings {
+		warnEventParse(warning)
 	}
 
 	output, err := call.ReturnListStream(ctx)
@@ -160,7 +160,15 @@ func queryEventsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
 	return
 }
 
-func fetchNoSync(ctx context.Context, client *caldav.Client, calendarPath string) (out nu.Value, err error) {
+func eventParseWarning(path string, err error) error {
+	return fmt.Errorf("parse event %q: %w", path, err)
+}
+
+func warnEventParse(err error) {
+	slog.Warn("parse event failed", "err", err.Error())
+}
+
+func fetchNoSync(ctx context.Context, call *nu.ExecCommand, client *caldav.Client, calendarPath string) (err error) {
 	objects, err := client.QueryCalendar(ctx, calendarPath, &caldav.CalendarQuery{
 		CompRequest: caldav.CalendarCompRequest{
 			Name:     ical.CompEvent,
@@ -170,8 +178,24 @@ func fetchNoSync(ctx context.Context, client *caldav.Client, calendarPath string
 	if err != nil {
 		return
 	}
-	dtoObjects := dto.NewEventObjectList(objects)
-	out, err = nuconv.EventObjectListToNu(dtoObjects)
+	output, err := call.ReturnListStream(ctx)
+	if err != nil {
+		return
+	}
+	defer close(output)
+
+	for _, obj := range objects {
+		dtoObj, err := dto.NewEventObject(obj)
+		if err != nil {
+			warnEventParse(eventParseWarning(obj.Path, err))
+			continue
+		}
+		nuobj, err := nuconv.EventObjectToNu(dtoObj)
+		if err != nil {
+			return fmt.Errorf("convert event object %q to nu: %w", obj.Path, err)
+		}
+		output <- nuobj
+	}
 	return
 }
 
@@ -183,7 +207,7 @@ type syncManager struct {
 	calendarPath string
 }
 
-func (m syncManager) performSync(txqry *db.Queries, syncToken string) (nextSyncToken string, err error) {
+func (m syncManager) performSync(txqry *db.Queries, syncToken string) (nextSyncToken string, warnings []error, err error) {
 	resp, err := m.client.SyncCollection(m.ctx, m.calendarPath, &caldav.SyncQuery{
 		SyncToken: syncToken,
 		CompRequest: caldav.CalendarCompRequest{
@@ -225,10 +249,18 @@ func (m syncManager) performSync(txqry *db.Queries, syncToken string) (nextSyncT
 	if err != nil {
 		return
 	}
+	var failedParsePaths []string
 	for _, obj := range updatedObjects {
 		buf := bytes.NewBuffer(nil)
 		encoder := gob.NewEncoder(buf)
-		err = encoder.Encode(dto.NewEventObject(obj))
+		var dtoObj dto.EventObject
+		dtoObj, err = dto.NewEventObject(obj)
+		if err != nil {
+			warnings = append(warnings, eventParseWarning(obj.Path, err))
+			failedParsePaths = append(failedParsePaths, obj.Path)
+			continue
+		}
+		err = encoder.Encode(dtoObj)
 		if err != nil {
 			return
 		}
@@ -241,10 +273,16 @@ func (m syncManager) performSync(txqry *db.Queries, syncToken string) (nextSyncT
 			return
 		}
 	}
+	if len(failedParsePaths) > 0 {
+		err = txqry.DeleteEvents(m.ctx, failedParsePaths)
+		if err != nil {
+			return
+		}
+	}
 	return
 }
 
-func (m syncManager) sync() (err error) {
+func (m syncManager) sync() (warnings []error, err error) {
 	tx, err := m.driver.BeginTx(m.ctx, nil)
 	if err != nil {
 		return
@@ -256,7 +294,8 @@ func (m syncManager) sync() (err error) {
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return
 	}
-	nextSyncToken, err := m.performSync(txqry, syncToken.String)
+	var nextSyncToken string
+	nextSyncToken, warnings, err = m.performSync(txqry, syncToken.String)
 	if err != nil {
 		return
 	}

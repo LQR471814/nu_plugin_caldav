@@ -1,6 +1,7 @@
 package dto
 
 import (
+	"errors"
 	"fmt"
 	"net/url"
 	"strings"
@@ -217,93 +218,159 @@ func (e Event) String() string {
 	return sb.String()
 }
 
-func NewEvent(e events.Event) (out Event) {
-	uid, ok := e.GetUID()
-	if !ok {
-		panic("UID not defined in event")
+func optionalEventProp[T any](value T, err error) (T, bool, error) {
+	if err == nil {
+		return value, true, nil
+	}
+	if errors.Is(err, events.ErrPropertyNotFound) {
+		var zero T
+		return zero, false, nil
+	}
+	var zero T
+	return zero, false, err
+}
+
+func requireEventProp[T any](value T, err error) (T, error) {
+	if err != nil {
+		var zero T
+		return zero, fmt.Errorf("required event property: %w", err)
+	}
+	return value, nil
+}
+
+func NewEvent(e events.Event) (out Event, err error) {
+	uid, err := requireEventProp(e.GetUID())
+	if err != nil {
+		return
 	}
 	out.Uid = &uid
 
-	if res, ok := e.GetSummary(); ok {
+	if res, ok, err := optionalEventProp(e.GetSummary()); err != nil {
+		return out, err
+	} else if ok {
 		out.Summary = &res
 	}
-	if res, ok := e.GetLocation(); ok {
+	if res, ok, err := optionalEventProp(e.GetLocation()); err != nil {
+		return out, err
+	} else if ok {
 		out.Location = &res
 	}
-	if res, ok := e.GetDescription(); ok {
+	if res, ok, err := optionalEventProp(e.GetDescription()); err != nil {
+		return out, err
+	} else if ok {
 		out.Description = &res
 	}
-	if res, ok := e.GetCategories(); ok {
+	if res, ok, err := optionalEventProp(e.GetCategories()); err != nil {
+		return out, err
+	} else if ok {
 		out.Categories = res
 	}
-	if res, ok := e.GetDatetimeStamp(); ok {
+	if res, ok, err := optionalEventProp(e.GetDatetimeStamp()); err != nil {
+		return out, err
+	} else if ok {
 		out.DatetimeStamp = &res
 	}
-	if res, ok := e.GetCreated(); ok {
+	if res, ok, err := optionalEventProp(e.GetCreated()); err != nil {
+		return out, err
+	} else if ok {
 		out.Created = &res
 	}
-	if res, ok := e.GetLastModified(); ok {
+	if res, ok, err := optionalEventProp(e.GetLastModified()); err != nil {
+		return out, err
+	} else if ok {
 		out.LastModified = &res
 	}
-	if res, ok := e.GetClass(); ok {
+	if res, ok, err := optionalEventProp(e.GetClass()); err != nil {
+		return out, err
+	} else if ok {
 		out.Class = &res
 	}
-	if res, ok := e.GetGeo(); ok {
+	if res, ok, err := optionalEventProp(e.GetGeo()); err != nil {
+		return out, err
+	} else if ok {
 		out.Geo = &res
 	}
-	if res, ok := e.GetPriority(); ok {
+	if res, ok, err := optionalEventProp(e.GetPriority()); err != nil {
+		return out, err
+	} else if ok {
 		out.Priority = &res
 	}
-	if res, ok := e.GetSequence(); ok {
+	if res, ok, err := optionalEventProp(e.GetSequence()); err != nil {
+		return out, err
+	} else if ok {
 		out.Sequence = &res
 	}
-	if res, ok := e.GetStatus(); ok {
+	if res, ok, err := optionalEventProp(e.GetStatus()); err != nil {
+		return out, err
+	} else if ok {
 		out.Status = &res
 	}
-	if res, ok := e.GetTransparency(); ok {
+	if res, ok, err := optionalEventProp(e.GetTransparency()); err != nil {
+		return out, err
+	} else if ok {
 		out.Transparency = &res
 	}
-	if res, ok := e.GetURL(); ok {
+	if res, ok, err := optionalEventProp(e.GetURL()); err != nil {
+		return out, err
+	} else if ok {
 		out.URL = res
 	}
-	if res, ok := e.GetComment(); ok {
+	if res, ok, err := optionalEventProp(e.GetComment()); err != nil {
+		return out, err
+	} else if ok {
 		out.Comment = &res
 	}
-	if res, ok := e.GetAttach(); ok {
+	if res, ok, err := optionalEventProp(e.GetAttach()); err != nil {
+		return out, err
+	} else if ok {
 		out.Attach = res
 	}
-	if res, ok := e.GetContact(); ok {
+	if res, ok, err := optionalEventProp(e.GetContact()); err != nil {
+		return out, err
+	} else if ok {
 		out.Contact = &res
 	}
-	if res, ok := e.GetOrganizer(); ok {
+	if res, ok, err := optionalEventProp(e.GetOrganizer()); err != nil {
+		return out, err
+	} else if ok {
 		out.Organizer = res
 	}
 
-	start, ok := e.GetStart()
-	if !ok {
-		panic("START not defined in event")
+	start, err := requireEventProp(e.GetStart())
+	if err != nil {
+		return
 	}
 	out.Start = start
 
-	end, ok := e.GetEnd()
-	if !ok {
-		panic("END not defined in event")
+	end, err := requireEventProp(e.GetEnd())
+	if err != nil {
+		return
 	}
 	out.End = end
 
-	if res, ok := e.GetRecurrenceRule(); ok {
+	if res, ok, err := optionalEventProp(e.GetRecurrenceRule()); err != nil {
+		return out, err
+	} else if ok {
 		out.RecurrenceRule.RRule = res
 	}
-	if res, ok := e.GetRecurrenceDates(); ok {
+	if res, ok, err := optionalEventProp(e.GetRecurrenceDates()); err != nil {
+		return out, err
+	} else if ok {
 		out.RecurrenceDates = res
 	}
-	if res, ok := e.GetRecurrenceExceptionDates(); ok {
+	if res, ok, err := optionalEventProp(e.GetRecurrenceExceptionDates()); err != nil {
+		return out, err
+	} else if ok {
 		out.RecurrenceExceptionDates = res
 	}
-	if res, ok := e.GetRecurrenceInstance(); ok {
+	if res, ok, err := optionalEventProp(e.GetRecurrenceInstance()); err != nil {
+		return out, err
+	} else if ok {
 		out.RecurrenceInstance = &res
 	}
-	if res, ok := e.GetTrigger(); ok {
+	if res, ok, err := optionalEventProp(e.GetTrigger()); err != nil {
+		return out, err
+	} else if ok {
 		out.Trigger = &res
 	}
 
@@ -319,7 +386,7 @@ func NewEvent(e events.Event) (out Event) {
 	return
 }
 
-func (o Event) Apply(e events.Event) {
+func (o Event) Apply(e events.Event) error {
 	if o.Uid != nil {
 		e.SetUID(*o.Uid)
 	}
@@ -392,6 +459,16 @@ func (o Event) Apply(e events.Event) {
 		e.SetRecurrenceInstance(o.RecurrenceInstance)
 	}
 	if o.Trigger != nil {
+		if o.Trigger.Relative == nil && o.Trigger.Absolute == nil {
+			return fmt.Errorf("event trigger must be set to either relative or absolute")
+		}
+		if o.Trigger.Relative != nil {
+			switch o.Trigger.RelativeTo {
+			case events.EVENT_TRIGGER_REL_START, events.EVENT_TRIGGER_REL_END:
+			default:
+				return fmt.Errorf("unsupported event trigger relative target: %d", o.Trigger.RelativeTo)
+			}
+		}
 		e.SetTrigger(o.Trigger)
 	}
 	for key, values := range o.Other {
@@ -408,6 +485,7 @@ func (o Event) Apply(e events.Event) {
 			Values: props,
 		})
 	}
+	return nil
 }
 
 // EventObject contains a VEVENT and fields related to it.
@@ -422,7 +500,7 @@ type EventObject struct {
 	Overrides []Event
 }
 
-func NewEventObject(obj caldav.CalendarObject) EventObject {
+func NewEventObject(obj caldav.CalendarObject) (EventObject, error) {
 	dtoObj := EventObject{ObjectPath: &obj.Path}
 	for _, component := range obj.Data.Children {
 		if component.Name != ical.CompEvent {
@@ -434,17 +512,25 @@ func NewEventObject(obj caldav.CalendarObject) EventObject {
 		}
 		prop := component.Props.Get(ical.PropRecurrenceID)
 		if prop != nil {
-			dtoObj.Overrides = append(dtoObj.Overrides, NewEvent(event))
+			dtoEvent, err := NewEvent(event)
+			if err != nil {
+				return dtoObj, fmt.Errorf("convert recurrence override %q: %w", obj.Path, err)
+			}
+			dtoObj.Overrides = append(dtoObj.Overrides, dtoEvent)
 			continue
 		}
-		dtoObj.Main = NewEvent(event)
+		dtoEvent, err := NewEvent(event)
+		if err != nil {
+			return dtoObj, fmt.Errorf("convert main event %q: %w", obj.Path, err)
+		}
+		dtoObj.Main = dtoEvent
 	}
-	return dtoObj
+	return dtoObj, nil
 }
 
 type EventObjectList []EventObject
 
-func NewEventObjectList(objects []caldav.CalendarObject) EventObjectList {
+func NewEventObjectList(objects []caldav.CalendarObject) (EventObjectList, error) {
 	dtoObjects := make([]EventObject, len(objects))
 	// each calendar object only ever stores one unique VEVENT object.
 	//
@@ -452,9 +538,13 @@ func NewEventObjectList(objects []caldav.CalendarObject) EventObjectList {
 	// if the VEVENT has recurrence overrides, the recurrence overrides will
 	// come with the original VEVENT as separate VEVENT components.
 	for i, obj := range objects {
-		dtoObjects[i] = NewEventObject(obj)
+		dtoObj, err := NewEventObject(obj)
+		if err != nil {
+			return dtoObjects, err
+		}
+		dtoObjects[i] = dtoObj
 	}
-	return dtoObjects
+	return dtoObjects, nil
 }
 
 type CalendarList []caldav.Calendar
