@@ -1,7 +1,10 @@
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    nuconv.url = "github:LQR471814/nuconv";
+    nuconv = {
+      url = "github:LQR471814/nuconv";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
   outputs =
     {
