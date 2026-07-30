@@ -10,6 +10,7 @@ import (
 	"log/slog"
 	"runtime"
 	"sync"
+	"time"
 
 	"github.com/LQR471814/nu_plugin_caldav/internal/db"
 	"github.com/LQR471814/nu_plugin_caldav/internal/dto"
@@ -22,6 +23,8 @@ import (
 )
 
 var default_nosync = nu.ToValue(false)
+var default_start = nu.ToValue(nil)
+var default_end = nu.ToValue(nil)
 
 var queryEventsCmd = &nu.Command{
 	Signature: nu.PluginSignature{
@@ -36,6 +39,20 @@ var queryEventsCmd = &nu.Command{
 				Desc:    "Query events without syncing.",
 				Shape:   syntaxshape.Boolean(),
 				Default: &default_nosync,
+			},
+			{
+				Long:    "start",
+				Short:   's',
+				Desc:    "Query events that end after this starting time. (can be used together with end)",
+				Shape:   syntaxshape.DateTime(),
+				Default: &default_start,
+			},
+			{
+				Long:    "end",
+				Short:   'e',
+				Desc:    "Query events that start before this ending time. (can be used together with start)",
+				Shape:   syntaxshape.DateTime(),
+				Default: &default_end,
 			},
 		},
 		RequiredPositional: []nu.PositionalArg{
@@ -65,10 +82,31 @@ func queryEventsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
 	if err != nil {
 		return
 	}
+
 	nosync := false
 	v, ok := call.FlagValue("no-sync")
 	if ok {
 		nosync = v.Value.(bool)
+	}
+
+	var start sql.NullTime
+	v, ok = call.FlagValue("start")
+	if ok {
+		start.Time, err = tryCast[time.Time](v)
+		if err != nil {
+			return
+		}
+		start.Valid = true
+	}
+
+	var end sql.NullTime
+	v, ok = call.FlagValue("end")
+	if ok {
+		end.Time, err = tryCast[time.Time](v)
+		if err != nil {
+			return
+		}
+		end.Valid = true
 	}
 
 	// execution
@@ -115,9 +153,7 @@ func queryEventsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
 	wg := sync.WaitGroup{}
 
 	for range workerCount {
-		wg.Add(1)
-		go func() { // process events concurrently and send them to output stream
-			defer wg.Done()
+		wg.Go(func() { // process events concurrently and send them to output stream
 			for e := range events {
 				var obj dto.EventObject
 				decoder := gob.NewDecoder(bytes.NewBuffer(e.Dto))
@@ -133,11 +169,14 @@ func queryEventsCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
 				}
 				output <- nuobj
 			}
-		}()
+		})
 	}
 
 	go func() { // pull events in from database and send them to be processed
-		err = qry.ReadEvents(ctx, calendarPath, events)
+		err = qry.ReadEvents(ctx, calendarPath, events, db.ReadEventsRange{
+			Start: start,
+			End:   end,
+		})
 		if err != nil {
 			errs <- err
 		}
@@ -216,6 +255,7 @@ func (m syncManager) performSync(txqry *db.Queries, syncToken string) (nextSyncT
 		},
 	})
 	if err != nil {
+		err = fmt.Errorf("caldav sync: %w", err)
 		return
 	}
 	nextSyncToken = resp.SyncToken
@@ -227,6 +267,7 @@ func (m syncManager) performSync(txqry *db.Queries, syncToken string) (nextSyncT
 	}
 	err = txqry.DeleteEvents(m.ctx, deletePaths)
 	if err != nil {
+		err = fmt.Errorf("del events: %w", err)
 		return
 	}
 
@@ -247,12 +288,15 @@ func (m syncManager) performSync(txqry *db.Queries, syncToken string) (nextSyncT
 		},
 	})
 	if err != nil {
+		err = fmt.Errorf("caldav multi-get: %w", err)
 		return
 	}
+
 	var failedParsePaths []string
 	for _, obj := range updatedObjects {
 		buf := bytes.NewBuffer(nil)
 		encoder := gob.NewEncoder(buf)
+
 		var dtoObj dto.EventObject
 		dtoObj, err = dto.NewEventObject(obj)
 		if err != nil {
@@ -262,23 +306,39 @@ func (m syncManager) performSync(txqry *db.Queries, syncToken string) (nextSyncT
 		}
 		err = encoder.Encode(dtoObj)
 		if err != nil {
+			err = fmt.Errorf("encode dto: %w", err)
 			return
 		}
+
+		minStart, maxEnd := evMinMaxBounds(
+			dtoObj,
+			// start of time
+			time.Time{},
+			// 99 yrs from now
+			time.Now().Add(time.Hour*24*365*99),
+		)
+
 		err = txqry.PutEvent(m.ctx, db.PutEventParams{
 			Path:         obj.Path,
 			CalendarPath: m.calendarPath,
 			Dto:          buf.Bytes(),
+			MinStart:     minStart,
+			MaxEnd:       maxEnd,
 		})
 		if err != nil {
+			err = fmt.Errorf("put event: %w", err)
 			return
 		}
 	}
+
 	if len(failedParsePaths) > 0 {
 		err = txqry.DeleteEvents(m.ctx, failedParsePaths)
 		if err != nil {
+			err = fmt.Errorf("del events: %w", err)
 			return
 		}
 	}
+
 	return
 }
 
@@ -311,5 +371,31 @@ func (m syncManager) sync() (warnings []error, err error) {
 	}
 
 	tx.Commit()
+	return
+}
+
+// evMinMaxBounds returns the minimum starting and ending time of an
+// event object based on all its instances within the given start and end
+// time range
+func evMinMaxBounds(dtoObj dto.EventObject, start time.Time, end time.Time) (minStart time.Time, maxEnd time.Time) {
+	set := evObjectRRuleSet(dtoObj, start, end)
+	for _, override := range dtoObj.Overrides {
+		if minStart == (time.Time{}) || override.Start.Stamp.Before(minStart) {
+			minStart = override.Start.Stamp
+		}
+		if maxEnd == (time.Time{}) || override.End.Stamp.After(maxEnd) {
+			maxEnd = override.End.Stamp
+		}
+	}
+	evDur := dtoObj.Main.End.Stamp.Sub(dtoObj.Main.Start.Stamp)
+	for _, instStart := range set.Between(start, end, true) {
+		instEnd := instStart.Add(evDur)
+		if minStart == (time.Time{}) || instStart.Before(minStart) {
+			minStart = instStart
+		}
+		if maxEnd == (time.Time{}) || instEnd.After(maxEnd) {
+			maxEnd = instEnd
+		}
+	}
 	return
 }

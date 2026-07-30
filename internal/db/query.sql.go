@@ -9,6 +9,7 @@ import (
 	"context"
 	"database/sql"
 	"strings"
+	"time"
 )
 
 const deleteEvents = `-- name: DeleteEvents :exec
@@ -49,8 +50,8 @@ func (q *Queries) PutCalendar(ctx context.Context, arg PutCalendarParams) error 
 }
 
 const putEvent = `-- name: PutEvent :exec
-insert into event_object (path, calendar_path, dto)
-values (?, ?, ?)
+insert into event_object (path, calendar_path, dto, min_start, max_end)
+values (?, ?, ?, ?, ?)
 on conflict (path) do update set
 	calendar_path = excluded.calendar_path,
 	dto = excluded.dto
@@ -60,10 +61,18 @@ type PutEventParams struct {
 	Path         string
 	CalendarPath string
 	Dto          []byte
+	MinStart     time.Time
+	MaxEnd       time.Time
 }
 
 func (q *Queries) PutEvent(ctx context.Context, arg PutEventParams) error {
-	_, err := q.db.ExecContext(ctx, putEvent, arg.Path, arg.CalendarPath, arg.Dto)
+	_, err := q.db.ExecContext(ctx, putEvent,
+		arg.Path,
+		arg.CalendarPath,
+		arg.Dto,
+		arg.MinStart,
+		arg.MaxEnd,
+	)
 	return err
 }
 

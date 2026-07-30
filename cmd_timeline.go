@@ -52,7 +52,7 @@ func init() {
 	commands = append(commands, timelineCmd)
 }
 
-func expandEvents(out *[]dto.Event, object dto.EventObject, start, end time.Time) {
+func evObjectRRuleSet(object dto.EventObject, start, end time.Time) *rrule.Set {
 	set := &rrule.Set{}
 
 	if object.Main.RecurrenceRule.RRule != nil {
@@ -87,9 +87,18 @@ func expandEvents(out *[]dto.Event, object dto.EventObject, start, end time.Time
 		if override.Start.Stamp.Before(start) || override.Start.Stamp.After(end) {
 			continue
 		}
-		*out = append(*out, override)
 	}
 	set.SetExDates(exdates)
+
+	return set
+}
+
+func expandEvents(out *[]dto.Event, object dto.EventObject, start, end time.Time) {
+	set := evObjectRRuleSet(object, start, end)
+
+	for _, override := range object.Overrides {
+		*out = append(*out, override)
+	}
 
 	times := set.Between(start, end, true)
 	for _, startTime := range times {
@@ -107,24 +116,47 @@ func expandEvents(out *[]dto.Event, object dto.EventObject, start, end time.Time
 	}
 }
 
-func convertToTimeline(eventList []dto.Event, start, end time.Time) (out []dto.TimeSegment) {
-	// pre-conditions
+func convertToTimeline(eventList []dto.Event, start, end time.Time) (out []dto.TimeSegment, err error) {
+	// pre-conditions, these return errors because the user of this function
+	// could provide incorrect inputs for any number of external reasons
 	if end.Before(start) {
-		panic("timeline END cannot be before START")
-	}
-	for _, e := range eventList {
-		if e.End.Stamp.Before(e.Start.Stamp) {
-			panic(fmt.Errorf("event END cannot be before the event's START: %v", e))
-		}
-		if e.Start.Stamp.Before(start) {
-			panic(fmt.Errorf("event START cannot be before timeline START: %v", e))
-		}
+		err = fmt.Errorf("timeline END cannot be before START")
+		return
 	}
 
-	if len(eventList) == 0 {
-		return nil
+	var filteredList []dto.Event
+
+	for _, e := range eventList {
+		if e.End.Stamp.Before(e.Start.Stamp) {
+			err = fmt.Errorf("event END cannot be before the event's START: %v", e)
+			return
+		}
+
+		// if the event is completely outside the timeline, we skip it
+		if e.Start.Stamp.After(end) {
+			continue
+		}
+		if e.End.Stamp.Before(start) {
+			continue
+		}
+
+		// if the event is partially inside the timeline, we will crop it so
+		// that it is completely inside the timeline
+		if e.Start.Stamp.Before(start) {
+			e.Start.Stamp = start
+		}
+		if e.End.Stamp.After(end) {
+			e.End.Stamp = end
+		}
+
+		filteredList = append(filteredList, e)
 	}
-	slices.SortFunc(eventList, func(a, b dto.Event) int {
+
+	if len(filteredList) == 0 {
+		return
+	}
+
+	slices.SortFunc(filteredList, func(a, b dto.Event) int {
 		if a.Start.Stamp.Before(b.Start.Stamp) {
 			return -1
 		}
@@ -152,10 +184,10 @@ func convertToTimeline(eventList []dto.Event, start, end time.Time) (out []dto.T
 			}
 		}
 
-		// collect all active events and advasnce event cursor until reaching
+		// collect all active events and advance event cursor until reaching
 		// an event whose start_time > t
-		for nextEventCursor < len(eventList) {
-			e := eventList[nextEventCursor]
+		for nextEventCursor < len(filteredList) {
+			e := filteredList[nextEventCursor]
 			if e.Start.Stamp.After(t) {
 				break
 			}
@@ -180,8 +212,8 @@ func convertToTimeline(eventList []dto.Event, start, end time.Time) (out []dto.T
 				hasNext = true
 			}
 		}
-		if nextEventCursor < len(eventList) {
-			dur := eventList[nextEventCursor].Start.Stamp.Sub(t)
+		if nextEventCursor < len(filteredList) {
+			dur := filteredList[nextEventCursor].Start.Stamp.Sub(t)
 			if dur < minNextDur {
 				minNextDur = dur
 				hasNext = true
@@ -201,7 +233,8 @@ func convertToTimeline(eventList []dto.Event, start, end time.Time) (out []dto.T
 		t = t.Add(minNextDur)
 	}
 
-	// post conditions
+	// post conditions, these are panics because these conditions should always
+	// be true for any valid input to this function
 	total := time.Duration(0)
 	for i, segment := range out {
 		total += segment.Duration
@@ -257,7 +290,10 @@ func timelineCmdExec(ctx context.Context, call *nu.ExecCommand) (err error) {
 	for _, obj := range objects {
 		expandEvents(&eventList, obj, start, end)
 	}
-	timeline := convertToTimeline(eventList, start, end)
+	timeline, err := convertToTimeline(eventList, start, end)
+	if err != nil {
+		return
+	}
 
 	out, err := nuconv.TimelineToNu(timeline)
 	if err != nil {

@@ -18,8 +18,8 @@ on conflict (path) do update set
 	sync_token = excluded.sync_token;
 
 -- name: PutEvent :exec
-insert into event_object (path, calendar_path, dto)
-values (?, ?, ?)
+insert into event_object (path, calendar_path, dto, min_start, max_end)
+values (?, ?, ?, ?, ?)
 on conflict (path) do update set
 	calendar_path = excluded.calendar_path,
 	dto = excluded.dto;

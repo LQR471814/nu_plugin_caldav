@@ -6,6 +6,7 @@ package db
 
 import (
 	"database/sql"
+	"time"
 )
 
 type Calendar struct {
@@ -17,6 +18,8 @@ type EventObject struct {
 	Path         string
 	CalendarPath string
 	Dto          []byte
+	MinStart     time.Time
+	MaxEnd       time.Time
 }
 
 type Metadata struct {
