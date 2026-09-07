@@ -6,8 +6,8 @@ import (
 	"runtime/debug"
 	"time"
 
-	"github.com/ainvaltin/nu-plugin"
-	"github.com/ainvaltin/nu-plugin/types"
+	"github.com/LQR471814/nu-plugin"
+	"github.com/LQR471814/nu-plugin/types"
 	"github.com/emersion/go-webdav/caldav"
 )
 

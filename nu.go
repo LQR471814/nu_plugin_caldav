@@ -5,7 +5,7 @@ import (
 	"io"
 	"reflect"
 
-	"github.com/ainvaltin/nu-plugin"
+	"github.com/LQR471814/nu-plugin"
 )
 
 func tryCast[T any](val nu.Value) (T, error) {

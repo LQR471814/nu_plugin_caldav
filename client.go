@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/ainvaltin/nu-plugin"
+	"github.com/LQR471814/nu-plugin"
 	"github.com/emersion/go-webdav"
 	"github.com/emersion/go-webdav/caldav"
 )

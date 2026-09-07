@@ -9,9 +9,9 @@ import (
 
 	"github.com/LQR471814/nu_plugin_caldav/internal/dto"
 	"github.com/LQR471814/nu_plugin_caldav/internal/nuconv"
-	"github.com/ainvaltin/nu-plugin"
-	"github.com/ainvaltin/nu-plugin/syntaxshape"
-	"github.com/ainvaltin/nu-plugin/types"
+	"github.com/LQR471814/nu-plugin"
+	"github.com/LQR471814/nu-plugin/syntaxshape"
+	"github.com/LQR471814/nu-plugin/types"
 	"github.com/teambition/rrule-go"
 )
 

@@ -7,7 +7,7 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/ainvaltin/nu-plugin"
+	"github.com/LQR471814/nu-plugin"
 )
 
 func main() {
